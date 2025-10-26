@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/patient_nav_graph"
+    app:startDestination="@id/patientHomeFragment">
+
+    <fragment
+        android:id="@+id/patientHomeFragment"
+        android:name="com.example.medibookandroid.PatientHomeFragment"
+        android:label="fragment_patient_home"
+        tools:layout="@layout/fragment_patient_home" >
+        <action
+            android:id="@+id/action_patientHomeFragment_to_patientDoctorDetailFragment"
+            app:destination="@id/patientDoctorDetailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/patientDoctorDetailFragment"
+        android:name="com.example.medibookandroid.PatientDoctorDetailFragment"
+        android:label="fragment_patient_doctor_detail"
+        tools:layout="@layout/fragment_patient_doctor_detail" >
+        <argument
+            android:name="doctorId"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_patientDoctorDetailFragment_to_bookingSummaryFragment"
+            app:destination="@id/bookingSummaryFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/bookingSummaryFragment"
+        android:name="com.example.medibookandroid.BookingSummaryFragment"
+        android:label="fragment_booking_summary"
+        tools:layout="@layout/fragment_booking_summary" >
+        <argument
+            android:name="doctor"
+            app:argType="com.example.medibookandroid.model.Doctor" />
+        <argument
+            android:name="time"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_bookingSummaryFragment_to_bookingSuccessFragment"
+            app:destination="@id/bookingSuccessFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/bookingSuccessFragment"
+        android:name="com.example.medibookandroid.BookingSuccessFragment"
+        android:label="fragment_booking_success"
+        tools:layout="@layout/fragment_booking_success" >
+        <action
+            android:id="@+id/action_bookingSuccessFragment_to_patientHomeFragment"
+            app:destination="@id/patientHomeFragment"
+            app:popUpTo="@id/patientHomeFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/patientAppointmentsFragment"
+        android:name="com.example.medibookandroid.PatientAppointmentsFragment"
+        android:label="fragment_patient_appointments"
+        tools:layout="@layout/fragment_patient_appointments" />
+    <fragment
+        android:id="@+id/patientNotificationsFragment"
+        android:name="com.example.medibookandroid.PatientNotificationsFragment"
+        android:label="fragment_patient_notifications"
+        tools:layout="@layout/fragment_patient_notifications" />
+    <fragment
+        android:id="@+id/patientProfileFragment"
+        android:name="com.example.medibookandroid.PatientProfileFragment"
+        android:label="fragment_patient_profile"
+        tools:layout="@layout/fragment_patient_profile" >
+        <action
+            android:id="@+id/action_patientProfileFragment_to_patientEditProfileFragment"
+            app:destination="@id/patientEditProfileFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/patientEditProfileFragment"
+        android:name="com.example.medibookandroid.PatientEditProfileFragment"
+        android:label="fragment_patient_edit_profile"
+        tools:layout="@layout/fragment_patient_edit_profile" />
+</navigation>

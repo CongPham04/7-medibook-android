@@ -1,0 +1,94 @@
+<resources>
+    <string name="app_name">MedibookAndroid</string>
+
+    <!-- Welcome -->
+    <string name="log_in">Log In</string>
+    <string name="sign_up">Sign Up</string>
+
+    <!-- Login -->
+    <string name="welcome_back">Welcome Back</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="password">Password</string>
+
+    <!-- Register -->
+    <string name="create_new_account">Create New Account</string>
+    <string name="full_name">Full Name</string>
+
+    <!-- Patient Home -->
+    <string name="welcome_patient">Welcome [Patient Name]</string>
+    <string name="search_doctor">Search doctor by name, specialty...</string>
+    <string name="doctor_list">Doctor List</string>
+
+    <!-- Patient Doctor Detail -->
+    <string name="experience">Experience</string>
+    <string name="workplace">Workplace</string>
+    <string name="reviews">Reviews</string>
+    <string name="select_appointment_slot">Select Appointment Slot</string>
+
+    <!-- Booking Summary -->
+    <string name="confirm_appointment">Confirm Appointment</string>
+    <string name="brief_description">Brief description of health condition</string>
+    <string name="confirm_booking">Confirm Booking</string>
+
+    <!-- Booking Success -->
+    <string name="booking_successful">Booking Successful!</string>
+    <string name="back_to_home">Back to Home</string>
+
+    <!-- Patient Appointments -->
+    <string name="manage_appointments">Manage Appointments</string>
+    <string name="upcoming">Upcoming</string>
+    <string name="history">History</string>
+    <string name="canceled">Canceled</string>
+    <string name="cancel_reschedule">Cancel/Reschedule</string>
+
+    <!-- Patient Profile -->
+    <string name="patient_name">[Patient Name]</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="logout">Logout</string>
+
+    <!-- Patient Edit Profile -->
+    <string name="date_of_birth">Date of Birth</string>
+    <string name="gender">Gender</string>
+    <string name="address">Address</string>
+    <string name="save_changes">Save Changes</string>
+
+    <!-- Notifications -->
+    <string name="notifications">Notifications</string>
+    <string name="no_new_notifications">No new notifications</string>
+
+    <!-- Doctor Login -->
+    <string name="doctor_log_in">Doctor Log In</string>
+    <string name="username">Username</string>
+
+    <!-- Doctor Schedule -->
+    <string name="my_schedule">My Schedule</string>
+    <string name="appointments_for">Appointments for [dd/mm/yyyy]</string>
+
+    <!-- Add Schedule Slot -->
+    <string name="create_new_slot">Create New Slot</string>
+    <string name="selected_date">Date: [dd/mm/yyyy]</string>
+    <string name="start_time">Start Time</string>
+    <string name="end_time">End Time</string>
+    <string name="save">Save</string>
+
+    <!-- Doctor Requests -->
+    <string name="appointment_requests">Appointment Requests</string>
+    <string name="no_new_requests">No new requests</string>
+    <string name="decline">Decline</string>
+    <string name="accept">Accept</string>
+
+    <!-- Doctor Profile -->
+    <string name="doctor_profile">Doctor Profile</string>
+    <string name="specialty">Specialty</string>
+    <string name="qualifications">Qualifications</string>
+    <string name="biography_description">Biography/Description</string>
+    <string name="update">Update</string>
+
+    <!-- Bottom Nav -->
+    <string name="home">Home</string>
+    <string name="appointments">Appointments</string>
+    <string name="profile">Profile</string>
+    <string name="schedule">Schedule</string>
+    <string name="requests">Requests</string>
+
+</resources>

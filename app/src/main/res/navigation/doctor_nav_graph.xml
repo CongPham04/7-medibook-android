@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/doctor_nav_graph"
+    app:startDestination="@id/doctorScheduleFragment">
+
+    <fragment
+        android:id="@+id/doctorScheduleFragment"
+        android:name="com.example.medibookandroid.DoctorScheduleFragment"
+        android:label="fragment_doctor_schedule"
+        tools:layout="@layout/fragment_doctor_schedule" />
+    <fragment
+        android:id="@+id/doctorRequestsFragment"
+        android:name="com.example.medibookandroid.DoctorRequestsFragment"
+        android:label="fragment_doctor_requests"
+        tools:layout="@layout/fragment_doctor_requests" />
+    <fragment
+        android:id="@+id/doctorProfileFragment"
+        android:name="com.example.medibookandroid.DoctorProfileFragment"
+        android:label="fragment_doctor_profile"
+        tools:layout="@layout/fragment_doctor_profile" />
+</navigation>

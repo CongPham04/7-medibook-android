@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/doctorScheduleFragment"
+        android:icon="@drawable/ic_calendar"
+        android:title="@string/schedule" />
+    <item
+        android:id="@+id/doctorRequestsFragment"
+        android:icon="@drawable/ic_inbox"
+        android:title="@string/requests" />
+    <item
+        android:id="@+id/doctorProfileFragment"
+        android:icon="@drawable/ic_person"
+        android:title="@string/profile" />
+</menu>
