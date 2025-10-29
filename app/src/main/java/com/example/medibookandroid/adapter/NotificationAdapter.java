@@ -5,14 +5,24 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.medibookandroid.databinding.ItemNotificationBinding;
+// THÊM IMPORT
+import com.example.medibookandroid.model.Notification;
 import java.util.List;
 
 public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder> {
 
-    private final List<String> notifications;
+    // SỬA: Dùng List<Notification>
+    private final List<Notification> notifications;
+    private final OnDeleteListener listener;
 
-    public NotificationAdapter(List<String> notifications) {
+    // Interface cho sự kiện xóa
+    public interface OnDeleteListener {
+        void onDelete(Notification notification);
+    }
+
+    public NotificationAdapter(List<Notification> notifications, OnDeleteListener listener) {
         this.notifications = notifications;
+        this.listener = listener;
     }
 
     @NonNull
@@ -24,8 +34,9 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
     @Override
     public void onBindViewHolder(@NonNull NotificationViewHolder holder, int position) {
-        String notification = notifications.get(position);
-        holder.bind(notification);
+        // SỬA: Lấy đối tượng Notification
+        Notification notification = notifications.get(position);
+        holder.bind(notification, listener);
     }
 
     @Override
@@ -41,9 +52,15 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             this.binding = binding;
         }
 
-        public void bind(String notification) {
-            binding.tvNotificationTitle.setText("Reminder");
-            binding.tvNotificationBody.setText(notification);
+        // SỬA: Bind từ đối tượng Notification
+        public void bind(Notification notification, OnDeleteListener listener) {
+            binding.tvNotificationTitle.setText(notification.getTitle());
+            binding.tvNotificationBody.setText(notification.getBody());
+
+            // Xử lý nút xóa (từ item_notification.xml)
+            binding.ibDeleteNotification.setOnClickListener(v -> {
+                listener.onDelete(notification);
+            });
         }
     }
 }

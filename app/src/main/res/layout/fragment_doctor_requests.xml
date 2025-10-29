@@ -9,33 +9,60 @@
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="?attr/actionBarSize"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:title="Appointment Requests" />
+        app:navigationIconTint="@color/md_theme_surfaceTint">
+        <!-- Đã xóa app:title và thêm TextView -->
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_appointment_requests"
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Yêu cầu Lịch hẹn"
+            android:layout_gravity="center"
+            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+            android:textStyle="bold"
+            android:textColor="@color/md_theme_surfaceTint"
+            />
+
+    </com.google.android.material.appbar.MaterialToolbar>
+
+    <!--
+      Sử dụng FrameLayout để bọc RecyclerView và TextView "trống".
+      Nó sẽ lấp đầy phần còn lại của màn hình.
+    -->
+    <FrameLayout
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar"
-        tools:listitem="@layout/item_doctor_appointment_request" />
-
-    <TextView
-        android:id="@+id/tv_no_requests"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="No new requests"
-        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_appointment_requests"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/item_doctor_appointment_request" />
+
+        <TextView
+            android:id="@+id/tv_no_requests"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Không có yêu cầu nào"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:visibility="gone"
+            tools:visibility="visible"/>
+        <!-- tools:visibility="visible" để xem trước -->
+
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

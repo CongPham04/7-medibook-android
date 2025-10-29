@@ -13,12 +13,20 @@
         <action
             android:id="@+id/action_patientHomeFragment_to_patientDoctorDetailFragment"
             app:destination="@id/patientDoctorDetailFragment" />
+        <!-- Action from Home to Settings (If needed, e.g., via icon) -->
+        <action
+            android:id="@+id/action_patientHomeFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+        <!-- Action from Home to Notifications (If needed, e.g., via icon) -->
+        <action
+            android:id="@+id/action_patientHomeFragment_to_patientNotificationsFragment"
+            app:destination="@id/patientNotificationsFragment" />
     </fragment>
     <fragment
         android:id="@+id/patientDoctorDetailFragment"
         android:name="com.example.medibookandroid.PatientDoctorDetailFragment"
         android:label="fragment_patient_doctor_detail"
-        tools:layout="@layout/fragment_patient_doctor_detail" >
+        tools:layout="@layout/fragment_patient_doctor_detail" > <!-- Sửa layout nếu bạn đã đổi tên -->
         <argument
             android:name="doctorId"
             app:argType="integer" />
@@ -30,7 +38,7 @@
         android:id="@+id/bookingSummaryFragment"
         android:name="com.example.medibookandroid.BookingSummaryFragment"
         android:label="fragment_booking_summary"
-        tools:layout="@layout/fragment_booking_summary" >
+        tools:layout="@layout/fragment_booking_summary" > <!-- Sửa layout nếu bạn đã đổi tên -->
         <argument
             android:name="doctor"
             app:argType="com.example.medibookandroid.model.Doctor" />
@@ -66,14 +74,52 @@
         android:id="@+id/patientProfileFragment"
         android:name="com.example.medibookandroid.PatientProfileFragment"
         android:label="fragment_patient_profile"
-        tools:layout="@layout/fragment_patient_profile" >
+        tools:layout="@layout/fragment_patient_profile" > <!-- Sửa layout nếu bạn đã đổi tên -->
         <action
             android:id="@+id/action_patientProfileFragment_to_patientEditProfileFragment"
             app:destination="@id/patientEditProfileFragment" />
+        <!-- Action from Profile to Settings -->
+        <action
+            android:id="@+id/action_patientProfileFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
     </fragment>
     <fragment
         android:id="@+id/patientEditProfileFragment"
         android:name="com.example.medibookandroid.PatientEditProfileFragment"
         android:label="fragment_patient_edit_profile"
         tools:layout="@layout/fragment_patient_edit_profile" />
+
+    <!-- 1. BỔ SUNG CÁC FRAGMENT CÀI ĐẶT MỚI -->
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.medibookandroid.SettingsFragment"
+        android:label="fragment_settings"
+        tools:layout="@layout/fragment_settings" >
+        <!-- Actions from Settings to sub-settings screens -->
+        <action
+            android:id="@+id/action_settingsFragment_to_notificationSettingsFragment"
+            app:destination="@id/notificationSettingsFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_languageSettingsFragment"
+            app:destination="@id/languageSettingsFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_passwordManagerFragment"
+            app:destination="@id/passwordManagerFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/notificationSettingsFragment"
+        android:name="com.example.medibookandroid.NotificationSettingsFragment"
+        android:label="fragment_notification_settings"
+        tools:layout="@layout/fragment_notification_settings" />
+    <fragment
+        android:id="@+id/languageSettingsFragment"
+        android:name="com.example.medibookandroid.LanguageSettingsFragment"
+        android:label="fragment_language_settings"
+        tools:layout="@layout/fragment_language_settings" />
+    <fragment
+        android:id="@+id/passwordManagerFragment"
+        android:name="com.example.medibookandroid.PasswordManagerFragment"
+        android:label="fragment_password_manager"
+        tools:layout="@layout/fragment_password_manager" />
+
 </navigation>

@@ -14,7 +14,20 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="My Schedule" />
+            app:navigationIconTint="@color/md_theme_surfaceTint">
+            <!-- Đã xóa app:title và app:navigationIconTint="?attr/colorOnSurface" -->
+            <!-- Đã thêm TextView căn giữa -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Lịch trình của tôi"
+                android:layout_gravity="center"
+                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                android:textStyle="bold"
+                android:textColor="@color/md_theme_surfaceTint"
+                />
+
+        </com.google.android.material.appbar.MaterialToolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -25,7 +38,8 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:paddingBottom="16dp">
 
             <CalendarView
                 android:id="@+id/calendar_view"
@@ -41,21 +55,79 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
-                android:text="Appointments for [dd/mm/yyyy]"
+                android:text="Lịch hẹn đã xác nhận"
                 android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/calendar_view" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_confirmed_appointments"
+            <FrameLayout
+                android:id="@+id/fl_confirmed_container"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="220dp"
                 android:layout_marginTop="8dp"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_appointments_title"
-                tools:listitem="@layout/item_doctor_appointment_card" />
+                app:layout_constraintTop_toBottomOf="@+id/tv_appointments_title">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_confirmed_appointments"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:nestedScrollingEnabled="true"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/item_doctor_appointment_card" />
+
+                <TextView
+                    android:id="@+id/tv_no_confirmed_appointments"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Không có lịch hẹn"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:visibility="gone" />
+
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tv_available_slots_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:text="Ca làm việc có sẵn"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/fl_confirmed_container" />
+
+            <FrameLayout
+                android:id="@+id/fl_available_container"
+                android:layout_width="0dp"
+                android:layout_height="220dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_available_slots_title">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_available_slots"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:nestedScrollingEnabled="true"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/item_doctor_available_slot" />
+
+                <TextView
+                    android:id="@+id/tv_no_available_slots"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Chưa có ca làm việc"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:visibility="gone" />
+
+            </FrameLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
@@ -70,3 +142,4 @@
         app:tint="?attr/colorOnPrimary" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
+

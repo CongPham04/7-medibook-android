@@ -1,0 +1,16 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="900"
+    android:viewportHeight="600">
+
+    <!-- Nền cờ màu đỏ -->
+    <path
+        android:fillColor="#DA251D"
+        android:pathData="M0,0h900v600H0z"/>
+
+    <!-- Ngôi sao vàng (đơn giản hóa) -->
+    <path
+        android:fillColor="#FFFF00"
+        android:pathData="M450,115 L485.3,248.8 L628.1,248.8 L516.4,329.2 L551.7,463 L450,382.6 L348.3,463 L383.6,329.2 L271.9,248.8 L414.7,248.8 Z"/>
+</vector>

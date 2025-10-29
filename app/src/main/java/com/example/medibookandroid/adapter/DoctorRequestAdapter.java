@@ -56,7 +56,7 @@ public class DoctorRequestAdapter extends RecyclerView.Adapter<DoctorRequestAdap
             // In a real app, you'd fetch patient details based on appointment.getPatientId()
             binding.tvPatientName.setText("Jane Doe");
 
-            SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a, MMMM dd, yyyy", Locale.getDefault());
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm, dd 'tháng' MM, yyyy");
             binding.tvRequestedDatetime.setText(sdf.format(appointment.getAppointmentDate()));
             binding.tvSymptomsDescription.setText(appointment.getSymptoms());
 

@@ -9,7 +9,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:title="Create New Slot"
+        app:title="Tạo ca làm việc mới"
         app:navigationIcon="@drawable/ic_arrow_back" />
 
     <LinearLayout
@@ -23,7 +23,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-            android:text="Date: [dd/mm/yyyy]" />
+            android:text="Ngày: [dd/mm/yyyy]" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/til_start_time"
@@ -31,9 +31,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="Start Time">
+            android:hint="Giờ bắt đầu">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_start_time"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:focusable="false"
@@ -47,9 +48,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="End Time">
+            android:hint="Giờ kết thúc">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_end_time"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:focusable="false"
@@ -62,6 +64,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="Save" />
+            android:text="Lưu" />
     </LinearLayout>
 </LinearLayout>

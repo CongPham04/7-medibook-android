@@ -33,7 +33,7 @@ public class PatientHomeFragment extends Fragment {
         final NavController navController = Navigation.findNavController(view);
 
         // Using a hardcoded name as currentPatient is not stored in StorageRepository
-        binding.tvWelcomeUser.setText("Welcome, Jane Doe!");
+        binding.tvWelcomeUser.setText("Hi, Jane Doe!");
 
         DoctorAdapter adapter = new DoctorAdapter(storageRepository.doctors, doctor -> {
             Bundle bundle = new Bundle();

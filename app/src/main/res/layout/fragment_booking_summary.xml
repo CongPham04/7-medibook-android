@@ -15,13 +15,28 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:navigationIcon="@drawable/ic_arrow_back"
-        app:title="Confirm Appointment" />
+        app:navigationIconTint="@color/md_theme_surfaceTint">
+        <!-- ĐÃ XÓA app:title -->
+
+        <!-- THÊM TEXTVIEW CĂN GIỮA (GIỐNG FILE MẪU) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Xác nhận Lịch hẹn"
+            android:layout_gravity="center"
+            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+            android:textStyle="bold"
+            android:textColor="@color/md_theme_surfaceTint"
+            />
+    </com.google.android.material.appbar.MaterialToolbar>
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_summary"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
@@ -39,7 +54,7 @@
                 android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="Dr. Olivia Turner" />
+                tools:text="B.S. Olivia Turner" />
 
             <TextView
                 android:id="@+id/tv_appointment_time_summary"
@@ -49,7 +64,7 @@
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tv_doctor_name_summary"
-                tools:text="10:00 AM, October 26, 2025" />
+                tools:text="10:00, 26 tháng 10, 2025" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -61,7 +76,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:hint="Brief description of health condition"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:hint="Mô tả ngắn tình trạng sức khỏe"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/card_summary">
@@ -74,14 +91,18 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- THAY ĐỔI NEO CỦA NÚT NÀY -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_confirm_booking"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:text="Confirm Booking"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="32dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="Xác nhận Đặt lịch"
+        app:layout_constraintTop_toBottomOf="@+id/til_symptoms"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

@@ -7,28 +7,96 @@
     android:background="?attr/colorSurface"
     tools:context=".WelcomeFragment">
 
+    <!-- Giữ Logo, Tên App, Phụ đề ở trên cùng -->
     <ImageView
         android:id="@+id/iv_logo"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:layout_marginTop="100dp"
-        android:src="@drawable/ic_logo"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="64dp"
+        android:src="@drawable/logo2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/tv_app_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:fontFamily="sans-serif-medium"
+        android:text="Medibook"
+        android:textColor="#005AC1"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/iv_logo"
+        app:layout_constraintStart_toStartOf="@+id/iv_logo"
+        app:layout_constraintTop_toBottomOf="@+id/iv_logo" />
+
+    <TextView
+        android:id="@+id/tv_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"
+        android:text="Đặt lịch khám trực tuyến"
+        android:textColor="@color/material_on_surface_disabled"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="@+id/tv_app_name"
+        app:layout_constraintStart_toStartOf="@+id/tv_app_name"
+        app:layout_constraintTop_toBottomOf="@+id/tv_app_name" />
+
+    <!-- Ảnh mới (drawable/imagemain) - Neo vào dưới phụ đề -->
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/iv_register_logo"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:scaleType="centerInside"
+        android:adjustViewBounds="true"
+        android:src="@drawable/imagemain"
+        app:layout_constraintTop_toBottomOf="@+id/tv_subtitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_max="450dp"
+        app:layout_constraintDimensionRatio="4:3"/>
+    <!-- Đã thay đổi:
+         - layout_marginStart và layout_marginEnd thành 8dp (để rộng hơn)
+    -->
+
+    <!-- Text Mô tả - Neo vào dưới ảnh mới -->
+    <TextView
+        android:id="@+id/tv_description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginTop="32dp"
+        android:fontFamily="sans-serif"
+        android:gravity="center_horizontal"
+        android:text="Chào mừng bạn đến với Medibook.\nĐặt lịch khám nhanh chóng, mọi lúc mọi nơi."
+        android:textColor="@color/material_on_surface_emphasis_medium"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@+id/iv_register_logo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+    <!-- Đã tăng marginTop thành 32dp -->
+
+    <!-- Nút Đăng nhập - Neo vào dưới Text Mô tả -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_login"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:text="Log In"
-        app:layout_constraintBottom_toTopOf="@+id/btn_sign_up"
+        android:layout_marginTop="32dp"
+        android:text="Đăng nhập"
+        app:layout_constraintTop_toBottomOf="@+id/tv_description"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+
+    <!-- Nút Đăng ký - Neo vào dưới nút Đăng nhập -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_sign_up"
         style="@style/Widget.Material3.Button.OutlinedButton"
@@ -36,10 +104,12 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="32dp"
-        android:text="Sign Up"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="16dp"
+        android:text="Đăng ký"
+        app:layout_constraintTop_toBottomOf="@+id/btn_login"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+
 </androidx.constraintlayout.widget.ConstraintLayout>
+

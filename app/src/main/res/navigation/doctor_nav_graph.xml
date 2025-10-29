@@ -15,9 +15,62 @@
         android:name="com.example.medibookandroid.DoctorRequestsFragment"
         android:label="fragment_doctor_requests"
         tools:layout="@layout/fragment_doctor_requests" />
+
+    <!-- 1. Bổ sung các Fragment Hồ sơ và Cài đặt MỚI -->
+
+    <!-- Profile Menu (Màn hình chính của Tab) -->
     <fragment
         android:id="@+id/doctorProfileFragment"
         android:name="com.example.medibookandroid.DoctorProfileFragment"
         android:label="fragment_doctor_profile"
-        tools:layout="@layout/fragment_doctor_profile" />
+        tools:layout="@layout/fragment_doctor_profile" >
+        <action
+            android:id="@+id/action_doctorProfileFragment_to_doctorEditProfileFragment"
+            app:destination="@id/doctorEditProfileFragment" />
+        <action
+            android:id="@+id/action_doctorProfileFragment_to_doctorSettingsFragment"
+            app:destination="@id/doctorSettingsFragment" />
+    </fragment>
+
+    <!-- Edit Profile (Màn hình cũ đã đổi tên) -->
+    <fragment
+        android:id="@+id/doctorEditProfileFragment"
+        android:name="com.example.medibookandroid.DoctorEditProfileFragment"
+        android:label="fragment_doctor_edit_profile"
+        tools:layout="@layout/fragment_doctor_edit_profile" />
+
+    <!-- Settings Menu (Giống của Bệnh nhân) -->
+    <fragment
+        android:id="@+id/doctorSettingsFragment"
+        android:name="com.example.medibookandroid.DoctorSettingsFragment"
+        android:label="fragment_doctor_settings"
+        tools:layout="@layout/fragment_doctor_settings" >
+        <action
+            android:id="@+id/action_doctorSettingsFragment_to_doctorNotificationSettingsFragment"
+            app:destination="@id/doctorNotificationSettingsFragment" />
+        <action
+            android:id="@+id/action_doctorSettingsFragment_to_doctorLanguageSettingsFragment"
+            app:destination="@id/doctorLanguageSettingsFragment" />
+        <action
+            android:id="@+id/action_doctorSettingsFragment_to_doctorPasswordManagerFragment"
+            app:destination="@id/doctorPasswordManagerFragment" />
+    </fragment>
+
+    <!-- Settings Sub-screens -->
+    <fragment
+        android:id="@+id/doctorNotificationSettingsFragment"
+        android:name="com.example.medibookandroid.DoctorNotificationSettingsFragment"
+        android:label="fragment_doctor_notification_settings"
+        tools:layout="@layout/fragment_doctor_notification_settings" />
+    <fragment
+        android:id="@+id/doctorLanguageSettingsFragment"
+        android:name="com.example.medibookandroid.DoctorLanguageSettingsFragment"
+        android:label="fragment_doctor_language_settings"
+        tools:layout="@layout/fragment_doctor_language_settings" />
+    <fragment
+        android:id="@+id/doctorPasswordManagerFragment"
+        android:name="com.example.medibookandroid.DoctorPasswordManagerFragment"
+        android:label="fragment_doctor_password_manager"
+        tools:layout="@layout/fragment_doctor_password_manager" />
+
 </navigation>

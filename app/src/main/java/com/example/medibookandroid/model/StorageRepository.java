@@ -6,8 +6,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 public class StorageRepository {
@@ -16,6 +14,9 @@ public class StorageRepository {
     private static final String KEY_DOCTORS = "doctors";
     private static final String KEY_APPOINTMENTS = "appointments";
     private static final String KEY_LOGGED_IN_ROLE = "loggedInRole";
+    // --- THÊM MỚI (BẮT ĐẦU) ---
+    private static final String KEY_NOTIFICATIONS = "notifications";
+    // --- THÊM MỚI (KẾT THÚC) ---
 
     private static StorageRepository instance = null;
     private final SharedPreferences prefs;
@@ -24,6 +25,10 @@ public class StorageRepository {
     public List<Doctor> doctors;
     public List<Appointment> appointments;
     public String loggedInRole;
+    // --- THÊM MỚI (BẮT ĐẦU) ---
+    public List<Notification> notifications;
+    // --- THÊM MỚI (KẾT THÚC) ---
+
 
     private StorageRepository(Context context) {
         prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
@@ -59,6 +64,17 @@ public class StorageRepository {
             Type appointmentListType = new TypeToken<ArrayList<Appointment>>(){}.getType();
             appointments = gson.fromJson(appointmentsJson, appointmentListType);
         }
+
+        // --- THÊM MỚI (BẮT ĐẦU) ---
+        // Load notifications
+        String notificationsJson = prefs.getString(KEY_NOTIFICATIONS, null);
+        if (notificationsJson == null) {
+            notifications = new ArrayList<>();
+        } else {
+            Type notificationListType = new TypeToken<ArrayList<Notification>>(){}.getType();
+            notifications = gson.fromJson(notificationsJson, notificationListType);
+        }
+        // --- THÊM MỚI (KẾT THÚC) ---
     }
 
     private List<Doctor> createMockDoctors() {
@@ -78,6 +94,13 @@ public class StorageRepository {
         String appointmentsJson = gson.toJson(appointments);
         prefs.edit().putString(KEY_APPOINTMENTS, appointmentsJson).apply();
     }
+
+    // --- THÊM MỚI (BẮT ĐẦU) ---
+    public void saveNotifications() {
+        String notificationsJson = gson.toJson(notifications);
+        prefs.edit().putString(KEY_NOTIFICATIONS, notificationsJson).apply();
+    }
+    // --- THÊM MỚI (KẾT THÚC) ---
 
     public void loginUser(String role) {
         loggedInRole = role;

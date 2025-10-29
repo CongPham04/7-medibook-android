@@ -13,7 +13,29 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:title="Notifications" />
+        app:navigationIconTint="@color/md_theme_surfaceTint">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Thông báo"
+            android:layout_gravity="center"
+            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+            android:textStyle="bold"
+            android:textColor="@color/md_theme_surfaceTint"
+            />
+        <TextView
+            android:id="@+id/tv_toolbar_delete_all"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:text="Xóa tất cả"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textStyle="bold"
+            android:background="?attr/selectableItemBackground"
+            android:padding="8dp"
+            android:layout_marginEnd="8dp"/>
+
+    </com.google.android.material.appbar.MaterialToolbar>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_notifications"
@@ -30,7 +52,7 @@
         android:id="@+id/tv_no_notifications"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="No new notifications"
+        android:text="Không có thông báo mới"
         android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"

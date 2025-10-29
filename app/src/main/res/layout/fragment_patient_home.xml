@@ -7,14 +7,56 @@
     android:padding="16dp"
     tools:context=".PatientHomeFragment">
 
+    <!-- 1. BỔ SUNG AVATAR (BÊN TRÁI CÙNG) -->
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/iv_user_avatar"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:scaleType="centerCrop"
+        android:background="@drawable/logo2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+        tools:src="@tools:sample/avatars" />
+
+    <!-- 2. ICON CÀI ĐẶT (BÊN PHẢI CÙNG) -->
+    <ImageButton
+        android:id="@+id/ib_settings"
+        android:layout_width="48dp"
+        android:layout_height="40dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_setting"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/iv_user_avatar"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_user_avatar"
+        android:contentDescription="Cài đặt" />
+
+    <!-- 3. ICON THÔNG BÁO (BÊN TRÁI ICON CÀI ĐẶT) -->
+    <ImageButton
+        android:id="@+id/ib_notifications"
+        android:layout_width="48dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_bell"
+        app:layout_constraintEnd_toStartOf="@+id/ib_settings"
+        app:layout_constraintTop_toTopOf="@+id/iv_user_avatar"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_user_avatar"
+        android:contentDescription="Thông báo" />
+
+    <!-- 4. CẬP NHẬT NEO CỦA TEXTVIEW (Ở GIỮA AVATAR VÀ ICON) -->
     <TextView
         android:id="@+id/tv_welcome_user"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Welcome [Patient Name]"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="8dp"
+        android:text="Chào [Tên Bệnh Nhân]"
         android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toEndOf="@+id/iv_user_avatar"
+        app:layout_constraintTop_toTopOf="@+id/iv_user_avatar"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_user_avatar"
+        app:layout_constraintEnd_toStartOf="@+id/ib_notifications" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_search"
@@ -22,10 +64,10 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:hint="Search doctor by name, specialty..."
+        android:hint="Tìm bác sĩ theo tên, chuyên khoa..."
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_welcome_user"
+        app:layout_constraintTop_toBottomOf="@+id/iv_user_avatar"
         app:startIconDrawable="@drawable/ic_search">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -39,7 +81,7 @@
         android:layout_width="0dp"
         android:layout_height="200dp"
         android:layout_marginTop="16dp"
-        android:contentDescription="Medibook hospital banner"
+        android:contentDescription="Banner bệnh viện Medibook"
         android:scaleType="centerCrop"
         android:src="@drawable/medibook_banner"
         app:layout_constraintEnd_toEndOf="parent"
@@ -53,7 +95,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="Doctor List"
+        android:text="Danh sách bác sĩ"
         android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
         app:layout_constraintStart_toStartOf="parent"
 
@@ -71,3 +113,4 @@
         tools:listitem="@layout/item_patient_doctor_card" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

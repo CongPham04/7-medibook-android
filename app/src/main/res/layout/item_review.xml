@@ -17,7 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
-            tools:text="John Doe" />
+            tools:text="Nguyễn Văn A" />
 
         <TextView
             android:id="@+id/tv_review_text"
@@ -26,6 +26,6 @@
             android:layout_marginTop="4dp"
             android:maxLines="3"
             android:ellipsize="end"
-            tools:text="Excellent doctor, very caring and professional." />
+            tools:text="Bác sĩ tuyệt vời, rất tận tâm và chuyên nghiệp." />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

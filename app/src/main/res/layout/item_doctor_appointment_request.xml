@@ -21,7 +21,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="John Doe" />
+            tools:text="Nguyễn Văn A" /> <!-- ĐÃ DỊCH -->
 
         <TextView
             android:id="@+id/tv_requested_datetime"
@@ -33,7 +33,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_patient_name"
-            tools:text="10:00 AM, October 26, 2025" />
+            tools:text="10:00, 26 tháng 10, 2025" /> <!-- ĐÃ DỊCH -->
 
         <TextView
             android:id="@+id/tv_symptoms_description"
@@ -46,7 +46,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_requested_datetime"
-            tools:text="Patient is experiencing symptoms of fever and cough." />
+            tools:text="Bệnh nhân có triệu chứng sốt và ho." /> <!-- ĐÃ DỊCH -->
 
         <LinearLayout
             android:id="@+id/layout_buttons"
@@ -65,15 +65,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:text="Decline" />
+                android:text="Từ chối" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_accept"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Accept" />
+                android:text="Chấp nhận" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>
+

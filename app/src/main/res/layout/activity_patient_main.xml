@@ -25,6 +25,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:itemIconTint="@color/md_theme_surfaceTint"
         app:menu="@menu/patient_bottom_nav_menu" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

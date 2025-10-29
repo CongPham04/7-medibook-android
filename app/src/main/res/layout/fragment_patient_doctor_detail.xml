@@ -9,16 +9,28 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/my_app_blue">
+        android:background="?attr/colorSurface"> <!-- Bỏ màu xanh, dùng màu nền mặc định -->
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_arrow_back"
-            app:title="Doctor Details"
-            app:titleTextColor="@android:color/white"
-            app:navigationIconTint="@android:color/white"/>
+            app:navigationIconTint="@color/md_theme_surfaceTint">
+            <!-- ĐÃ XÓA app:title và android:textStyle -->
+
+            <!-- THÊM TEXTVIEW CĂN GIỮA (GIỐNG LOGIN) -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Thông tin chi tiết Bác sĩ"
+                android:layout_gravity="center"
+                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                android:textStyle="bold"
+                android:textColor="@color/md_theme_surfaceTint"
+                />
+
+        </com.google.android.material.appbar.MaterialToolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -27,6 +39,7 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+        <!-- Thêm padding="16dp" vào đây để nội dung thụt vào lề -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -37,6 +50,7 @@
                 android:layout_width="96dp"
                 android:layout_height="96dp"
                 android:scaleType="centerCrop"
+                android:background="@drawable/logo2"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
@@ -47,7 +61,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:text="Dr. Olivia Turner"
+                android:text="B.S. Olivia Turner"
                 android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/iv_doctor_avatar"
@@ -59,7 +73,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="4dp"
-                android:text="Cardiology Specialty"
+                android:text="Chuyên khoa Tim mạch"
                 android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                 android:textColor="?attr/colorOnSurfaceVariant"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -71,8 +85,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="Experience"
+                android:text="Kinh nghiệm"
                 android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:textColor="@color/md_theme_surfaceTint"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/iv_doctor_avatar" />
 
@@ -81,7 +96,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="10+ years"
+                android:text="Hơn 10 năm"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tv_doctor_experience_label" />
@@ -91,8 +106,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Workplace"
+                android:text="Nơi công tác"
                 android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:textColor="@color/md_theme_surfaceTint"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tv_doctor_experience_value" />
 
@@ -101,7 +117,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Central Clinic, City"
+                android:text="Phòng khám Trung tâm, TP"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tv_doctor_workplace_label" />
@@ -111,15 +127,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Reviews"
+                android:text="Đánh giá"
                 android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:textColor="@color/md_theme_surfaceTint"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tv_doctor_workplace_value" />
 
+            <!-- SỬA LỖI: Thay wrap_content bằng chiều cao cố định -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_reviews"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="80dp"
                 android:layout_marginTop="8dp"
                 android:orientation="horizontal"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
@@ -133,8 +151,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="Select Appointment Slot"
+                android:text="Chọn lịch khám"
                 android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:textColor="@color/md_theme_surfaceTint"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/rv_reviews" />
 
@@ -147,27 +166,49 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tv_schedule_label" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_time_slots"
+            <!-- BẮT ĐẦU THAY ĐỔI: Bọc RecyclerView trong FrameLayout -->
+            <FrameLayout
+                android:id="@+id/fl_time_slots_container"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="60dp"
                 android:layout_marginTop="8dp"
-                android:orientation="horizontal"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/calendar_view"
-                tools:listitem="@layout/item_time_slot" />
+                app:layout_constraintTop_toBottomOf="@+id/calendar_view">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_time_slots"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/item_time_slot" />
+
+                <!-- THÊM MỚI: TextView khi không có ca -->
+                <TextView
+                    android:id="@+id/tv_no_slots_available"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Không có ca làm việc"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+            </FrameLayout>
+            <!-- KẾT THÚC THAY ĐỔI -->
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_book_appointment"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="Book Appointment"
+                android:text="Đặt lịch hẹn"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/rv_time_slots" />
+                app:layout_constraintTop_toBottomOf="@+id/fl_time_slots_container" />
+            <!-- Đã neo lại vào FrameLayout -->
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

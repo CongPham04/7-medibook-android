@@ -53,6 +53,19 @@ public class TimeSlotAdapter extends RecyclerView.Adapter<TimeSlotAdapter.TimeSl
         return timeSlots.size();
     }
 
+    // --- BẮT ĐẦU THÊM MỚI ---
+    /**
+     * Xóa lựa chọn hiện tại (nếu có) và cập nhật giao diện.
+     */
+    public void resetSelection() {
+        if (selectedPosition != -1) {
+            int oldPosition = selectedPosition;
+            selectedPosition = -1;
+            notifyItemChanged(oldPosition);
+        }
+    }
+    // --- KẾT THÚC THÊM MỚI ---
+
     static class TimeSlotViewHolder extends RecyclerView.ViewHolder {
         private final ItemTimeSlotBinding binding;
 
@@ -62,8 +75,16 @@ public class TimeSlotAdapter extends RecyclerView.Adapter<TimeSlotAdapter.TimeSl
         }
 
         public void bind(final String time, final OnTimeSlotClickListener listener, boolean isSelected) {
-            binding.getRoot().setText(time);
-            binding.getRoot().setChecked(isSelected);
+            // --- BẮT ĐẦU SỬA LỖI ---
+            // Lỗi xảy ra vì binding.getRoot() (từ item_time_slot.xml) được xác định là Chip
+            // khi biên dịch, nên không thể kiểm tra instanceof MaterialButton.
+            // Chúng ta chỉ cần giữ lại logic của Chip.
+            if (binding.getRoot() instanceof com.google.android.material.chip.Chip) {
+                ((com.google.android.material.chip.Chip) binding.getRoot()).setText(time);
+                ((com.google.android.material.chip.Chip) binding.getRoot()).setChecked(isSelected);
+            }
+            // --- KẾT THÚC SỬA LỖI ---
         }
     }
 }
+
