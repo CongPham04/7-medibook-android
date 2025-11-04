@@ -81,25 +81,25 @@
                 app:layout_constraintTop_toBottomOf="@+id/tv_doctor_name" />
 
             <TextView
-                android:id="@+id/tv_doctor_experience_label"
+                android:id="@+id/tv_doctor_qualification_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="Kinh nghiệm"
+                android:text="Bằng cấp"
                 android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
                 android:textColor="@color/md_theme_surfaceTint"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/iv_doctor_avatar" />
 
             <TextView
-                android:id="@+id/tv_doctor_experience_value"
+                android:id="@+id/tv_doctor_qualification_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Hơn 10 năm"
+                android:text="Tiến sĩ, bác sĩ"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_doctor_experience_label" />
+                app:layout_constraintTop_toBottomOf="@+id/tv_doctor_qualification_label" />
 
             <TextView
                 android:id="@+id/tv_doctor_workplace_label"
@@ -110,7 +110,7 @@
                 android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
                 android:textColor="@color/md_theme_surfaceTint"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_doctor_experience_value" />
+                app:layout_constraintTop_toBottomOf="@+id/tv_doctor_qualification_value" />
 
             <TextView
                 android:id="@+id/tv_doctor_workplace_value"
