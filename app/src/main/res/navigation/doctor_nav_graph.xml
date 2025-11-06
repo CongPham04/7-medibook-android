@@ -7,12 +7,12 @@
 
     <fragment
         android:id="@+id/doctorScheduleFragment"
-        android:name="com.example.medibookandroid.DoctorScheduleFragment"
+        android:name="com.example.medibookandroid.ui.doctor.fragment.DoctorScheduleFragment"
         android:label="fragment_doctor_schedule"
         tools:layout="@layout/fragment_doctor_schedule" />
     <fragment
         android:id="@+id/doctorRequestsFragment"
-        android:name="com.example.medibookandroid.DoctorRequestsFragment"
+        android:name="com.example.medibookandroid.ui.doctor.fragment.DoctorRequestsFragment"
         android:label="fragment_doctor_requests"
         tools:layout="@layout/fragment_doctor_requests" />
 
@@ -21,7 +21,7 @@
     <!-- Profile Menu (Màn hình chính của Tab) -->
     <fragment
         android:id="@+id/doctorProfileFragment"
-        android:name="com.example.medibookandroid.DoctorProfileFragment"
+        android:name="com.example.medibookandroid.ui.doctor.fragment.DoctorProfileFragment"
         android:label="fragment_doctor_profile"
         tools:layout="@layout/fragment_doctor_profile" >
         <action
@@ -35,14 +35,14 @@
     <!-- Edit Profile (Màn hình cũ đã đổi tên) -->
     <fragment
         android:id="@+id/doctorEditProfileFragment"
-        android:name="com.example.medibookandroid.DoctorEditProfileFragment"
+        android:name="com.example.medibookandroid.ui.doctor.fragment.DoctorEditProfileFragment"
         android:label="fragment_doctor_edit_profile"
         tools:layout="@layout/fragment_doctor_edit_profile" />
 
     <!-- Settings Menu (Giống của Bệnh nhân) -->
     <fragment
         android:id="@+id/doctorSettingsFragment"
-        android:name="com.example.medibookandroid.DoctorSettingsFragment"
+        android:name="com.example.medibookandroid.ui.doctor.fragment.DoctorSettingsFragment"
         android:label="fragment_doctor_settings"
         tools:layout="@layout/fragment_doctor_settings" >
         <action
@@ -59,17 +59,17 @@
     <!-- Settings Sub-screens -->
     <fragment
         android:id="@+id/doctorNotificationSettingsFragment"
-        android:name="com.example.medibookandroid.DoctorNotificationSettingsFragment"
+        android:name="com.example.medibookandroid.ui.doctor.fragment.DoctorNotificationSettingsFragment"
         android:label="fragment_doctor_notification_settings"
         tools:layout="@layout/fragment_doctor_notification_settings" />
     <fragment
         android:id="@+id/doctorLanguageSettingsFragment"
-        android:name="com.example.medibookandroid.DoctorLanguageSettingsFragment"
+        android:name="com.example.medibookandroid.ui.doctor.fragment.DoctorLanguageSettingsFragment"
         android:label="fragment_doctor_language_settings"
         tools:layout="@layout/fragment_doctor_language_settings" />
     <fragment
         android:id="@+id/doctorPasswordManagerFragment"
-        android:name="com.example.medibookandroid.DoctorPasswordManagerFragment"
+        android:name="com.example.medibookandroid.ui.doctor.fragment.DoctorPasswordManagerFragment"
         android:label="fragment_doctor_password_manager"
         tools:layout="@layout/fragment_doctor_password_manager" />
 

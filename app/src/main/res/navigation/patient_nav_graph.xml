@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/patientHomeFragment"
-        android:name="com.example.medibookandroid.PatientHomeFragment"
+        android:name="com.example.medibookandroid.ui.patient.fragment.PatientHomeFragment"
         android:label="fragment_patient_home"
         tools:layout="@layout/fragment_patient_home" >
         <action
@@ -24,34 +24,34 @@
     </fragment>
     <fragment
         android:id="@+id/patientDoctorDetailFragment"
-        android:name="com.example.medibookandroid.PatientDoctorDetailFragment"
+        android:name="com.example.medibookandroid.ui.patient.fragment.PatientDoctorDetailFragment"
         android:label="fragment_patient_doctor_detail"
         tools:layout="@layout/fragment_patient_doctor_detail" > <!-- Sửa layout nếu bạn đã đổi tên -->
         <argument
             android:name="doctorId"
-            app:argType="integer" />
+            app:argType="string" />
         <action
             android:id="@+id/action_patientDoctorDetailFragment_to_bookingSummaryFragment"
             app:destination="@id/bookingSummaryFragment" />
     </fragment>
     <fragment
         android:id="@+id/bookingSummaryFragment"
-        android:name="com.example.medibookandroid.BookingSummaryFragment"
+        android:name="com.example.medibookandroid.ui.patient.fragment.BookingSummaryFragment"
         android:label="fragment_booking_summary"
         tools:layout="@layout/fragment_booking_summary" > <!-- Sửa layout nếu bạn đã đổi tên -->
         <argument
             android:name="doctor"
-            app:argType="com.example.medibookandroid.model.Doctor" />
+            app:argType="com.example.medibookandroid.data.model.Doctor" />
         <argument
-            android:name="time"
-            app:argType="string" />
+            android:name="schedule"
+            app:argType="com.example.medibookandroid.data.model.DoctorSchedule" />
         <action
             android:id="@+id/action_bookingSummaryFragment_to_bookingSuccessFragment"
             app:destination="@id/bookingSuccessFragment" />
     </fragment>
     <fragment
         android:id="@+id/bookingSuccessFragment"
-        android:name="com.example.medibookandroid.BookingSuccessFragment"
+        android:name="com.example.medibookandroid.ui.common.BookingSuccessFragment"
         android:label="fragment_booking_success"
         tools:layout="@layout/fragment_booking_success" >
         <action
@@ -62,17 +62,17 @@
     </fragment>
     <fragment
         android:id="@+id/patientAppointmentsFragment"
-        android:name="com.example.medibookandroid.PatientAppointmentsFragment"
+        android:name="com.example.medibookandroid.ui.patient.fragment.PatientAppointmentsFragment"
         android:label="fragment_patient_appointments"
         tools:layout="@layout/fragment_patient_appointments" />
     <fragment
         android:id="@+id/patientNotificationsFragment"
-        android:name="com.example.medibookandroid.PatientNotificationsFragment"
+        android:name="com.example.medibookandroid.ui.patient.fragment.PatientNotificationsFragment"
         android:label="fragment_patient_notifications"
         tools:layout="@layout/fragment_patient_notifications" />
     <fragment
         android:id="@+id/patientProfileFragment"
-        android:name="com.example.medibookandroid.PatientProfileFragment"
+        android:name="com.example.medibookandroid.ui.patient.fragment.PatientProfileFragment"
         android:label="fragment_patient_profile"
         tools:layout="@layout/fragment_patient_profile" > <!-- Sửa layout nếu bạn đã đổi tên -->
         <action
@@ -85,14 +85,14 @@
     </fragment>
     <fragment
         android:id="@+id/patientEditProfileFragment"
-        android:name="com.example.medibookandroid.PatientEditProfileFragment"
+        android:name="com.example.medibookandroid.ui.patient.fragment.PatientEditProfileFragment"
         android:label="fragment_patient_edit_profile"
         tools:layout="@layout/fragment_patient_edit_profile" />
 
     <!-- 1. BỔ SUNG CÁC FRAGMENT CÀI ĐẶT MỚI -->
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.example.medibookandroid.SettingsFragment"
+        android:name="com.example.medibookandroid.ui.patient.fragment.PatientSettingsFragment"
         android:label="fragment_settings"
         tools:layout="@layout/fragment_settings" >
         <!-- Actions from Settings to sub-settings screens -->
@@ -108,17 +108,17 @@
     </fragment>
     <fragment
         android:id="@+id/notificationSettingsFragment"
-        android:name="com.example.medibookandroid.NotificationSettingsFragment"
+        android:name="com.example.medibookandroid.ui.common.NotificationSettingsFragment"
         android:label="fragment_notification_settings"
         tools:layout="@layout/fragment_notification_settings" />
     <fragment
         android:id="@+id/languageSettingsFragment"
-        android:name="com.example.medibookandroid.LanguageSettingsFragment"
+        android:name="com.example.medibookandroid.ui.common.LanguageSettingsFragment"
         android:label="fragment_language_settings"
         tools:layout="@layout/fragment_language_settings" />
     <fragment
         android:id="@+id/passwordManagerFragment"
-        android:name="com.example.medibookandroid.PasswordManagerFragment"
+        android:name="com.example.medibookandroid.ui.common.PasswordManagerFragment"
         android:label="fragment_password_manager"
         tools:layout="@layout/fragment_password_manager" />
 

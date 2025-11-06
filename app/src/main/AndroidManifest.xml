@@ -21,8 +21,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity" />
-        <activity android:name=".PatientMainActivity" />
-        <activity android:name=".DoctorMainActivity" />
+        <activity android:name=".ui.patient.PatientMainActivity" />
+        <activity android:name=".ui.doctor.DoctorMainActivity" />
     </application>
 
 </manifest>
