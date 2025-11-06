@@ -6,7 +6,9 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
     android:layout_marginTop="8dp"
-    android:layout_marginBottom="8dp">
+    android:layout_marginBottom="8dp"
+    app:cardElevation="4dp"
+    app:cardCornerRadius="12dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -14,7 +16,7 @@
         android:padding="16dp">
 
         <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/iv_doctor_avatar"
+            android:id="@+id/ivDoctorAvatar"
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:scaleType="centerCrop"
@@ -25,39 +27,66 @@
             tools:src="@tools:sample/avatars" />
 
         <TextView
-            android:id="@+id/tv_doctor_name"
+            android:id="@+id/tvDoctorName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:text="Dr. Olivia Turner"
+            android:text="Bác sĩ Trần Văn A"
             android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/iv_doctor_avatar"
-            app:layout_constraintTop_toTopOf="@+id/iv_doctor_avatar" />
+            app:layout_constraintStart_toEndOf="@+id/ivDoctorAvatar"
+            app:layout_constraintTop_toTopOf="@+id/ivDoctorAvatar" />
 
         <TextView
-            android:id="@+id/tv_appointment_datetime"
+            android:id="@+id/tvDoctorSpecialty"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="4dp"
-            android:text="10:00 AM, October 26, 2025"
+            android:text="Chuyên khoa: Nội tổng quát"
             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
             android:textColor="?attr/colorOnSurfaceVariant"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/iv_doctor_avatar"
-            app:layout_constraintTop_toBottomOf="@+id/tv_doctor_name" />
+            app:layout_constraintStart_toEndOf="@+id/ivDoctorAvatar"
+            app:layout_constraintTop_toBottomOf="@+id/tvDoctorName" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_cancel_or_change"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+        <TextView
+            android:id="@+id/tvDoctorWorkplace"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="2dp"
+            android:text="Làm việc tại: Bệnh viện Medibook"
+            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            app:layout_constraintStart_toEndOf="@+id/ivDoctorAvatar"
+            app:layout_constraintTop_toBottomOf="@+id/tvDoctorSpecialty"
+            app:layout_constraintEnd_toEndOf="parent" />
+        <TextView
+            android:id="@+id/tvAppointmentDatetime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Cancel/Reschedule"
+            android:layout_marginTop="12dp"
+            android:text="Appointment time"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+
+            app:drawableStartCompat="@drawable/ic_calendar"
+            android:drawablePadding="8dp"
+
+            app:layout_constraintTop_toBottomOf="@+id/ivDoctorAvatar"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/btnCancelOrChange"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="80dp"
+            android:layout_height="40dp"
+            android:text="Hủy lịch"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_appointment_datetime" />
+            tools:visibility="visible" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 </com.google.android.material.card.MaterialCardView>
