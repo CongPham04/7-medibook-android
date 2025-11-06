@@ -23,7 +23,7 @@
     <ImageButton
         android:id="@+id/ib_settings"
         android:layout_width="48dp"
-        android:layout_height="40dp"
+        android:layout_height="48dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:src="@drawable/ic_setting"
         app:layout_constraintEnd_toEndOf="parent"
@@ -35,7 +35,7 @@
     <ImageButton
         android:id="@+id/ib_notifications"
         android:layout_width="48dp"
-        android:layout_height="40dp"
+        android:layout_height="48dp"
         android:layout_marginEnd="8dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:src="@drawable/ic_bell"
@@ -68,11 +68,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/iv_user_avatar"
-        app:startIconDrawable="@drawable/ic_search">
+        app:startIconDrawable="@drawable/ic_search"
+        app:boxBackgroundColor="#CAD6FF"
+        app:boxStrokeWidth="0dp"
+        app:boxStrokeWidthFocused="0dp"
+        app:boxCornerRadiusTopStart="24dp"
+        app:boxCornerRadiusTopEnd="24dp"
+        app:boxCornerRadiusBottomStart="24dp"
+        app:boxCornerRadiusBottomEnd="24dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"/>
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -96,9 +103,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:text="Danh sách bác sĩ"
-        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
         app:layout_constraintStart_toStartOf="parent"
-
+        android:textColor="?attr/colorPrimary"
         app:layout_constraintTop_toBottomOf="@+id/iv_hospital_banner" />
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_doctor_list"

@@ -9,9 +9,11 @@ import com.example.medibookandroid.data.model.Doctor;
 import com.example.medibookandroid.data.model.DoctorSchedule;
 import com.example.medibookandroid.data.model.Patient;
 import com.example.medibookandroid.data.model.Notification; // ⭐️ THÊM
+import com.example.medibookandroid.data.model.Review;
 import com.example.medibookandroid.data.repository.AppointmentRepository;
 import com.example.medibookandroid.data.repository.DoctorRepository;
 import com.example.medibookandroid.data.repository.PatientRepository;
+import com.example.medibookandroid.data.repository.ReviewRepository;
 import com.example.medibookandroid.data.repository.ScheduleRepository;
 import com.example.medibookandroid.data.repository.NotificationRepository; // ⭐️ THÊM
 import com.example.medibookandroid.data.repository.OnOperationCompleteListener;
@@ -25,6 +27,8 @@ public class PatientViewModel extends ViewModel {
     private AppointmentRepository appointmentRepository;
     private ScheduleRepository doctorScheduleRepository;
     private NotificationRepository notificationRepository; // ⭐️ THÊM
+
+    private ReviewRepository reviewRepository; // ⭐️ THÊM MỚI
 
     // LiveData cho Patient (Lấy theo ID)
     private MutableLiveData<String> patientId = new MutableLiveData<>();
@@ -46,6 +50,7 @@ public class PatientViewModel extends ViewModel {
         appointmentRepository = new AppointmentRepository();
         doctorScheduleRepository = new ScheduleRepository();
         notificationRepository = new NotificationRepository(); // ⭐️ THÊM
+        reviewRepository = new ReviewRepository(); // ⭐️ THÊM MỚI
 
         // Khi patientId thay đổi, gọi getPatientById
         currentPatient = Transformations.switchMap(patientId, id ->
@@ -130,6 +135,12 @@ public class PatientViewModel extends ViewModel {
 
     public LiveData<List<DoctorSchedule>> getSchedulesForDoctor(String doctorId) {
         return doctorScheduleRepository.getSchedulesForDoctor(doctorId);
+    }
+
+    // ⭐️ THAY ĐỔI: Hoàn thiện hàm này
+    public LiveData<List<Review>> getReviewsForDoctor(String doctorId) {
+        // Trả về LiveData trực tiếp từ repository
+        return reviewRepository.getReviewsForDoctor(doctorId);
     }
 }
 

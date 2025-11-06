@@ -60,8 +60,8 @@ public class DoctorAdapter extends RecyclerView.Adapter<DoctorAdapter.DoctorView
 
         public void bind(final Doctor doctor, final OnDoctorClickListener listener) {
             // ⭐️ SỬA: Dùng getFullName()
-            binding.tvDoctorName.setText(doctor.getFullName());
-            binding.tvDoctorSpecialty.setText(doctor.getSpecialty());
+            binding.tvDoctorName.setText("Bs. " + doctor.getFullName());
+            binding.tvDoctorSpecialty.setText("Chuyên khoa " + doctor.getSpecialty());
 
             // (Thêm Glide để tải ảnh nếu có)
             // Glide.with(itemView.getContext()).load(doctor.getAvatarUrl())...

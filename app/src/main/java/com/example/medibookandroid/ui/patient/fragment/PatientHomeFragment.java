@@ -85,7 +85,7 @@ public class PatientHomeFragment extends Fragment {
         // 1. Quan sát thông tin bệnh nhân
         viewModel.getPatient().observe(getViewLifecycleOwner(), patient -> {
             if (patient != null && patient.getFullName() != null) {
-                binding.tvWelcomeUser.setText("Chào, " + patient.getFullName() + "!");
+                binding.tvWelcomeUser.setText("👋 Chào, " + patient.getFullName() + "!");
                 // (Thêm code tải Avatar cho binding.ivUserAvatar nếu muốn)
             } else {
                 binding.tvWelcomeUser.setText("Chào bạn!");
@@ -116,9 +116,17 @@ public class PatientHomeFragment extends Fragment {
             }
         });
 
-        // (Thêm listener cho icon setting, notification...)
-        // binding.ibSettings.setOnClickListener(...);
-        // binding.ibNotifications.setOnClickListener(...);
+//        // ⭐️ BỔ SUNG: Listener cho icon Settings
+//        binding.ibSettings.setOnClickListener(v -> {
+//            // Sử dụng action ID từ patient_nav_graph.xml
+//            navController.navigate(R.id.action_patientHomeFragment_to_settingsFragment);
+//        });
+//
+//        // ⭐️ BỔ SUNG: Listener cho icon Notifications
+//        binding.ibNotifications.setOnClickListener(v -> {
+//            // Sử dụng action ID từ patient_nav_graph.xml
+//            navController.navigate(R.id.action_patientHomeFragment_to_patientNotificationsFragment);
+//        });
     }
 
     @Override

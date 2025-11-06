@@ -15,11 +15,15 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.bumptech.glide.Glide;
-import com.example.medibookandroid.R; // ⭐️ THÊM IMPORT
+import com.example.medibookandroid.R;
+// ⭐️ THÊM IMPORT ADAPTER MỚI
+import com.example.medibookandroid.ui.adapter.ReviewAdapter;
 import com.example.medibookandroid.ui.adapter.TimeSlotAdapter;
 import com.example.medibookandroid.databinding.FragmentPatientDoctorDetailBinding;
 import com.example.medibookandroid.data.model.Doctor;
 import com.example.medibookandroid.data.model.DoctorSchedule;
+// ⭐️ THÊM IMPORT MODEL REVIEW (NẾU CHƯA CÓ)
+import com.example.medibookandroid.data.model.Review;
 import com.example.medibookandroid.ui.patient.viewmodel.PatientViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -39,6 +43,7 @@ public class PatientDoctorDetailFragment extends Fragment {
     private NavController navController;
 
     private TimeSlotAdapter timeSlotAdapter;
+    private ReviewAdapter reviewAdapter; // ⭐️ THÊM MỚI
     private Doctor selectedDoctor = null;
     private DoctorSchedule selectedSchedule = null;
     private Calendar selectedDate;
@@ -83,12 +88,9 @@ public class PatientDoctorDetailFragment extends Fragment {
         viewModel = new ViewModelProvider(this).get(PatientViewModel.class);
         selectedDate = Calendar.getInstance();
 
-        // ⭐️ SỬA LỖI Ở ĐÂY ⭐️
-        // Lấy doctorId (phải là String)
         String doctorId = getArguments() != null ? getArguments().getString("doctorId") : null;
 
         if (doctorId == null) {
-            // ⭐️ KẾT THÚC SỬA LỖI ⭐️
             Toast.makeText(getContext(), "Lỗi: Không tìm thấy ID bác sĩ", Toast.LENGTH_SHORT).show();
             navController.popBackStack();
             return;
@@ -98,28 +100,37 @@ public class PatientDoctorDetailFragment extends Fragment {
         setupListeners();
         setupObservers(doctorId); // Bắt đầu quan sát
 
-        // Yêu cầu ViewModel tải data
-        // ⭐️ SỬA LỖI Ở ĐÂY ⭐️ (gọi hàm đã có trong ViewModel)
         viewModel.getSchedulesForDoctor(doctorId); // Tải TẤT CẢ ca làm việc
+
+        // ⭐️ THÊM MỚI: Yêu cầu tải reviews
+        viewModel.getReviewsForDoctor(doctorId);
     }
 
     private void setupRecyclerView() {
+        // 1. TimeSlot Adapter (như cũ)
         timeSlotAdapter = new TimeSlotAdapter(new ArrayList<>(), schedule -> {
             selectedSchedule = schedule;
         });
         binding.rvTimeSlots.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         binding.rvTimeSlots.setAdapter(timeSlotAdapter);
+
+        // ⭐️ THÊM MỚI: Review Adapter
+        // (LayoutManager đã được set trong XML, nhưng set lại ở đây cho chắc chắn)
+        reviewAdapter = new ReviewAdapter(new ArrayList<>());
+        binding.rvReviews.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        binding.rvReviews.setAdapter(reviewAdapter);
     }
 
     private void setupObservers(String doctorId) {
-        // 1. Quan sát chi tiết bác sĩ
+        // 1. Quan sát chi tiết bác sĩ (như cũ)
         viewModel.getDoctorById(doctorId).observe(getViewLifecycleOwner(), doctor -> {
             if (doctor != null) {
                 this.selectedDoctor = doctor;
-                binding.tvDoctorName.setText(doctor.getFullName());
-                binding.tvDoctorSpecialty.setText(doctor.getSpecialty());
+                binding.tvDoctorName.setText("Bs. " + doctor.getFullName());
+                binding.tvDoctorSpecialty.setText("Chuyên khoa " + doctor.getSpecialty());
                 binding.tvDoctorQualificationValue.setText(doctor.getQualifications());
                 binding.tvDoctorWorkplaceValue.setText(doctor.getWorkplace());
+                // binding.rvReviews // ⭐️ XÓA DÒNG LỖI NÀY
 
                 if (doctor.getAvatarUrl() != null && !doctor.getAvatarUrl().isEmpty() && getContext() != null) {
                     Glide.with(getContext())
@@ -131,8 +142,7 @@ public class PatientDoctorDetailFragment extends Fragment {
             }
         });
 
-        // 2. Quan sát TẤT CẢ ca làm việc của bác sĩ này
-        // ⭐️ SỬA LỖI Ở ĐÂY ⭐️ (gọi hàm đã có trong ViewModel)
+        // 2. Quan sát TẤT CẢ ca làm việc (như cũ)
         viewModel.getSchedulesForDoctor(doctorId).observe(getViewLifecycleOwner(), schedules -> {
             if (schedules != null) {
                 allAvailableSchedules.clear();
@@ -140,8 +150,23 @@ public class PatientDoctorDetailFragment extends Fragment {
                 updateAvailableTimeSlots();
             }
         });
+
+        // ⭐️ THÊM MỚI: Quan sát danh sách đánh giá
+        viewModel.getReviewsForDoctor(doctorId).observe(getViewLifecycleOwner(), reviews -> {
+            if (reviews != null && !reviews.isEmpty()) {
+                // Có đánh giá
+                reviewAdapter.updateData(reviews);
+                binding.rvReviews.setVisibility(View.VISIBLE);
+                binding.tvNoReviewsAvailable.setVisibility(View.GONE); // Ẩn text
+            } else {
+                // Không có đánh giá
+                binding.rvReviews.setVisibility(View.GONE);
+                binding.tvNoReviewsAvailable.setVisibility(View.VISIBLE); // Hiển thị text
+            }
+        });
     }
 
+    // (Hàm setupListeners giữ nguyên)
     private void setupListeners() {
         binding.calendarView.setOnDateChangeListener((v, year, month, dayOfMonth) -> {
             selectedDate.set(year, month, dayOfMonth);
@@ -166,6 +191,7 @@ public class PatientDoctorDetailFragment extends Fragment {
         binding.toolbar.setNavigationOnClickListener(v -> navController.popBackStack());
     }
 
+    // (Hàm updateAvailableTimeSlots giữ nguyên)
     private void updateAvailableTimeSlots() {
         if (allAvailableSchedules.isEmpty()) {
             binding.tvNoSlotsAvailable.setVisibility(View.VISIBLE);
