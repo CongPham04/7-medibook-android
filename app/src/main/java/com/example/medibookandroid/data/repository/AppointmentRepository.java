@@ -13,6 +13,9 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
+// ⭐️ THÊM IMPORT NÀY (Bạn phải tự tạo file interface này)
+import com.example.medibookandroid.data.repository.OnOperationCompleteListener;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -93,7 +96,7 @@ public class AppointmentRepository {
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error getting appointments for patient", e);
-                    appointmentsLiveData.setValue(null);
+                    appointmentsLiveData.setValue(new ArrayList<>()); // Trả list rỗng
                     loadingLiveData.setValue(false); // Tắt loading (khi lỗi)
                 });
         return appointmentsLiveData;
@@ -125,6 +128,7 @@ public class AppointmentRepository {
         return appointmentsLiveData;
     }
 
+
     /**
      * Updates ONLY the status of an appointment.
      * (Dùng cho "Accept" hoặc "Complete")
@@ -142,27 +146,34 @@ public class AppointmentRepository {
                 });
     }
 
+    // ⭐️ BẮT ĐẦU SỬA: Dùng addSnapshotListener ⭐️
     /**
-     * Lấy TẤT CẢ các lịch hẹn đang "pending" (chờ duyệt) cho một bác sĩ
+     * Lắng nghe (real-time) TẤT CẢ các lịch hẹn đang "pending" cho một bác sĩ
      */
-    public void getPendingAppointments(String doctorId, MutableLiveData<List<Appointment>> appointmentsLiveData) {
+    public void listenForPendingAppointments(String doctorId, MutableLiveData<List<Appointment>> appointmentsLiveData, MutableLiveData<Boolean> loadingLiveData) {
+        loadingLiveData.setValue(true); // Bật loading
         db.collection(APPOINTMENT_COLLECTION)
                 .whereEqualTo("doctorId", doctorId)
                 .whereEqualTo("status", "pending")
-                // Xóa .orderBy() để tránh lỗi Index
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<Appointment> appointments = new ArrayList<>();
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        appointments.add(document.toObject(Appointment.class));
+                .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                    if (e != null) {
+                        Log.e(TAG, "Error listening for pending appointments", e);
+                        appointmentsLiveData.setValue(new ArrayList<>());
+                        loadingLiveData.setValue(false);
+                        return;
                     }
-                    appointmentsLiveData.setValue(appointments);
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error getting pending appointments", e);
-                    appointmentsLiveData.setValue(new ArrayList<>());
+
+                    if (queryDocumentSnapshots != null) {
+                        List<Appointment> appointments = new ArrayList<>();
+                        for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                            appointments.add(document.toObject(Appointment.class));
+                        }
+                        appointmentsLiveData.setValue(appointments);
+                    }
+                    loadingLiveData.setValue(false); // Tắt loading
                 });
     }
+    // ⭐️ KẾT THÚC SỬA ⭐️
 
     /**
      * Lấy các lịch hẹn ĐÃ XÁC NHẬN cho bác sĩ theo NGÀY CỤ THỂ
