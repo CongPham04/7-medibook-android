@@ -5,9 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    tools:context=".PatientHomeFragment">
+    tools:context=".ui.patient.fragment.PatientHomeFragment">
 
-    <!-- 1. BỔ SUNG AVATAR (BÊN TRÁI CÙNG) -->
+    <!-- (Phần Avatar và Settings giữ nguyên) -->
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/iv_user_avatar"
         android:layout_width="48dp"
@@ -19,7 +19,6 @@
         app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
         tools:src="@tools:sample/avatars" />
 
-    <!-- 2. ICON CÀI ĐẶT (BÊN PHẢI CÙNG) -->
     <ImageButton
         android:id="@+id/ib_settings"
         android:layout_width="48dp"
@@ -31,20 +30,53 @@
         app:layout_constraintBottom_toBottomOf="@+id/iv_user_avatar"
         android:contentDescription="Cài đặt" />
 
-    <!-- 3. ICON THÔNG BÁO (BÊN TRÁI ICON CÀI ĐẶT) -->
-    <ImageButton
-        android:id="@+id/ib_notifications"
+    <!-- ⭐️ BẮT ĐẦU SỬA: Bọc Icon Thông báo trong FrameLayout ⭐️ -->
+    <FrameLayout
+        android:id="@+id/fl_notifications_icon"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginEnd="8dp"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_bell"
         app:layout_constraintEnd_toStartOf="@+id/ib_settings"
         app:layout_constraintTop_toTopOf="@+id/iv_user_avatar"
-        app:layout_constraintBottom_toBottomOf="@+id/iv_user_avatar"
-        android:contentDescription="Thông báo" />
+        app:layout_constraintBottom_toBottomOf="@+id/iv_user_avatar">
 
-    <!-- 4. CẬP NHẬT NEO CỦA TEXTVIEW (Ở GIỮA AVATAR VÀ ICON) -->
+        <ImageButton
+            android:id="@+id/ib_notifications"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:src="@drawable/ic_bell"
+            android:contentDescription="Thông báo"
+            android:clickable="false"
+            android:focusable="false" />
+
+        <!-- Badge (dấu chấm/số) -->
+        <TextView
+            android:id="@+id/tv_notification_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="20dp"
+            android:minHeight="20dp"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="4dp"
+            android:background="@drawable/badge_background"
+            android:gravity="center"
+            android:padding="3dp"
+            android:textColor="@android:color/white"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            android:clickable="false"
+            android:focusable="false"
+            tools:text="3"
+            tools:visibility="visible" />
+
+    </FrameLayout>
+    <!-- ⭐️ KẾT THÚC SỬA ⭐️ -->
+
+    <!-- (Phần TextView chào mừng giữ nguyên) -->
     <TextView
         android:id="@+id/tv_welcome_user"
         android:layout_width="0dp"
@@ -56,7 +88,9 @@
         app:layout_constraintStart_toEndOf="@+id/iv_user_avatar"
         app:layout_constraintTop_toTopOf="@+id/iv_user_avatar"
         app:layout_constraintBottom_toBottomOf="@+id/iv_user_avatar"
-        app:layout_constraintEnd_toStartOf="@+id/ib_notifications" />
+        app:layout_constraintEnd_toStartOf="@+id/fl_notifications_icon" />
+
+    <!-- (Phần còn lại của layout: Search, Banner, List... giữ nguyên) -->
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_search"
@@ -107,17 +141,42 @@
         app:layout_constraintStart_toStartOf="parent"
         android:textColor="?attr/colorPrimary"
         app:layout_constraintTop_toBottomOf="@+id/iv_hospital_banner" />
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_doctor_list"
+
+    <FrameLayout
+        android:id="@+id/container_list"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_doctor_list_title"
-        tools:listitem="@layout/item_patient_doctor_card" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_doctor_list_title">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_doctor_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/item_patient_doctor_card"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="visible" />
+
+        <TextView
+            android:id="@+id/tv_no_data"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Không tìm thấy bác sĩ nào"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-

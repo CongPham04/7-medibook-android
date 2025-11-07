@@ -18,9 +18,6 @@
             android:id="@+id/action_patientHomeFragment_to_settingsFragment"
             app:destination="@id/settingsFragment" />
         <!-- Action from Home to Notifications (If needed, e.g., via icon) -->
-        <action
-            android:id="@+id/action_patientHomeFragment_to_patientNotificationsFragment"
-            app:destination="@id/patientNotificationsFragment" />
     </fragment>
     <fragment
         android:id="@+id/patientDoctorDetailFragment"

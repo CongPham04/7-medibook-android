@@ -6,10 +6,10 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import com.example.medibookandroid.data.model.Appointment;
 import com.example.medibookandroid.data.model.Doctor;
-import com.example.medibookandroid.data.model.Notification; // ⭐️ THÊM
+import com.example.medibookandroid.data.model.Notification;
 import com.example.medibookandroid.data.repository.AppointmentRepository;
 import com.example.medibookandroid.data.repository.DoctorRepository;
-import com.example.medibookandroid.data.repository.NotificationRepository; // ⭐️ THÊM
+import com.example.medibookandroid.data.repository.NotificationRepository;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -17,6 +17,7 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * ViewModel riêng biệt, được CHIA SẺ cho PatientAppointmentsFragment
@@ -26,11 +27,14 @@ public class PatientAppointmentsViewModel extends ViewModel {
 
     private final AppointmentRepository appointmentRepository;
     private final DoctorRepository doctorRepository;
-    private final NotificationRepository notificationRepository; // ⭐️ THÊM
+    private final NotificationRepository notificationRepository;
     private final String currentPatientId;
 
     // LiveData chứa TẤT CẢ lịch hẹn của bệnh nhân
     private MutableLiveData<List<Appointment>> allAppointments = new MutableLiveData<>();
+
+    // LiveData cho trạng thái tải
+    private MutableLiveData<Boolean> _isLoading = new MutableLiveData<>(false);
 
     // LiveData cho thông báo (Toast)
     private MutableLiveData<String> toastMessage = new MutableLiveData<>();
@@ -43,7 +47,7 @@ public class PatientAppointmentsViewModel extends ViewModel {
     public PatientAppointmentsViewModel() {
         this.appointmentRepository = new AppointmentRepository();
         this.doctorRepository = new DoctorRepository();
-        this.notificationRepository = new NotificationRepository(); // ⭐️ THÊM
+        this.notificationRepository = new NotificationRepository();
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
@@ -59,7 +63,11 @@ public class PatientAppointmentsViewModel extends ViewModel {
         return allAppointments;
     }
     public LiveData<String> getToastMessage() {
+        toastMessage.setValue(null); // Reset
         return toastMessage;
+    }
+    public LiveData<Boolean> isLoading() {
+        return _isLoading;
     }
     public LiveData<Boolean> getCancellationStatus() {
         cancellationStatus.setValue(null); // Reset
@@ -76,17 +84,22 @@ public class PatientAppointmentsViewModel extends ViewModel {
             return;
         }
 
-        // Dùng getAppointmentsForPatient, nó sẽ tự động cập nhật allAppointments LiveData
-        appointmentRepository.getAppointmentsForPatient(currentPatientId)
+        // ⭐️ BẮT ĐẦU SỬA LỖI 1 ⭐️
+        // Gọi hàm repo 2 tham số (id, loading)
+        // và observeForever kết quả (là LiveData<List>)
+        appointmentRepository.getAppointmentsForPatient(currentPatientId, _isLoading)
                 .observeForever(appointments -> {
                     allAppointments.setValue(appointments);
                 });
+        // ⭐️ KẾT THÚC SỬA LỖI 1 ⭐️
     }
 
     /**
      * Bệnh nhân hủy một lịch hẹn
      */
     public void cancelAppointment(Appointment appointment) {
+        // Biến cờ để đảm bảo observeForever chỉ chạy 1 lần
+        AtomicBoolean notificationSent = new AtomicBoolean(false);
 
         // Gọi hàm để hủy lịch VÀ mở lại ca làm việc
         appointmentRepository.cancelAppointmentAndFreeSlot(appointment, success -> {
@@ -95,20 +108,20 @@ public class PatientAppointmentsViewModel extends ViewModel {
                 cancellationStatus.postValue(true);
                 loadAppointments(); // Tải lại toàn bộ danh sách
 
-                // ⭐️ BẮT ĐẦU: Logic Tạo Thông Báo ⭐️
+                // Logic Tạo Thông Báo
                 // Tải thông tin bác sĩ để chèn vào thông báo
                 getDoctorById(appointment.getDoctorId()).observeForever(doctor -> {
-                    // (Lưu ý: observeForever có thể chạy lại,
-                    // nhưng logic tạo notif 1 lần là đủ, dù sao cũng không nghiêm trọng)
-                    if (doctor == null) return;
+                    // Chỉ tạo thông báo 1 lần
+                    if (doctor != null && !notificationSent.get()) {
+                        notificationSent.set(true); // Đánh dấu đã gửi
 
-                    String title = "Đã hủy lịch hẹn";
-                    String message = "Bạn đã hủy lịch hẹn với " + doctor.getFullName() +
-                            " vào lúc " + appointment.getTime() + ", " + appointment.getDate() + ".";
-                    Notification notif = new Notification(currentPatientId, title, message, "booking_cancelled");
-                    notificationRepository.createNotification(notif);
+                        String title = "Đã hủy lịch hẹn";
+                        String message = "Bạn đã hủy lịch hẹn với " + doctor.getFullName() +
+                                " vào lúc " + appointment.getTime() + ", " + appointment.getDate() + ".";
+                        Notification notif = new Notification(currentPatientId, title, message, "booking_cancelled");
+                        notificationRepository.createNotification(notif);
+                    }
                 });
-                // ⭐️ KẾT THÚC: Logic Tạo Thông Báo ⭐️
 
             } else {
                 toastMessage.setValue("Lỗi khi hủy lịch hẹn");

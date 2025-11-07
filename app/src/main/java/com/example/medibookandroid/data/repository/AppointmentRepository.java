@@ -13,9 +13,6 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
-// ⭐️ THÊM IMPORT NÀY (Bạn phải tự tạo file interface này)
-import com.example.medibookandroid.data.repository.OnOperationCompleteListener;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +31,6 @@ public class AppointmentRepository {
         db = FirebaseFirestore.getInstance();
     }
 
-    // ⭐️ BẮT ĐẦU SỬA HÀM NÀY ⭐️
     /**
      * Tạo lịch hẹn mới VÀ cập nhật ca làm việc thành "đã đặt" (atomic).
      *
@@ -72,19 +68,20 @@ public class AppointmentRepository {
                     listener.onComplete(false); // Báo thất bại
                 });
     }
-    // ⭐️ KẾT THÚC SỬA ⭐️
 
     /**
      * Fetches all appointments for a specific patient.
      *
      * @param patientId The ID of the patient.
+     * @param loadingLiveData LiveData để báo cáo trạng thái đang tải
      * @return A LiveData object containing the list of appointments. Returns null on failure.
      */
-    public LiveData<List<Appointment>> getAppointmentsForPatient(String patientId) {
+    public LiveData<List<Appointment>> getAppointmentsForPatient(String patientId, MutableLiveData<Boolean> loadingLiveData) {
+        loadingLiveData.setValue(true); // Bật loading
         MutableLiveData<List<Appointment>> appointmentsLiveData = new MutableLiveData<>();
         db.collection(APPOINTMENT_COLLECTION)
                 .whereEqualTo("patientId", patientId)
-                // ⭐️ SỬA: Xóa .orderBy("createdAt",...) để tránh lỗi Index
+                // Xóa .orderBy("createdAt",...) để tránh lỗi Index
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     List<Appointment> appointments = new ArrayList<>();
@@ -92,10 +89,12 @@ public class AppointmentRepository {
                         appointments.add(document.toObject(Appointment.class));
                     }
                     appointmentsLiveData.setValue(appointments);
+                    loadingLiveData.setValue(false); // Tắt loading
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error getting appointments for patient", e);
                     appointmentsLiveData.setValue(null);
+                    loadingLiveData.setValue(false); // Tắt loading (khi lỗi)
                 });
         return appointmentsLiveData;
     }
@@ -110,7 +109,7 @@ public class AppointmentRepository {
         MutableLiveData<List<Appointment>> appointmentsLiveData = new MutableLiveData<>();
         db.collection(APPOINTMENT_COLLECTION)
                 .whereEqualTo("doctorId", doctorId)
-                // ⭐️ SỬA: Xóa .orderBy("createdAt",...) để tránh lỗi Index
+                // Xóa .orderBy("createdAt",...) để tránh lỗi Index
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     List<Appointment> appointments = new ArrayList<>();
@@ -124,24 +123,6 @@ public class AppointmentRepository {
                     appointmentsLiveData.setValue(null);
                 });
         return appointmentsLiveData;
-    }
-
-    /**
-     * Updates an existing appointment in Firestore. (Không dùng cho nghiệp vụ này)
-     */
-    public LiveData<Boolean> updateAppointment(Appointment appointment) {
-        MutableLiveData<Boolean> successLiveData = new MutableLiveData<>();
-        // ... (code cũ giữ nguyên)
-        return successLiveData;
-    }
-
-    /**
-     * Deletes an appointment from Firestore. (Không dùng cho nghiệp vụ này)
-     */
-    public LiveData<Boolean> deleteAppointment(String appointmentId) {
-        MutableLiveData<Boolean> successLiveData = new MutableLiveData<>();
-        // ... (code cũ giữ nguyên)
-        return successLiveData;
     }
 
     /**
@@ -168,7 +149,7 @@ public class AppointmentRepository {
         db.collection(APPOINTMENT_COLLECTION)
                 .whereEqualTo("doctorId", doctorId)
                 .whereEqualTo("status", "pending")
-                // ⭐️ SỬA: Xóa .orderBy() để tránh lỗi Index
+                // Xóa .orderBy() để tránh lỗi Index
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     List<Appointment> appointments = new ArrayList<>();
@@ -257,4 +238,3 @@ public class AppointmentRepository {
                 });
     }
 }
-

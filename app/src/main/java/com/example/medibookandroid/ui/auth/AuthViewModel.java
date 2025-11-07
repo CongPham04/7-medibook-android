@@ -2,6 +2,7 @@ package com.example.medibookandroid.ui.auth;
 
 // KHÔNG cần import Activity
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import com.example.medibookandroid.data.model.User;
 import com.example.medibookandroid.data.repository.AuthRepository;
@@ -9,9 +10,15 @@ import com.example.medibookandroid.data.repository.AuthRepository;
 public class AuthViewModel extends ViewModel {
 
     private final AuthRepository repository;
-
+    private final MutableLiveData<Boolean> _isLoading = new MutableLiveData<>(false);
+    public LiveData<Boolean> isLoading() {
+        return _isLoading;
+    }
     public AuthViewModel() {
         repository = new AuthRepository();
+        repository.loginUser.observeForever(user -> _isLoading.setValue(false));
+        repository.registerSuccess.observeForever(success -> _isLoading.setValue(false));
+        repository.errorMessage.observeForever(error -> _isLoading.setValue(false));
     }
 
     // LiveData cho Đăng Ký
@@ -33,6 +40,7 @@ public class AuthViewModel extends ViewModel {
      * Hàm gọi đăng ký
      */
     public void register(String email, String password, String fullName, String phone) {
+        _isLoading.setValue(true); // ⭐️ Bật loading
         repository.register(email, password, fullName, phone);
     }
 
@@ -40,6 +48,7 @@ public class AuthViewModel extends ViewModel {
      * Hàm gọi đăng nhập
      */
     public void login(String email, String password) {
+        _isLoading.setValue(true); // ⭐️ Bật loading
         repository.login(email, password);
     }
 

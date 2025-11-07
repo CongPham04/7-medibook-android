@@ -1,15 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".ui.common.AppointmentsListFragment">
 
+    <!-- 1. Danh sách (Ẩn ban đầu) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_appointments"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="8dp"
-        android:visibility="gone" /> <!-- Bắt đầu với trạng thái ẩn -->
+        android:clipToPadding="false"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:visibility="gone"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/item_patient_appointment_card"
+        tools:visibility="visible" />
 
+    <!-- 2. Thông báo "Trống" (Ẩn ban đầu) -->
     <TextView
         android:id="@+id/tv_no_appointments"
         android:layout_width="wrap_content"
@@ -18,7 +28,16 @@
         android:text="Không có lịch hẹn"
         android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
         android:textColor="?attr/colorOnSurfaceVariant"
-        android:visibility="visible" /> <!-- Bắt đầu với trạng thái hiển thị -->
+        android:visibility="gone"
+        tools:visibility="gone" />
+
+    <!-- 3. Chỉ báo Loading (Hiện ban đầu) -->
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="visible" />
 
 </FrameLayout>
-

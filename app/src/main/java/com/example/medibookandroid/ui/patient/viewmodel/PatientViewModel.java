@@ -8,14 +8,14 @@ import com.example.medibookandroid.data.model.Appointment;
 import com.example.medibookandroid.data.model.Doctor;
 import com.example.medibookandroid.data.model.DoctorSchedule;
 import com.example.medibookandroid.data.model.Patient;
-import com.example.medibookandroid.data.model.Notification; // ⭐️ THÊM
-import com.example.medibookandroid.data.model.Review;
+import com.example.medibookandroid.data.model.Notification;
+import com.example.medibookandroid.data.model.Review; // (Giả sử bạn có model này)
 import com.example.medibookandroid.data.repository.AppointmentRepository;
 import com.example.medibookandroid.data.repository.DoctorRepository;
 import com.example.medibookandroid.data.repository.PatientRepository;
-import com.example.medibookandroid.data.repository.ReviewRepository;
+import com.example.medibookandroid.data.repository.ReviewRepository; // (Giả sử bạn có repo này)
 import com.example.medibookandroid.data.repository.ScheduleRepository;
-import com.example.medibookandroid.data.repository.NotificationRepository; // ⭐️ THÊM
+import com.example.medibookandroid.data.repository.NotificationRepository;
 import com.example.medibookandroid.data.repository.OnOperationCompleteListener;
 
 import java.util.List;
@@ -26,9 +26,8 @@ public class PatientViewModel extends ViewModel {
     private DoctorRepository doctorRepository;
     private AppointmentRepository appointmentRepository;
     private ScheduleRepository doctorScheduleRepository;
-    private NotificationRepository notificationRepository; // ⭐️ THÊM
-
-    private ReviewRepository reviewRepository; // ⭐️ THÊM MỚI
+    private NotificationRepository notificationRepository;
+    private ReviewRepository reviewRepository;
 
     // LiveData cho Patient (Lấy theo ID)
     private MutableLiveData<String> patientId = new MutableLiveData<>();
@@ -49,8 +48,8 @@ public class PatientViewModel extends ViewModel {
         doctorRepository = new DoctorRepository();
         appointmentRepository = new AppointmentRepository();
         doctorScheduleRepository = new ScheduleRepository();
-        notificationRepository = new NotificationRepository(); // ⭐️ THÊM
-        reviewRepository = new ReviewRepository(); // ⭐️ THÊM MỚI
+        notificationRepository = new NotificationRepository();
+        reviewRepository = new ReviewRepository(); // (Giả sử bạn có repo này)
 
         // Khi patientId thay đổi, gọi getPatientById
         currentPatient = Transformations.switchMap(patientId, id ->
@@ -76,12 +75,20 @@ public class PatientViewModel extends ViewModel {
         patientId.setValue(id);
     }
 
+    /**
+     * Cập nhật hồ sơ bệnh nhân.
+     * Fragment sẽ gọi hàm này (1 tham số).
+     */
     public void updatePatient(Patient patient) {
+        // ViewModel sẽ xử lý callback (listener)
         patientRepository.updatePatient(patient, success -> {
             updatePatientStatus.postValue(success); // Cập nhật LiveData
         });
     }
 
+    /**
+     * Lấy LiveData trạng thái cập nhật (để Fragment observe)
+     */
     public LiveData<Boolean> getUpdatePatientStatus() {
         updatePatientStatus.setValue(null); // Reset
         return updatePatientStatus;
@@ -101,8 +108,14 @@ public class PatientViewModel extends ViewModel {
     }
 
     // --- Các hàm cho Appointment & Schedule ---
+
+    /**
+     * Lấy lịch hẹn cho Bệnh nhân (đã sửa để khớp với Repository)
+     */
     public LiveData<List<Appointment>> getAppointmentsForPatient(String patientId) {
-        return appointmentRepository.getAppointmentsForPatient(patientId);
+        // Tạo một LiveData "giả" (dummy) vì hàm repo yêu cầu nó
+        MutableLiveData<Boolean> dummyLoading = new MutableLiveData<>();
+        return appointmentRepository.getAppointmentsForPatient(patientId, dummyLoading);
     }
 
     /**
@@ -137,10 +150,7 @@ public class PatientViewModel extends ViewModel {
         return doctorScheduleRepository.getSchedulesForDoctor(doctorId);
     }
 
-    // ⭐️ THAY ĐỔI: Hoàn thiện hàm này
     public LiveData<List<Review>> getReviewsForDoctor(String doctorId) {
-        // Trả về LiveData trực tiếp từ repository
         return reviewRepository.getReviewsForDoctor(doctorId);
     }
 }
-

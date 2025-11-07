@@ -7,9 +7,10 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:padding="16dp"
-    android:gravity="center_vertical">
+    android:gravity="center_vertical"
+    android:background="?attr/selectableItemBackground"> <!-- ⭐️ THÊM: Hiệu ứng click -->
 
-    <!-- 2. Giữ LinearLayout (DỌC) của bạn để bọc 2 textview -->
+    <!-- 2. Giữ LinearLayout (DỌC) của bạn để bọc 3 textview -->
     <!-- Thêm layout_weight="1" để nó chiếm hết không gian bên trái -->
     <LinearLayout
         android:layout_width="0dp"
@@ -21,7 +22,6 @@
             android:id="@+id/tv_notification_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
             android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
             android:textColor="@color/md_theme_surfaceTint"
             tools:text="Nhắc nhở Lịch hẹn" />
@@ -31,7 +31,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
             tools:text="Lịch hẹn của bạn với B.S. Olivia Turner là vào 10:00 sáng mai." />
+
+        <TextView
+            android:id="@+id/tv_read_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Đã đọc"
+            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textStyle="italic"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <!-- ⭐️ BẮT ĐẦU THÊM MỚI ⭐️ -->
+        <!-- TextView "Đã đọc", ẩn theo mặc định -->
+        <!-- ⭐️ KẾT THÚC THÊM MỚI ⭐️ -->
 
     </LinearLayout>
 

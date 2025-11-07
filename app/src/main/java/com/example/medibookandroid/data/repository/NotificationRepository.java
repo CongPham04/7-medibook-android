@@ -11,6 +11,9 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
+// ⭐️ THÊM IMPORT NÀY (Nếu bạn chưa có)
+import com.example.medibookandroid.data.repository.OnOperationCompleteListener;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,44 +41,74 @@ public class NotificationRepository {
     }
 
     /**
-     * Fetches all notifications for a specific user.
-     *
-     * @param userId The ID of the user.
-     * @return LiveData containing the list of notifications, or null on failure.
+     * Lắng nghe (real-time) các thông báo của người dùng.
+     * Tự động sắp xếp và cập nhật LiveData.
      */
-    public LiveData<List<Notification>> getNotificationsForUser(String userId) {
-        MutableLiveData<List<Notification>> notificationsLiveData = new MutableLiveData<>();
+    public void listenForNotifications(String userId, MutableLiveData<List<Notification>> notificationsLiveData, MutableLiveData<Boolean> loadingLiveData) {
+        loadingLiveData.setValue(true); // Bật loading
         db.collection(NOTIFICATION_COLLECTION)
                 .whereEqualTo("userId", userId)
-                // ⭐️ SỬA: Xóa .orderBy("createdAt", ...) để tránh lỗi Index
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<Notification> notifications = new ArrayList<>();
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        notifications.add(document.toObject(Notification.class));
+                // Dùng addSnapshotListener thay vì .get()
+                .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                    if (e != null) {
+                        Log.e(TAG, "Error listening for notifications", e);
+                        notificationsLiveData.setValue(new ArrayList<>()); // Trả list rỗng
+                        loadingLiveData.setValue(false); // Tắt loading
+                        return;
                     }
-                    // ⭐️ THÊM: Tự sắp xếp bằng Java
-                    notifications.sort((o1, o2) -> {
-                        if (o1.getCreatedAt() != null && o2.getCreatedAt() != null) {
-                            return o2.getCreatedAt().compareTo(o1.getCreatedAt()); // Mới nhất lên đầu
+
+                    if (queryDocumentSnapshots != null) {
+                        List<Notification> notifications = new ArrayList<>();
+                        for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                            notifications.add(document.toObject(Notification.class));
                         }
-                        return 0;
-                    });
-                    notificationsLiveData.setValue(notifications);
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error getting notifications for user", e);
-                    notificationsLiveData.setValue(null);
+                        // Tự sắp xếp bằng Java (vì không dùng orderBy của Firestore)
+                        notifications.sort((o1, o2) -> {
+                            if (o1.getCreatedAt() != null && o2.getCreatedAt() != null) {
+                                return o2.getCreatedAt().compareTo(o1.getCreatedAt()); // Mới nhất lên đầu
+                            }
+                            return 0;
+                        });
+                        notificationsLiveData.setValue(notifications);
+                    }
+                    loadingLiveData.setValue(false); // Tắt loading
                 });
-        return notificationsLiveData;
     }
 
     /**
      * Marks a specific notification as read.
      */
     public void markNotificationAsRead(String notificationId, OnOperationCompleteListener listener) {
+        // ⭐️ SỬA LỖI: Tên trường là "read" (viết thường)
         db.collection(NOTIFICATION_COLLECTION).document(notificationId).update("read", true)
                 .addOnSuccessListener(aVoid -> listener.onComplete(true))
+                .addOnFailureListener(e -> listener.onComplete(false));
+    }
+
+    /**
+     * Đánh dấu TẤT CẢ thông báo chưa đọc (isRead: false) thành đã đọc (isRead: true)
+     */
+    public void markAllAsRead(String userId, OnOperationCompleteListener listener) {
+        db.collection(NOTIFICATION_COLLECTION)
+                .whereEqualTo("userId", userId)
+                .whereEqualTo("read", false) // ⭐️ SỬA LỖI: Tên trường là "read"
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        // Không có gì để đánh dấu, coi như thành công
+                        listener.onComplete(true);
+                        return;
+                    }
+
+                    WriteBatch batch = db.batch();
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        // ⭐️ SỬA LỖI: Tên trường là "read"
+                        batch.update(document.getReference(), "read", true);
+                    }
+                    batch.commit()
+                            .addOnSuccessListener(aVoid -> listener.onComplete(true))
+                            .addOnFailureListener(e -> listener.onComplete(false));
+                })
                 .addOnFailureListener(e -> listener.onComplete(false));
     }
 
@@ -97,6 +130,10 @@ public class NotificationRepository {
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     WriteBatch batch = db.batch();
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        listener.onComplete(true); // Không có gì để xóa, coi như thành công
+                        return;
+                    }
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         batch.delete(document.getReference());
                     }

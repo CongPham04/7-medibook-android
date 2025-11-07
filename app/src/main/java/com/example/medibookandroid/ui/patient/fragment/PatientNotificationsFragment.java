@@ -16,19 +16,24 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.medibookandroid.ui.adapter.NotificationAdapter;
 import com.example.medibookandroid.databinding.FragmentPatientNotificationsBinding;
 import com.example.medibookandroid.data.model.Notification;
+import com.example.medibookandroid.ui.common.LoadingDialog;
 import com.example.medibookandroid.ui.patient.viewmodel.NotificationViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class PatientNotificationsFragment extends Fragment {
+// Implement cả 2 listener
+public class PatientNotificationsFragment extends Fragment implements
+        NotificationAdapter.OnNotificationDeleteListener,
+        NotificationAdapter.OnNotificationClickListener {
 
     private FragmentPatientNotificationsBinding binding;
     private NotificationViewModel viewModel;
     private NotificationAdapter adapter;
     private String currentPatientId;
+
+    private LoadingDialog loadingDialog;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -41,7 +46,9 @@ public class PatientNotificationsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        viewModel = new ViewModelProvider(this).get(NotificationViewModel.class);
+        // Lấy ViewModel được chia sẻ từ Activity
+        viewModel = new ViewModelProvider(requireActivity()).get(NotificationViewModel.class);
+        loadingDialog = new LoadingDialog();
 
         // 1. Lấy UID
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -64,49 +71,75 @@ public class PatientNotificationsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // Tải lại dữ liệu khi quay lại màn hình
-        loadNotifications();
-    }
 
-    private void loadNotifications() {
-        if (viewModel != null && currentPatientId != null) {
-            viewModel.getNotificationsForUser(currentPatientId);
-        }
+        // ⭐️ SỬA LỖI LOGIC: Xóa hàm "markAllAsRead()"
+        // Bằng cách xóa 2 dòng này, thông báo sẽ KHÔNG tự động
+        // bị đánh dấu là đã đọc khi bạn vào màn hình.
+        // if (viewModel != null) {
+        //     viewModel.markAllAsRead();
+        // }
     }
 
     private void setupRecyclerView() {
-        adapter = new NotificationAdapter(new ArrayList<>(), notification -> {
-            // Xử lý xóa 1 mục
-            showDeleteOneConfirmation(notification);
-        });
+        // Truyền `this` cho cả 2 listener
+        adapter = new NotificationAdapter(new ArrayList<>(), this, this);
         binding.rvNotifications.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.rvNotifications.setAdapter(adapter);
     }
 
     private void setupListeners() {
         binding.tvToolbarDeleteAll.setOnClickListener(v -> {
-            showDeleteAllConfirmation();
+            if (adapter.getItemCount() > 0) {
+                showDeleteAllConfirmation();
+            } else {
+                Toast.makeText(getContext(), "Không có thông báo để xóa", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
     private void setupObservers() {
         // 1. Lắng nghe danh sách thông báo
-        viewModel.getNotificationsForUser(currentPatientId).observe(getViewLifecycleOwner(), notifications -> {
+        viewModel.getNotifications().observe(getViewLifecycleOwner(), notifications -> {
             if (notifications != null) {
                 adapter.updateData(notifications);
-                updateEmptyView(notifications.isEmpty());
             }
         });
 
-        // 2. Lắng nghe trạng thái Xóa
-        viewModel.getDeleteStatus().observe(getViewLifecycleOwner(), success -> {
-            if (success == null) return;
-            if (Boolean.TRUE.equals(success)) {
-                loadNotifications(); // Tải lại danh sách sau khi xóa thành công
+        // 2. Lắng nghe trạng thái TẢI DANH SÁCH (ProgressBar)
+        viewModel.isLoading().observe(getViewLifecycleOwner(), isLoading -> {
+            if (isLoading == null) return;
+
+            if (isLoading) {
+                binding.progressBar.setVisibility(View.VISIBLE);
+                binding.rvNotifications.setVisibility(View.GONE);
+                binding.tvNoNotifications.setVisibility(View.GONE);
+            } else {
+                binding.progressBar.setVisibility(View.GONE);
+                if (adapter.getItemCount() == 0) {
+                    binding.rvNotifications.setVisibility(View.GONE);
+                    binding.tvNoNotifications.setVisibility(View.VISIBLE);
+                } else {
+                    binding.rvNotifications.setVisibility(View.VISIBLE);
+                    binding.tvNoNotifications.setVisibility(View.GONE);
+                }
             }
         });
 
-        // 3. Lắng nghe thông báo Toast
+        // 3. Lắng nghe trạng thái XÓA (Dialog)
+        viewModel.isDeleting().observe(getViewLifecycleOwner(), isDeleting -> {
+            if (isDeleting == null) return;
+            if (isDeleting) {
+                if (!loadingDialog.isAdded() && getChildFragmentManager() != null) {
+                    loadingDialog.show(getChildFragmentManager(), "deleting");
+                }
+            } else {
+                if (loadingDialog.isAdded()) {
+                    loadingDialog.dismiss();
+                }
+            }
+        });
+
+        // 4. Lắng nghe thông báo Toast
         viewModel.getToastMessage().observe(getViewLifecycleOwner(), message -> {
             if (message != null && !message.isEmpty()) {
                 Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
@@ -132,25 +165,37 @@ public class PatientNotificationsFragment extends Fragment {
                 .setTitle("Xóa tất cả thông báo")
                 .setMessage("Bạn có chắc chắn muốn xóa tất cả thông báo?")
                 .setPositiveButton("Xóa", (dialog, which) -> {
-                    viewModel.deleteAllNotifications(currentPatientId);
+                    viewModel.deleteAllNotifications();
                 })
                 .setNegativeButton("Hủy", null)
                 .show();
-    }
-
-    private void updateEmptyView(boolean isEmpty) {
-        if (isEmpty) {
-            binding.tvNoNotifications.setVisibility(View.VISIBLE);
-            binding.rvNotifications.setVisibility(View.GONE);
-        } else {
-            binding.tvNoNotifications.setVisibility(View.GONE);
-            binding.rvNotifications.setVisibility(View.VISIBLE);
-        }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    /**
+     * Được gọi khi người dùng nhấn vào MỘT item thông báo (thẻ)
+     */
+    @Override
+    public void onNotificationClick(Notification notification) {
+        // Gọi ViewModel để đánh dấu là đã đọc
+        viewModel.markNotificationAsRead(notification);
+
+        // (Tùy chọn)
+        // Sau này, bạn có thể thêm logic điều hướng ở đây
+        // Ví dụ: nếu type == "booking_confirmed", điều hướng đến màn hình Lịch hẹn
+    }
+
+    /**
+     * Được gọi khi người dùng nhấn vào NÚT XÓA trên item
+     */
+    @Override
+    public void onDeleteClick(Notification notification) {
+        // Hiển thị dialog xác nhận xóa
+        showDeleteOneConfirmation(notification);
     }
 }

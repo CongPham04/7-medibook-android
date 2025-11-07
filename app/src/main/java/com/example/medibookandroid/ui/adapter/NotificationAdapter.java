@@ -1,6 +1,8 @@
 package com.example.medibookandroid.ui.adapter;
 
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
+import android.view.View; // ⭐️ THÊM
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,13 +17,19 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
     private List<Notification> notifications;
     private final OnNotificationDeleteListener deleteListener;
+    private final OnNotificationClickListener clickListener;
+
+    public interface OnNotificationClickListener {
+        void onNotificationClick(Notification notification);
+    }
 
     public interface OnNotificationDeleteListener {
         void onDeleteClick(Notification notification);
     }
 
-    public NotificationAdapter(List<Notification> notifications, OnNotificationDeleteListener deleteListener) {
+    public NotificationAdapter(List<Notification> notifications, OnNotificationClickListener clickListener, OnNotificationDeleteListener deleteListener) {
         this.notifications = notifications;
+        this.clickListener = clickListener;
         this.deleteListener = deleteListener;
     }
 
@@ -40,7 +48,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     @Override
     public void onBindViewHolder(@NonNull NotificationViewHolder holder, int position) {
         Notification notification = notifications.get(position);
-        holder.bind(notification, deleteListener);
+        holder.bind(notification, clickListener, deleteListener);
     }
 
     @Override
@@ -57,16 +65,26 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             this.binding = binding;
         }
 
-        public void bind(final Notification notification, final OnNotificationDeleteListener deleteListener) {
+        public void bind(final Notification notification, final OnNotificationClickListener clickListener, final OnNotificationDeleteListener deleteListener) {
             binding.tvNotificationTitle.setText(notification.getTitle());
             binding.tvNotificationBody.setText(notification.getMessage());
 
-            // (Hiển thị thêm thời gian nếu muốn)
-            // if (notification.getCreatedAt() != null) {
-            //    binding.tvNotificationTimestamp.setText(sdf.format(notification.getCreatedAt()));
-            // }
+            // ⭐️ SỬA: Thay đổi style (in đậm) VÀ visibility (Đã đọc)
+            if (!notification.isRead()) {
+                // CHƯA ĐỌC
+                binding.tvNotificationTitle.setTypeface(null, Typeface.BOLD);
+                binding.tvNotificationBody.setTypeface(null, Typeface.BOLD);
+                binding.tvReadStatus.setVisibility(View.GONE); // Ẩn "Đã đọc"
+            } else {
+                // ĐÃ ĐỌC
+                binding.tvNotificationTitle.setTypeface(null, Typeface.NORMAL);
+                binding.tvNotificationBody.setTypeface(null, Typeface.NORMAL);
+                binding.tvReadStatus.setVisibility(View.VISIBLE); // Hiện "Đã đọc"
+            }
 
+            // Gán 2 listener riêng biệt
             binding.ibDeleteNotification.setOnClickListener(v -> deleteListener.onDeleteClick(notification));
+            itemView.setOnClickListener(v -> clickListener.onNotificationClick(notification));
         }
     }
 }
