@@ -58,7 +58,6 @@
                         android:layout_height="wrap_content"
                         android:text="Dr. Olivia Turner"
                         android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-
                         android:textColor="?attr/colorPrimary" />
 
                     <TextView

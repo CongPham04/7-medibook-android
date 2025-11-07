@@ -17,8 +17,9 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            android:background="@color/md_theme_surfaceTint"
             app:navigationIcon="@drawable/ic_arrow_back"
-            app:navigationIconTint="@color/md_theme_surfaceTint"> <!-- Thêm tint cho icon -->
+            app:navigationIconTint="@android:color/white"> <!-- Thêm tint cho icon -->
 
             <TextView
                 android:layout_width="wrap_content"
@@ -27,7 +28,7 @@
                 android:layout_gravity="center"
                 android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                 android:textStyle="bold"
-                android:textColor="@color/md_theme_surfaceTint"
+                android:textColor="@android:color/white"
                 />
         </com.google.android.material.appbar.MaterialToolbar>
 

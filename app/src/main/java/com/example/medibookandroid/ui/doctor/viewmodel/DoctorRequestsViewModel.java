@@ -14,7 +14,12 @@ import com.example.medibookandroid.data.repository.NotificationRepository;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+// ⭐️ THÊM CÁC IMPORT NÀY ⭐️
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+// ⭐️ KẾT THÚC THÊM ⭐️
 
 public class DoctorRequestsViewModel extends ViewModel {
 
@@ -27,9 +32,13 @@ public class DoctorRequestsViewModel extends ViewModel {
 
     private final MutableLiveData<List<Appointment>> pendingRequests = new MutableLiveData<>();
     private final MutableLiveData<String> toastMessage = new MutableLiveData<>();
-    // LiveData để tải thông tin bệnh nhân (cho Adapter)
-    // private final MutableLiveData<Patient> patientInfo = new MutableLiveData<>(); // (Dòng này không cần thiết vì Adapter tự quản lý)
 
+    // ⭐️ BẮT ĐẦU SỬA: Thêm 2 định dạng ngày ⭐️
+    // Định dạng (Format) của ngày lưu trên Firestore ("2025-11-06")
+    private static final SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+    // Định dạng bạn muốn hiển thị ("06/11/2025")
+    private static final SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+    // ⭐️ KẾT THÚC SỬA ⭐️
 
     public DoctorRequestsViewModel() {
         this.appointmentRepository = new AppointmentRepository();
@@ -52,6 +61,7 @@ public class DoctorRequestsViewModel extends ViewModel {
         return pendingRequests;
     }
     public LiveData<String> getToastMessage() {
+        toastMessage.setValue(null); // Reset
         return toastMessage;
     }
 
@@ -79,11 +89,24 @@ public class DoctorRequestsViewModel extends ViewModel {
                 // Logic Tạo Thông Báo
                 Doctor doctor = currentDoctor.getValue();
                 String doctorName = (doctor != null) ? doctor.getFullName() : "Bác sĩ";
+
+                // ⭐️ BẮT ĐẦU SỬA: Logic định dạng ngày cho thông báo ⭐️
+                String displayDate = appointment.getDate(); // Mặc định là chuỗi gốc
+                try {
+                    Date date = inputFormat.parse(appointment.getDate());
+                    if (date != null) {
+                        displayDate = outputFormat.format(date); // Chuyển sang "dd/MM/yyyy"
+                    }
+                } catch (Exception e) {
+                    // Bỏ qua nếu lỗi, dùng ngày gốc
+                }
+
                 String title = "Lịch hẹn đã được xác nhận";
-                String message = "Lịch hẹn của bạn với " + doctorName +
-                        " vào lúc " + appointment.getTime() + ", " + appointment.getDate() + " đã được xác nhận.";
+                String message = "Lịch hẹn của bạn với Bác sĩ " + doctorName +
+                        " vào lúc " + appointment.getTime() + ", " + displayDate + " đã được xác nhận.";
                 Notification notif = new Notification(appointment.getPatientId(), title, message, "booking_confirmed");
                 notificationRepository.createNotification(notif);
+                // ⭐️ KẾT THÚC SỬA ⭐️
 
             } else {
                 toastMessage.setValue("Lỗi khi xác nhận lịch hẹn");
@@ -104,11 +127,24 @@ public class DoctorRequestsViewModel extends ViewModel {
                 // Logic Tạo Thông Báo
                 Doctor doctor = currentDoctor.getValue();
                 String doctorName = (doctor != null) ? doctor.getFullName() : "Bác sĩ";
+
+                // ⭐️ BẮT ĐẦU SỬA: Logic định dạng ngày cho thông báo ⭐️
+                String displayDate = appointment.getDate(); // Mặc định là chuỗi gốc
+                try {
+                    Date date = inputFormat.parse(appointment.getDate());
+                    if (date != null) {
+                        displayDate = outputFormat.format(date); // Chuyển sang "dd/MM/yyyy"
+                    }
+                } catch (Exception e) {
+                    // Bỏ qua nếu lỗi, dùng ngày gốc
+                }
+
                 String title = "Lịch hẹn đã bị từ chối";
-                String message = "Lịch hẹn của bạn với " + doctorName +
-                        " vào lúc " + appointment.getTime() + ", " + appointment.getDate() + " đã bị từ chối.";
+                String message = "Lịch hẹn của bạn với Bác sĩ " + doctorName +
+                        " vào lúc " + appointment.getTime() + ", " + displayDate + " đã bị từ chối.";
                 Notification notif = new Notification(appointment.getPatientId(), title, message, "booking_declined");
                 notificationRepository.createNotification(notif);
+                // ⭐️ KẾT THÚC SỬA ⭐️
 
             } else {
                 toastMessage.setValue("Lỗi khi từ chối lịch hẹn");

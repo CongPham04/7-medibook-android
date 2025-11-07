@@ -8,13 +8,13 @@
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/md_theme_surfaceTint">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:navigationIconTint="@color/md_theme_surfaceTint">
+            android:layout_height="?attr/actionBarSize">
             <!-- Đã xóa app:title và app:navigationIconTint="?attr/colorOnSurface" -->
             <!-- Đã thêm TextView căn giữa -->
             <TextView
@@ -24,7 +24,7 @@
                 android:layout_gravity="center"
                 android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                 android:textStyle="bold"
-                android:textColor="@color/md_theme_surfaceTint"
+                android:textColor="@android:color/white"
                 />
 
         </com.google.android.material.appbar.MaterialToolbar>

@@ -24,7 +24,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.io.Serializable;
+// ⭐️ THÊM CÁC IMPORT NÀY ⭐️
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
+// ⭐️ KẾT THÚC THÊM ⭐️
 
 public class BookingSummaryFragment extends Fragment {
 
@@ -43,6 +47,7 @@ public class BookingSummaryFragment extends Fragment {
         return binding.getRoot();
     }
 
+    // (Các hàm onResume, onPause giữ nguyên)
     @Override
     public void onResume() {
         super.onResume();
@@ -108,14 +113,35 @@ public class BookingSummaryFragment extends Fragment {
         setupObservers();
     }
 
+    // ⭐️ BẮT ĐẦU SỬA: Logic định dạng ngày ⭐️
     private void populateSummaryCard() {
-        binding.tvDoctorNameSummary.setText(selectedDoctor.getFullName());
+        binding.tvDoctorNameSummary.setText("Bs. " + selectedDoctor.getFullName());
 
-        String dateTime = selectedSchedule.getDate() +
+        String displayDate = selectedSchedule.getDate(); // Mặc định là chuỗi gốc
+
+        if (selectedSchedule.getDate() != null && !selectedSchedule.getDate().isEmpty()) {
+            try {
+                // Định dạng (Format) của ngày lưu trên Firestore ("2025-11-06")
+                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                // Định dạng bạn muốn hiển thị ("06/11/2025")
+                SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+
+                Date date = inputFormat.parse(selectedSchedule.getDate());
+                if (date != null) {
+                    displayDate = outputFormat.format(date); // Chuyển sang "dd/MM/yyyy"
+                }
+            } catch (Exception e) {
+                Log.e("BookingSummary", "Lỗi định dạng ngày: " + e.getMessage());
+                // Nếu lỗi, cứ dùng ngày gốc (displayDate)
+            }
+        }
+
+        String dateTime = "Thời gian: " + displayDate + // Dùng 'displayDate' đã định dạng
                 ", lúc " + selectedSchedule.getStartTime() +
                 " - " + selectedSchedule.getEndTime();
         binding.tvAppointmentTimeSummary.setText(dateTime);
     }
+    // ⭐️ KẾT THÚC SỬA ⭐️
 
     private void setupListeners() {
         binding.btnConfirmBooking.setOnClickListener(v -> {

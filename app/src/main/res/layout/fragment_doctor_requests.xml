@@ -13,7 +13,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:navigationIconTint="@color/md_theme_surfaceTint">
+        android:background="@color/md_theme_surfaceTint">
         <!-- Đã xóa app:title và thêm TextView -->
 
         <TextView
@@ -23,7 +23,7 @@
             android:layout_gravity="center"
             android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
             android:textStyle="bold"
-            android:textColor="@color/md_theme_surfaceTint"
+            android:textColor="@android:color/white"
             />
 
     </com.google.android.material.appbar.MaterialToolbar>

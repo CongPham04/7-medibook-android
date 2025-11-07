@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PatientMainActivity">
+    tools:context=".ui.patient.PatientMainActivity"> <!-- ⭐️ SỬA: Thêm namespace .ui.patient -->
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/patient_nav_host_fragment"
@@ -25,7 +25,9 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:itemIconTint="@color/md_theme_surfaceTint"
-        app:menu="@menu/patient_bottom_nav_menu" />
+        app:menu="@menu/patient_bottom_nav_menu"
+        app:itemIconTint="@color/bottom_nav_color_selector"
+        app:itemTextColor="@color/bottom_nav_color_selector"
+        android:background="#FFFFFF"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,6 +1,8 @@
 package com.example.medibookandroid.ui.patient.fragment;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -22,9 +24,8 @@ import com.example.medibookandroid.R;
 import com.example.medibookandroid.ui.adapter.DoctorAdapter;
 import com.example.medibookandroid.data.model.Doctor;
 import com.example.medibookandroid.databinding.FragmentPatientHomeBinding;
-import com.example.medibookandroid.ui.patient.viewmodel.PatientViewModel;
-// ⭐️ THÊM IMPORT
 import com.example.medibookandroid.ui.patient.viewmodel.NotificationViewModel;
+import com.example.medibookandroid.ui.patient.viewmodel.PatientViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -35,9 +36,20 @@ public class PatientHomeFragment extends Fragment {
 
     private FragmentPatientHomeBinding binding;
     private PatientViewModel viewModel;
-    private NotificationViewModel notificationViewModel; // ⭐️ THÊM
+    private NotificationViewModel notificationViewModel;
     private DoctorAdapter doctorAdapter;
-    // (Xóa biến NavController)
+
+    // Logic cho Slider
+    private Handler sliderHandler;
+    private Runnable sliderRunnable;
+    private int[] bannerImages = {
+            R.drawable.medibook_banner, // Ảnh 1 (bạn đã có)
+            R.drawable.medibook_banner2,      // (Bạn cần thêm ảnh này vào res/drawable)
+            R.drawable.medibook_banner3       // (Bạn cần thêm ảnh này vào res/drawable)
+    };
+    private int currentBannerIndex = 0;
+    private final long SLIDER_DELAY_MS = 4000; // 3 giây (Thời gian chờ)
+    private final long SLIDER_ANIM_DURATION = 500; // 0.5 giây (Thời gian trượt)
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -50,10 +62,9 @@ public class PatientHomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // ⭐️ SỬA: Lấy 2 ViewModel
         viewModel = new ViewModelProvider(this).get(PatientViewModel.class);
-        // Lấy ViewModel được chia sẻ từ Activity
         notificationViewModel = new ViewModelProvider(requireActivity()).get(NotificationViewModel.class);
+        sliderHandler = new Handler(Looper.getMainLooper());
 
         setupRecyclerView();
         setupObservers();
@@ -62,11 +73,70 @@ public class PatientHomeFragment extends Fragment {
         loadData();
     }
 
+    // ⭐️ BẮT ĐẦU SỬA: Logic Animation ⭐️
+    private void startBannerSlider() {
+        sliderRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (binding != null && getContext() != null) {
+
+                    // 1. Animate OUT (Trượt sang trái)
+                    binding.ivHospitalBanner.animate()
+                            .translationX(-binding.ivHospitalBanner.getWidth()) // Di chuyển X sang âm (ra khỏi màn hình bên trái)
+                            .alpha(0.5f) // Hơi mờ đi
+                            .setDuration(SLIDER_ANIM_DURATION) // 0.5 giây
+                            .withEndAction(() -> {
+                                // 2. Khi đã khuất (animated out):
+                                if (binding != null) {
+                                    // Đổi ảnh
+                                    currentBannerIndex = (currentBannerIndex + 1) % bannerImages.length;
+                                    binding.ivHospitalBanner.setImageResource(bannerImages[currentBannerIndex]);
+
+                                    // Đặt lại vị trí (ngoài màn hình, bên phải)
+                                    binding.ivHospitalBanner.setTranslationX(binding.ivHospitalBanner.getWidth());
+
+                                    // 3. Animate IN (Trượt từ phải vào)
+                                    binding.ivHospitalBanner.animate()
+                                            .translationX(0) // Về vị trí cũ (0)
+                                            .alpha(1.0f) // Rõ nét
+                                            .setDuration(SLIDER_ANIM_DURATION)
+                                            .start(); // Bắt đầu animation "IN"
+                                }
+                            }).start(); // Bắt đầu animation "OUT"
+
+                    // 4. Lặp lại
+                    sliderHandler.postDelayed(this, SLIDER_DELAY_MS);
+                }
+            }
+        };
+        // Bắt đầu chạy lần đầu
+        sliderHandler.postDelayed(sliderRunnable, SLIDER_DELAY_MS);
+    }
+    // ⭐️ KẾT THÚC SỬA ⭐️
+
+    private void stopBannerSlider() {
+        if (sliderHandler != null && sliderRunnable != null) {
+            sliderHandler.removeCallbacks(sliderRunnable);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        startBannerSlider(); // Bắt đầu chạy khi quay lại fragment
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        stopBannerSlider(); // Dừng lại khi rời fragment (rất quan trọng)
+    }
+
+
     private void setupRecyclerView() {
         doctorAdapter = new DoctorAdapter(new ArrayList<>(), doctor -> {
             Bundle bundle = new Bundle();
             bundle.putString("doctorId", doctor.getDoctorId());
-
             if (getActivity() != null) {
                 try {
                     NavController navController = Navigation.findNavController(requireActivity(), R.id.patient_nav_host_fragment);
@@ -96,7 +166,7 @@ public class PatientHomeFragment extends Fragment {
     }
 
     private void setupObservers() {
-        // 1. Quan sát thông tin bệnh nhân
+        // 1. Quan sát thông tin bệnh nhân (cho lời chào và avatar)
         viewModel.getPatient().observe(getViewLifecycleOwner(), patient -> {
             if (patient != null && patient.getFullName() != null) {
                 binding.tvWelcomeUser.setText("👋 Chào, " + patient.getFullName() + "!");
@@ -112,7 +182,7 @@ public class PatientHomeFragment extends Fragment {
             }
         });
 
-        // 2. Quan sát danh sách bác sĩ
+        // 2. Quan sát danh sách bác sĩ (để hiển thị loading/list/empty)
         viewModel.getDoctors().observe(getViewLifecycleOwner(), doctors -> {
             binding.progressBar.setVisibility(View.GONE);
             if (doctors != null && !doctors.isEmpty()) {
@@ -125,7 +195,7 @@ public class PatientHomeFragment extends Fragment {
             }
         });
 
-        // 3. ⭐️ THÊM: Quan sát số lượng thông báo chưa đọc
+        // 3. Quan sát số lượng thông báo chưa đọc (từ ViewModel của Activity)
         notificationViewModel.getUnreadCount().observe(getViewLifecycleOwner(), count -> {
             if (count == null) return;
 
@@ -139,7 +209,7 @@ public class PatientHomeFragment extends Fragment {
     }
 
     private void setupListeners() {
-        // 3. Listener cho thanh tìm kiếm (Giữ nguyên)
+        // 3. Listener cho thanh tìm kiếm
         binding.tilSearch.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -158,7 +228,7 @@ public class PatientHomeFragment extends Fragment {
             }
         });
 
-        // ⭐️ SỬA: Listener cho icon Settings
+        // 4. Listener cho icon Settings (Điều hướng "con")
         binding.ibSettings.setOnClickListener(v -> {
             if (getActivity() != null) {
                 try {
@@ -170,8 +240,7 @@ public class PatientHomeFragment extends Fragment {
             }
         });
 
-        // ⭐️ SỬA: Listener cho icon Notifications (Chuyển tab)
-        // Lưu ý: Dùng `flNotificationsIcon` (FrameLayout) thay vì `ibNotifications`
+        // 5. Listener cho icon Notifications (Chuyển "Tab")
         binding.flNotificationsIcon.setOnClickListener(v -> {
             if (getActivity() != null) {
                 try {
@@ -192,5 +261,6 @@ public class PatientHomeFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+        stopBannerSlider(); // Dừng hẳn vòng lặp
     }
 }

@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
     tools:context=".BookingSummaryFragment">
 
     <com.google.android.material.appbar.MaterialToolbar
@@ -14,8 +13,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:background="@color/md_theme_surfaceTint"
         app:navigationIcon="@drawable/ic_arrow_back"
-        app:navigationIconTint="@color/md_theme_surfaceTint">
+        app:navigationIconTint="@android:color/white">
         <!-- ĐÃ XÓA app:title -->
 
         <!-- THÊM TEXTVIEW CĂN GIỮA (GIỐNG FILE MẪU) -->
@@ -26,7 +26,7 @@
             android:layout_gravity="center"
             android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
             android:textStyle="bold"
-            android:textColor="@color/md_theme_surfaceTint"
+            android:textColor="@android:color/white"
             />
     </com.google.android.material.appbar.MaterialToolbar>
 
@@ -51,10 +51,11 @@
                 android:id="@+id/tv_doctor_name_summary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="B.S. Olivia Turner" />
+                tools:text="B.S. Olivia Turner"
+                android:textColor="?attr/colorPrimary"/>
 
             <TextView
                 android:id="@+id/tv_appointment_time_summary"

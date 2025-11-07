@@ -9,13 +9,12 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorSurface"> <!-- Sửa màu nền -->
+        android:background="@color/md_theme_surfaceTint"> <!-- Sửa màu nền -->
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:navigationIconTint="@color/md_theme_surfaceTint">
+            android:layout_height="?attr/actionBarSize">
             <!-- ĐÃ XÓA app:title -->
 
             <!-- THÊM TEXTVIEW CĂN GIỮA -->
@@ -26,7 +25,7 @@
                 android:layout_gravity="center"
                 android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                 android:textStyle="bold"
-                android:textColor="@color/md_theme_surfaceTint"
+                android:textColor="@android:color/white"
                 />
 
             <!-- BỔ SUNG ICON THÊM LỊCH (BÊN PHẢI) -->
@@ -38,7 +37,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:layout_gravity="end"
                 android:layout_marginEnd="16dp"
-                app:tint="@color/md_theme_surfaceTint"
+                app:tint="@android:color/white"
                 android:contentDescription="Thêm lịch khám" />
 
         </com.google.android.material.appbar.MaterialToolbar>

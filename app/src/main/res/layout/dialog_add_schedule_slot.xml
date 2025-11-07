@@ -9,8 +9,33 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:title="Tạo ca làm việc mới"
-        app:navigationIcon="@drawable/ic_arrow_back" />
+        android:background="@color/md_theme_surfaceTint"
+        android:textColor="@android:color/white">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tạo ca làm việc mới"
+            android:layout_gravity="center"
+            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            />
+
+        <!-- ⭐️ THÊM: ImageButton cho nút Close (X) ở bên phải ⭐️ -->
+        <ImageButton
+            android:id="@+id/ib_close_dialog"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginEnd="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Đóng"
+            android:src="@drawable/ic_close"
+            app:tint="@android:color/white" />
+        <!-- ⭐️ KẾT THÚC THÊM ⭐️ -->
+
+    </com.google.android.material.appbar.MaterialToolbar>
 
     <LinearLayout
         android:layout_width="match_parent"

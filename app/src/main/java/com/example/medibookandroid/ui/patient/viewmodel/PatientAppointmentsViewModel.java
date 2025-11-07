@@ -14,6 +14,12 @@ import com.example.medibookandroid.data.repository.NotificationRepository;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+// ⭐️ THÊM CÁC IMPORT NÀY ⭐️
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+// ⭐️ KẾT THÚC THÊM ⭐️
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +35,13 @@ public class PatientAppointmentsViewModel extends ViewModel {
     private final DoctorRepository doctorRepository;
     private final NotificationRepository notificationRepository;
     private final String currentPatientId;
+
+    // ⭐️ BẮT ĐẦU SỬA: Thêm 2 định dạng ngày ⭐️
+    // Định dạng (Format) của ngày lưu trên Firestore ("2025-11-06")
+    private static final SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+    // Định dạng bạn muốn hiển thị ("06/11/2025")
+    private static final SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+    // ⭐️ KẾT THÚC SỬA ⭐️
 
     // LiveData chứa TẤT CẢ lịch hẹn của bệnh nhân
     private MutableLiveData<List<Appointment>> allAppointments = new MutableLiveData<>();
@@ -84,14 +97,12 @@ public class PatientAppointmentsViewModel extends ViewModel {
             return;
         }
 
-        // ⭐️ BẮT ĐẦU SỬA LỖI 1 ⭐️
         // Gọi hàm repo 2 tham số (id, loading)
         // và observeForever kết quả (là LiveData<List>)
         appointmentRepository.getAppointmentsForPatient(currentPatientId, _isLoading)
                 .observeForever(appointments -> {
                     allAppointments.setValue(appointments);
                 });
-        // ⭐️ KẾT THÚC SỬA LỖI 1 ⭐️
     }
 
     /**
@@ -115,11 +126,24 @@ public class PatientAppointmentsViewModel extends ViewModel {
                     if (doctor != null && !notificationSent.get()) {
                         notificationSent.set(true); // Đánh dấu đã gửi
 
+                        // ⭐️ BẮT ĐẦU SỬA: Logic định dạng ngày cho thông báo ⭐️
+                        // Định dạng lại ngày để hiển thị
+                        String displayDate = appointment.getDate(); // Mặc định là chuỗi gốc
+                        try {
+                            Date date = inputFormat.parse(appointment.getDate());
+                            if (date != null) {
+                                displayDate = outputFormat.format(date); // Chuyển sang "dd/MM/yyyy"
+                            }
+                        } catch (Exception e) {
+                            // Bỏ qua nếu lỗi, dùng ngày gốc
+                        }
+
                         String title = "Đã hủy lịch hẹn";
-                        String message = "Bạn đã hủy lịch hẹn với " + doctor.getFullName() +
-                                " vào lúc " + appointment.getTime() + ", " + appointment.getDate() + ".";
+                        String message = "Bạn đã hủy lịch hẹn với Bác sĩ " + doctor.getFullName() +
+                                " vào lúc " + appointment.getTime() + ", " + displayDate + "."; // Dùng displayDate
                         Notification notif = new Notification(currentPatientId, title, message, "booking_cancelled");
                         notificationRepository.createNotification(notif);
+                        // ⭐️ KẾT THÚC SỬA ⭐️
                     }
                 });
 

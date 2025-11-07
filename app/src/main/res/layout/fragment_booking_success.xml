@@ -27,7 +27,8 @@
         app:layout_constraintBottom_toTopOf="@+id/btn_back_to_home"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/iv_success_icon" />
+        app:layout_constraintTop_toBottomOf="@+id/iv_success_icon"
+        android:textColor="@color/md_theme_surfaceTint"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_back_to_home"

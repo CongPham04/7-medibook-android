@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
+
 import com.example.medibookandroid.data.model.Appointment;
 import com.example.medibookandroid.data.model.Doctor;
 import com.example.medibookandroid.data.model.DoctorSchedule;
@@ -18,7 +19,10 @@ import com.example.medibookandroid.data.repository.ScheduleRepository;
 import com.example.medibookandroid.data.repository.NotificationRepository;
 import com.example.medibookandroid.data.repository.OnOperationCompleteListener;
 
+import java.text.SimpleDateFormat; // ⭐️ THÊM IMPORT
+import java.util.Date; // ⭐️ THÊM IMPORT
 import java.util.List;
+import java.util.Locale; // ⭐️ THÊM IMPORT
 
 public class PatientViewModel extends ViewModel {
 
@@ -28,6 +32,13 @@ public class PatientViewModel extends ViewModel {
     private ScheduleRepository doctorScheduleRepository;
     private NotificationRepository notificationRepository;
     private ReviewRepository reviewRepository;
+
+    // ⭐️ BẮT ĐẦU SỬA: Thêm 2 định dạng ngày ⭐️
+    // Định dạng (Format) của ngày lưu trên Firestore ("2025-11-06")
+    private static final SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+    // Định dạng bạn muốn hiển thị ("06/11/2025")
+    private static final SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+    // ⭐️ KẾT THÚC SỬA ⭐️
 
     // LiveData cho Patient (Lấy theo ID)
     private MutableLiveData<String> patientId = new MutableLiveData<>();
@@ -127,14 +138,27 @@ public class PatientViewModel extends ViewModel {
         appointmentRepository.createAppointment(appointment, success -> {
             appointmentCreationStatus.postValue(success);
 
-            // Tạo thông báo nếu thành công
+            // ⭐️ BẮT ĐẦU SỬA: Logic định dạng ngày cho thông báo ⭐️
             if (Boolean.TRUE.equals(success)) {
+
+                // Định dạng lại ngày để hiển thị
+                String displayDate = appointment.getDate(); // Mặc định là chuỗi gốc
+                try {
+                    Date date = inputFormat.parse(appointment.getDate());
+                    if (date != null) {
+                        displayDate = outputFormat.format(date); // Chuyển sang "dd/MM/yyyy"
+                    }
+                } catch (Exception e) {
+                    // Bỏ qua nếu lỗi, dùng ngày gốc
+                }
+
                 String title = "Đặt lịch thành công";
-                String message = "Bạn đã đặt lịch khám thành công với " + doctor.getFullName() +
-                        " vào lúc " + appointment.getTime() + ", " + appointment.getDate() + ".";
+                String message = "Bạn đã đặt lịch khám thành công với Bác sĩ " + doctor.getFullName() +
+                        " vào lúc " + appointment.getTime() + ", " + displayDate + "."; // Dùng displayDate
                 Notification notif = new Notification(appointment.getPatientId(), title, message, "booking_success");
                 notificationRepository.createNotification(notif);
             }
+            // ⭐️ KẾT THÚC SỬA ⭐️
         });
     }
 
