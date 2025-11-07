@@ -1,4 +1,4 @@
-package com.example.medibookandroid.ui.patient.fragment; // ⭐️ SỬA PACKAGE NẾU CẦN
+package com.example.medibookandroid.ui.patient.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -8,34 +8,34 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider; // ⭐️ THÊM
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import com.bumptech.glide.Glide; // ⭐️ THÊM
-import com.example.medibookandroid.R; // ⭐️ THÊM
-import com.example.medibookandroid.data.model.Patient; // ⭐️ THÊM
+import com.bumptech.glide.Glide;
+import com.example.medibookandroid.R;
+import com.example.medibookandroid.data.model.Patient;
 import com.example.medibookandroid.databinding.FragmentPatientEditProfileBinding;
-import com.example.medibookandroid.ui.patient.viewmodel.PatientViewModel; // ⭐️ THÊM
+import com.example.medibookandroid.ui.patient.viewmodel.PatientViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.auth.FirebaseAuth; // ⭐️ THÊM
-import com.google.firebase.auth.FirebaseUser; // ⭐️ THÊM
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class PatientEditProfileFragment extends Fragment {
 
     private FragmentPatientEditProfileBinding binding;
-    private PatientViewModel viewModel; // ⭐️ SỬA
+    private PatientViewModel viewModel;
     private NavController navController;
-    private Patient currentPatientData; // ⭐️ THÊM: Để giữ object patient
+    private Patient currentPatientData; // Để giữ object patient
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentPatientEditProfileBinding.inflate(inflater, container, false);
-        // ⭐️ XÓA: StorageRepository
         return binding.getRoot();
     }
 
+    // (Các hàm onResume, onPause giữ nguyên)
     @Override
     public void onResume() {
         super.onResume();
@@ -130,7 +130,10 @@ public class PatientEditProfileFragment extends Fragment {
 
     private void setupClickListeners() {
         binding.btnSaveProfile.setOnClickListener(v -> {
-            saveProfileChanges();
+            // ⭐️ SỬA: Thêm bước kiểm tra (Validate)
+            if (validateInput()) {
+                performSave();
+            }
         });
 
         binding.ivEditAvatarIcon.setOnClickListener(v -> {
@@ -141,16 +144,86 @@ public class PatientEditProfileFragment extends Fragment {
         binding.toolbar.setNavigationOnClickListener(v -> navController.popBackStack());
     }
 
+    // ⭐️ BẮT ĐẦU THÊM MỚI: Logic Validate ⭐️
+    /**
+     * Kiểm tra các trường input
+     */
+    private boolean validateInput() {
+        // Reset lỗi
+        binding.tilFullName.setError(null);
+        binding.tilDob.setError(null);
+        binding.tilGender.setError(null);
+        binding.tilPhone.setError(null);
+        binding.tilAddress.setError(null);
+
+        boolean valid = true;
+
+        String name = binding.tilFullName.getEditText().getText().toString().trim();
+        String dob = binding.tilDob.getEditText().getText().toString().trim();
+        String gender = binding.tilGender.getEditText().getText().toString().trim();
+        String phone = binding.tilPhone.getEditText().getText().toString().trim();
+        String address = binding.tilAddress.getEditText().getText().toString().trim();
+
+        // 1. Kiểm tra Tên (Giống RegisterFragment)
+        if (name.isEmpty()) {
+            binding.tilFullName.setError("Họ tên không được để trống");
+            valid = false;
+        } else if (name.length() < 5) {
+            binding.tilFullName.setError("Họ tên phải dài ít nhất 5 ký tự");
+            valid = false;
+        } else if (!Character.isLetter(name.charAt(0)) || !Character.isUpperCase(name.charAt(0))) {
+            binding.tilFullName.setError("Họ tên phải bắt đầu bằng một chữ cái viết hoa");
+            valid = false;
+        }
+
+        // 2. Kiểm tra SĐT (Giống RegisterFragment)
+        if (phone.isEmpty()) {
+            binding.tilPhone.setError("Số điện thoại không được để trống");
+            valid = false;
+        } else if (formatPhoneNumber(phone) == null) {
+            binding.tilPhone.setError("Số điện thoại không hợp lệ (VD: 0912345678)");
+            valid = false;
+        }
+
+        // 3. Kiểm tra các trường khác (chỉ cần không trống)
+        if (dob.isEmpty()) {
+            binding.tilDob.setError("Ngày sinh không được để trống");
+            valid = false;
+        }
+        if (gender.isEmpty()) {
+            binding.tilGender.setError("Giới tính không được để trống");
+            valid = false;
+        }
+        if (address.isEmpty()) {
+            binding.tilAddress.setError("Địa chỉ không được để trống");
+            valid = false;
+        }
+
+        return valid;
+    }
+
+    /**
+     * Hàm chuẩn hóa SĐT (Copy từ RegisterFragment)
+     */
+    private String formatPhoneNumber(String phone) {
+        if (phone == null) return null;
+        phone = phone.replaceAll("\\s+", "").replaceAll("[^0-9]", "");
+        if (phone.startsWith("0") && phone.length() == 10) return "+84" + phone.substring(1);
+        if (phone.startsWith("84") && phone.length() == 11) return "+" + phone;
+        if (phone.startsWith("+84") && phone.length() == 12) return phone;
+        return null; // Không hợp lệ
+    }
+    // ⭐️ KẾT THÚC THÊM MỚI ⭐️
+
     /**
      * Lấy dữ liệu từ form, cập nhật Patient object và gọi ViewModel
      */
-    private void saveProfileChanges() {
+    private void performSave() { // ⭐️ SỬA: Đổi tên hàm
         if (currentPatientData == null) {
             Toast.makeText(getContext(), "Đang tải dữ liệu, vui lòng chờ...", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Vô hiệu hóa nút
         binding.btnSaveProfile.setEnabled(false);
         binding.btnSaveProfile.setText("Đang lưu...");
 
@@ -161,11 +234,11 @@ public class PatientEditProfileFragment extends Fragment {
         String newPhone = binding.tilPhone.getEditText().getText().toString();
         String newAddress = binding.tilAddress.getEditText().getText().toString();
 
-        // Cập nhật object (Quan trọng: Phải dùng object cũ để không làm mất avatarUrl)
+        // Cập nhật object
         currentPatientData.setFullName(newFullName);
         currentPatientData.setDob(newDob);
         currentPatientData.setGender(newGender);
-        currentPatientData.setPhone(newPhone);
+        currentPatientData.setPhone(formatPhoneNumber(newPhone)); // ⭐️ SỬA: Lưu SĐT đã chuẩn hóa
         currentPatientData.setAddress(newAddress);
         // currentPatientData.setAvatarUrl(...); // Cập nhật nếu có chọn ảnh mới
 

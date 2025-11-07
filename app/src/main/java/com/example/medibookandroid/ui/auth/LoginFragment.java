@@ -16,7 +16,7 @@ import androidx.navigation.Navigation;
 import com.example.medibookandroid.R;
 import com.example.medibookandroid.data.model.User;
 import com.example.medibookandroid.databinding.FragmentLoginBinding;
-import com.example.medibookandroid.ui.common.LoadingDialog; // ⭐️ THÊM
+import com.example.medibookandroid.ui.common.LoadingDialog;
 import com.example.medibookandroid.ui.doctor.DoctorMainActivity;
 import com.example.medibookandroid.ui.patient.PatientMainActivity;
 
@@ -26,7 +26,7 @@ public class LoginFragment extends Fragment {
     private NavController navController;
     private AuthViewModel viewModel;
 
-    private LoadingDialog loadingDialog; // ⭐️ THÊM
+    private LoadingDialog loadingDialog;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -41,29 +41,32 @@ public class LoginFragment extends Fragment {
         navController = Navigation.findNavController(view);
         viewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
-        loadingDialog = new LoadingDialog(); // ⭐️ THÊM: Khởi tạo Dialog
+        loadingDialog = new LoadingDialog();
 
         binding.btnLogin.setOnClickListener(v -> {
-            if (validateInput()) { // ⭐️ SỬA: Tách hàm validate
+            if (validateInput()) {
                 String email = binding.tilEmail.getEditText().getText().toString().trim();
                 String password = binding.tilPassword.getEditText().getText().toString();
 
-                // ⭐️ SỬA: Không show dialog ở đây
                 viewModel.login(email, password);
             }
         });
 
-        setupObservers(); // ⭐️ SỬA: Gọi setupObservers
+        setupObservers();
 
         binding.tvSignUp.setOnClickListener(v ->
                 navController.navigate(R.id.action_loginFragment_to_registerFragment));
     }
 
     private boolean validateInput() {
-        // (Đây là logic validate bạn đã viết)
         String email = binding.tilEmail.getEditText().getText().toString().trim();
         String password = binding.tilPassword.getEditText().getText().toString();
 
+        // Xóa lỗi cũ
+        binding.tilEmail.setError(null);
+        binding.tilPassword.setError(null);
+
+        // Kiểm tra Email
         if (email.isEmpty()) {
             binding.tilEmail.setError("Email không được để trống");
             return false;
@@ -72,27 +75,32 @@ public class LoginFragment extends Fragment {
             binding.tilEmail.setError("Email không hợp lệ");
             return false;
         }
+
+        // ⭐️ BẮT ĐẦU SỬA: Kiểm tra Mật khẩu ⭐️
         if (password.isEmpty()) {
             binding.tilPassword.setError("Mật khẩu không được để trống");
             return false;
         }
-        binding.tilEmail.setError(null);
-        binding.tilPassword.setError(null);
-        return true;
+
+        // Thêm kiểm tra độ dài (Firebase yêu cầu tối thiểu 6 ký tự)
+        if (password.length() < 6) {
+            binding.tilPassword.setError("Mật khẩu phải có ít nhất 6 ký tự");
+            return false;
+        }
+        // ⭐️ KẾT THÚC SỬA ⭐️
+
+        return true; // Tất cả đều hợp lệ
     }
 
-    // ⭐️ SỬA: Đổi tên hàm
     private void setupObservers() {
 
-        // ⭐️ THÊM: Observer cho trạng thái loading
+        // Observer cho trạng thái loading
         viewModel.isLoading().observe(getViewLifecycleOwner(), isLoading -> {
             if (isLoading != null && isLoading) {
-                // Hiển thị dialog (tránh crash nếu fragment đã đóng)
                 if (!loadingDialog.isAdded() && getChildFragmentManager() != null) {
                     loadingDialog.show(getChildFragmentManager(), "loading");
                 }
             } else {
-                // Ẩn dialog
                 if (loadingDialog.isAdded()) {
                     loadingDialog.dismiss();
                 }
@@ -102,7 +110,6 @@ public class LoginFragment extends Fragment {
         // Observer cho kết quả đăng nhập (thành công)
         viewModel.getLoginUser().observe(getViewLifecycleOwner(), user -> {
             if (user != null) {
-                // (loading đã tự động ẩn bởi observer ở trên)
                 Toast.makeText(getContext(),
                         "Đăng nhập thành công với vai trò: " + user.getRole(),
                         Toast.LENGTH_SHORT).show();
@@ -122,7 +129,6 @@ public class LoginFragment extends Fragment {
         // Observer cho lỗi
         viewModel.getErrorMessage().observe(getViewLifecycleOwner(), msg -> {
             if (msg != null && !msg.isEmpty()) {
-                // (loading đã tự động ẩn bởi observer ở trên)
                 Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
             }
         });

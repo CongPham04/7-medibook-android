@@ -1,4 +1,4 @@
-package com.example.medibookandroid.ui.doctor.fragment; // ⭐️ SỬA PACKAGE NẾU CẦN
+package com.example.medibookandroid.ui.doctor.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -8,33 +8,30 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider; // ⭐️ THÊM
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import com.bumptech.glide.Glide; // ⭐️ THÊM
-import com.example.medibookandroid.R; // ⭐️ THÊM
-import com.example.medibookandroid.data.model.Doctor; // ⭐️ THÊM
-import com.example.medibookandroid.databinding.FragmentDoctorEditProfileBinding; // ⭐️ SỬA
-import com.example.medibookandroid.ui.doctor.viewmodel.DoctorViewModel; // ⭐️ THÊM
+import com.bumptech.glide.Glide;
+import com.example.medibookandroid.R;
+import com.example.medibookandroid.data.model.Doctor;
+import com.example.medibookandroid.databinding.FragmentDoctorEditProfileBinding;
+import com.example.medibookandroid.ui.doctor.viewmodel.DoctorViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.auth.FirebaseAuth; // ⭐️ THÊM
-import com.google.firebase.auth.FirebaseUser; // ⭐️ THÊM
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
-// ⭐️ SỬA: Đổi tên class
 public class DoctorEditProfileFragment extends Fragment {
 
-    // ⭐️ SỬA: Sử dụng Binding
     private FragmentDoctorEditProfileBinding binding;
-    private DoctorViewModel viewModel; // ⭐️ THÊM
+    private DoctorViewModel viewModel;
     private NavController navController;
-    private Doctor currentDoctorData; // ⭐️ THÊM: Để giữ object doctor
+    private Doctor currentDoctorData; // Để giữ object doctor
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentDoctorEditProfileBinding.inflate(inflater, container, false);
-        // ⭐️ XÓA: StorageRepository
         return binding.getRoot();
     }
 
@@ -65,7 +62,6 @@ public class DoctorEditProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // ⭐️ SỬA: Lấy NavController từ Activity (an toàn hơn)
         try {
             navController = Navigation.findNavController(requireActivity(), R.id.doctor_nav_host_fragment);
         } catch (Exception e) {
@@ -136,15 +132,18 @@ public class DoctorEditProfileFragment extends Fragment {
         binding.tilQualification.getEditText().setText(doctor.getQualifications());
         binding.tilWorkplace.getEditText().setText(doctor.getWorkplace());
         binding.tilPhone.getEditText().setText(doctor.getPhone());
-        binding.tilDescription.getEditText().setText(doctor.getAbout()); // ⭐️ SỬA: Dùng getAbout()
+        binding.tilDescription.getEditText().setText(doctor.getAbout());
     }
 
     private void setupClickListeners() {
         binding.btnSaveProfile.setOnClickListener(v -> {
-            saveProfileChanges();
+            // ⭐️ SỬA: Thêm bước kiểm tra (Validate)
+            if (validateInput()) {
+                performSave();
+            }
         });
 
-        binding.ivDoctorAvatar.setOnClickListener(v -> {
+        binding.ivEditAvatarIcon.setOnClickListener(v -> {
             // TODO: Mở thư viện ảnh/camera
             Toast.makeText(getContext(), "Chức năng đổi avatar chưa được triển khai", Toast.LENGTH_SHORT).show();
         });
@@ -152,16 +151,92 @@ public class DoctorEditProfileFragment extends Fragment {
         binding.toolbar.setNavigationOnClickListener(v -> navController.popBackStack());
     }
 
+    // ⭐️ BẮT ĐẦU THÊM MỚI: Logic Validate ⭐️
+    /**
+     * Kiểm tra các trường input
+     */
+    private boolean validateInput() {
+        // Reset lỗi
+        binding.tilFullName.setError(null);
+        binding.tilSpecialty.setError(null);
+        binding.tilQualification.setError(null);
+        binding.tilWorkplace.setError(null);
+        binding.tilPhone.setError(null);
+        binding.tilDescription.setError(null);
+
+        boolean valid = true;
+
+        String name = binding.tilFullName.getEditText().getText().toString().trim();
+        String specialty = binding.tilSpecialty.getEditText().getText().toString().trim();
+        String qual = binding.tilQualification.getEditText().getText().toString().trim();
+        String workplace = binding.tilWorkplace.getEditText().getText().toString().trim();
+        String phone = binding.tilPhone.getEditText().getText().toString().trim();
+        String about = binding.tilDescription.getEditText().getText().toString().trim();
+
+        // 1. Kiểm tra Tên (Giống RegisterFragment)
+        if (name.isEmpty()) {
+            binding.tilFullName.setError("Họ tên không được để trống");
+            valid = false;
+        } else if (name.length() < 5) {
+            binding.tilFullName.setError("Họ tên phải dài ít nhất 5 ký tự");
+            valid = false;
+        } else if (!Character.isLetter(name.charAt(0)) || !Character.isUpperCase(name.charAt(0))) {
+            binding.tilFullName.setError("Họ tên phải bắt đầu bằng một chữ cái viết hoa");
+            valid = false;
+        }
+
+        // 2. Kiểm tra SĐT (Giống RegisterFragment)
+        if (phone.isEmpty()) {
+            binding.tilPhone.setError("Số điện thoại không được để trống");
+            valid = false;
+        } else if (formatPhoneNumber(phone) == null) {
+            binding.tilPhone.setError("Số điện thoại không hợp lệ (VD: 0912345678)");
+            valid = false;
+        }
+
+        // 3. Kiểm tra các trường khác (chỉ cần không trống)
+        if (specialty.isEmpty()) {
+            binding.tilSpecialty.setError("Chuyên khoa không được để trống");
+            valid = false;
+        }
+        if (qual.isEmpty()) {
+            binding.tilQualification.setError("Bằng cấp không được để trống");
+            valid = false;
+        }
+        if (workplace.isEmpty()) {
+            binding.tilWorkplace.setError("Nơi công tác không được để trống");
+            valid = false;
+        }
+        if (about.isEmpty()) {
+            binding.tilDescription.setError("Mô tả không được để trống");
+            valid = false;
+        }
+
+        return valid;
+    }
+
+    /**
+     * Hàm chuẩn hóa SĐT (Copy từ RegisterFragment)
+     */
+    private String formatPhoneNumber(String phone) {
+        if (phone == null) return null;
+        phone = phone.replaceAll("\\s+", "").replaceAll("[^0-9]", "");
+        if (phone.startsWith("0") && phone.length() == 10) return "+84" + phone.substring(1);
+        if (phone.startsWith("84") && phone.length() == 11) return "+" + phone;
+        if (phone.startsWith("+84") && phone.length() == 12) return phone;
+        return null; // Không hợp lệ
+    }
+    // ⭐️ KẾT THÚC THÊM MỚI ⭐️
+
     /**
      * Lấy dữ liệu từ form, cập nhật Doctor object và gọi ViewModel
      */
-    private void saveProfileChanges() {
+    private void performSave() { // ⭐️ SỬA: Đổi tên hàm
         if (currentDoctorData == null) {
             Toast.makeText(getContext(), "Đang tải dữ liệu, vui lòng chờ...", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Vô hiệu hóa nút
         binding.btnSaveProfile.setEnabled(false);
         binding.btnSaveProfile.setText("Đang lưu...");
 
@@ -171,15 +246,15 @@ public class DoctorEditProfileFragment extends Fragment {
         String newQual = binding.tilQualification.getEditText().getText().toString();
         String newWorkplace = binding.tilWorkplace.getEditText().getText().toString();
         String newPhone = binding.tilPhone.getEditText().getText().toString();
-        String newAbout = binding.tilDescription.getEditText().getText().toString(); // ⭐️ SỬA
+        String newAbout = binding.tilDescription.getEditText().getText().toString();
 
-        // Cập nhật object (Quan trọng: Phải dùng object cũ để không làm mất các trường khác)
+        // Cập nhật object
         currentDoctorData.setFullName(newFullName);
         currentDoctorData.setSpecialty(newSpecialty);
         currentDoctorData.setQualifications(newQual);
         currentDoctorData.setWorkplace(newWorkplace);
-        currentDoctorData.setPhone(newPhone);
-        currentDoctorData.setAbout(newAbout); // ⭐️ SỬA
+        currentDoctorData.setPhone(formatPhoneNumber(newPhone)); // ⭐️ SỬA: Lưu SĐT đã chuẩn hóa
+        currentDoctorData.setAbout(newAbout);
         // currentDoctorData.setAvatarUrl(...); // Cập nhật nếu có chọn ảnh mới
 
         // Gọi ViewModel để lưu
