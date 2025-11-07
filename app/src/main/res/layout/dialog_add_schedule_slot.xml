@@ -11,8 +11,10 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@color/md_theme_surfaceTint"
         android:textColor="@android:color/white">
+        <!-- Đã xóa app:navigationIcon và app:navigationIconTint -->
 
         <TextView
+            android:id="@+id/tv_dialog_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Tạo ca làm việc mới"
@@ -22,7 +24,7 @@
             android:textColor="@android:color/white"
             />
 
-        <!-- ⭐️ THÊM: ImageButton cho nút Close (X) ở bên phải ⭐️ -->
+        <!-- ImageButton cho nút Close (X) ở bên phải -->
         <ImageButton
             android:id="@+id/ib_close_dialog"
             android:layout_width="wrap_content"
@@ -33,7 +35,6 @@
             android:contentDescription="Đóng"
             android:src="@drawable/ic_close"
             app:tint="@android:color/white" />
-        <!-- ⭐️ KẾT THÚC THÊM ⭐️ -->
 
     </com.google.android.material.appbar.MaterialToolbar>
 

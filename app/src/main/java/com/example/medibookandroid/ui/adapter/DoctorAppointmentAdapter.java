@@ -1,16 +1,17 @@
-package com.example.medibookandroid.ui.adapter; // (Hoặc package của bạn)
+package com.example.medibookandroid.ui.adapter;
 
+import android.content.Context; // ⭐️ THÊM
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
-import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LifecycleOwner; // ⭐️ THÊM
 import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.medibookandroid.data.model.Patient;
 import com.example.medibookandroid.databinding.ItemDoctorAppointmentCardBinding;
 import com.example.medibookandroid.data.model.Appointment;
-import com.example.medibookandroid.ui.doctor.viewmodel.DoctorScheduleViewModel; // Sửa import
+import com.example.medibookandroid.ui.doctor.viewmodel.DoctorScheduleViewModel;
 
 import java.util.List;
 
@@ -18,78 +19,82 @@ public class DoctorAppointmentAdapter extends RecyclerView.Adapter<DoctorAppoint
 
     private List<Appointment> appointments;
     private DoctorScheduleViewModel viewModel;
-
     private OnCompleteClickListener completeClickListener;
+    private LifecycleOwner lifecycleOwner; // ⭐️ THÊM: Biến để giữ LifecycleOwner
 
     public interface OnCompleteClickListener {
         void onCompleteClick(Appointment appointment);
     }
 
-    public DoctorAppointmentAdapter(List<Appointment> appointments, DoctorScheduleViewModel viewModel, OnCompleteClickListener completeClickListener) {
+    // ⭐️ SỬA: Constructor (hàm khởi tạo) giờ nhận 4 tham số
+    public DoctorAppointmentAdapter(List<Appointment> appointments,
+                                    DoctorScheduleViewModel viewModel,
+                                    OnCompleteClickListener completeClickListener,
+                                    LifecycleOwner lifecycleOwner) { // ⭐️ THÊM
         this.appointments = appointments;
         this.viewModel = viewModel;
-        this.completeClickListener = completeClickListener; // ⭐️ THÊM
+        this.completeClickListener = completeClickListener;
+        this.lifecycleOwner = lifecycleOwner; // ⭐️ THÊM
     }
 
 
-    // ⭐️⭐️ THÊM HÀM NÀY VÀO ⭐️⭐️
     /**
      * Cập nhật danh sách lịch hẹn và báo cho RecyclerView vẽ lại
      */
     public void updateData(List<Appointment> newAppointments) {
         this.appointments = newAppointments;
-        notifyDataSetChanged(); // Rất quan trọng!
+        notifyDataSetChanged();
     }
-    // ⭐️⭐️ KẾT THÚC HÀM MỚI ⭐️⭐️
 
     @NonNull
     @Override
     public AppointmentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         ItemDoctorAppointmentCardBinding binding = ItemDoctorAppointmentCardBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-        // ⭐️ SỬA: Truyền listener vào ViewHolder
-        return new AppointmentViewHolder(binding, viewModel, completeClickListener);
+        // ⭐️ SỬA: Chỉ cần truyền ViewModel
+        return new AppointmentViewHolder(binding, viewModel);
     }
 
     @Override
     public void onBindViewHolder(@NonNull AppointmentViewHolder holder, int position) {
-        // (Giữ nguyên)
         Appointment appointment = appointments.get(position);
-        holder.bind(appointment, (LifecycleOwner) holder.itemView.getContext());
+        // ⭐️ SỬA: Truyền listener và owner (đã lưu) vào hàm bind
+        holder.bind(appointment, completeClickListener, lifecycleOwner);
     }
 
     @Override
     public int getItemCount() {
-        return appointments.size(); // (GiV)
+        return appointments.size();
     }
 
     static class AppointmentViewHolder extends RecyclerView.ViewHolder {
-        // (Giữ nguyên)
         private final ItemDoctorAppointmentCardBinding binding;
         private DoctorScheduleViewModel viewModel;
-        // ⭐️ THÊM
-        private OnCompleteClickListener completeClickListener;
+        // ⭐️ XÓA: Không cần listener ở đây
 
-        // ⭐️ SỬA: Thêm listener
-        public AppointmentViewHolder(ItemDoctorAppointmentCardBinding binding, DoctorScheduleViewModel viewModel, OnCompleteClickListener completeClickListener) {
+        // ⭐️ SỬA: Constructor chỉ cần ViewModel
+        public AppointmentViewHolder(ItemDoctorAppointmentCardBinding binding, DoctorScheduleViewModel viewModel) {
             super(binding.getRoot());
             this.binding = binding;
             this.viewModel = viewModel;
-            this.completeClickListener = completeClickListener; // ⭐️ THÊM
         }
 
-        public void bind(final Appointment appointment, LifecycleOwner owner) {
-            // (Giữ nguyên)
-            binding.tvAppointmentTime.setText(appointment.getTime());
+        // ⭐️ SỬA: Hàm bind nhận listener và owner
+        public void bind(final Appointment appointment, final OnCompleteClickListener listener, LifecycleOwner owner) {
+            binding.tvAppointmentTime.setText("Thời gian: " + appointment.getTime());
+
             // Gán sự kiện click cho nút "Hoàn tất"
             binding.ibMarkCompleted.setOnClickListener(v -> {
-                completeClickListener.onCompleteClick(appointment);
+                listener.onCompleteClick(appointment);
             });
+
             binding.tvPatientName.setText("Đang tải...");
             MutableLiveData<Patient> patientLiveData = new MutableLiveData<>();
             viewModel.loadPatientInfo(appointment.getPatientId(), patientLiveData);
+
+            // Dùng owner (LifecycleOwner) để observe
             patientLiveData.observe(owner, patient -> {
                 if (patient != null) {
-                    binding.tvPatientName.setText(patient.getFullName());
+                    binding.tvPatientName.setText("Bệnh nhân: " + patient.getFullName());
                 } else {
                     binding.tvPatientName.setText("Không rõ bệnh nhân");
                 }

@@ -101,7 +101,7 @@ public class DoctorRequestsViewModel extends ViewModel {
                     // Bỏ qua nếu lỗi, dùng ngày gốc
                 }
 
-                String title = "Lịch hẹn đã được xác nhận";
+                String title = "✔ Lịch hẹn đã được xác nhận!";
                 String message = "Lịch hẹn của bạn với Bác sĩ " + doctorName +
                         " vào lúc " + appointment.getTime() + ", " + displayDate + " đã được xác nhận.";
                 Notification notif = new Notification(appointment.getPatientId(), title, message, "booking_confirmed");
@@ -139,7 +139,7 @@ public class DoctorRequestsViewModel extends ViewModel {
                     // Bỏ qua nếu lỗi, dùng ngày gốc
                 }
 
-                String title = "Lịch hẹn đã bị từ chối";
+                String title = "❌ Lịch hẹn đã bị từ chối!";
                 String message = "Lịch hẹn của bạn với Bác sĩ " + doctorName +
                         " vào lúc " + appointment.getTime() + ", " + displayDate + " đã bị từ chối.";
                 Notification notif = new Notification(appointment.getPatientId(), title, message, "booking_declined");

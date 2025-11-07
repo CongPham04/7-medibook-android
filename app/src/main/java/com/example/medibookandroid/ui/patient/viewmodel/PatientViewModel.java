@@ -152,7 +152,7 @@ public class PatientViewModel extends ViewModel {
                     // Bỏ qua nếu lỗi, dùng ngày gốc
                 }
 
-                String title = "Đặt lịch thành công";
+                String title = "✔ Đặt lịch thành công!";
                 String message = "Bạn đã đặt lịch khám thành công với Bác sĩ " + doctor.getFullName() +
                         " vào lúc " + appointment.getTime() + ", " + displayDate + "."; // Dùng displayDate
                 Notification notif = new Notification(appointment.getPatientId(), title, message, "booking_success");

@@ -55,8 +55,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
-                android:text="Lịch hẹn đã xác nhận"
-                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:text="📅 Lịch hẹn đã xác nhận"
+                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/calendar_view" />
 
@@ -95,8 +95,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
-                android:text="Ca làm việc có sẵn"
-                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:text="🕘 Ca làm việc có sẵn"
+                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/fl_confirmed_container" />
 

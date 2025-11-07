@@ -138,7 +138,7 @@ public class PatientAppointmentsViewModel extends ViewModel {
                             // Bỏ qua nếu lỗi, dùng ngày gốc
                         }
 
-                        String title = "Đã hủy lịch hẹn";
+                        String title = "❌ Đã hủy lịch hẹn!";
                         String message = "Bạn đã hủy lịch hẹn với Bác sĩ " + doctor.getFullName() +
                                 " vào lúc " + appointment.getTime() + ", " + displayDate + "."; // Dùng displayDate
                         Notification notif = new Notification(currentPatientId, title, message, "booking_cancelled");

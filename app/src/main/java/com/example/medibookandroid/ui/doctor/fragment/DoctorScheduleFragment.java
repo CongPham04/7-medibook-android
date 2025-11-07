@@ -14,7 +14,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-// ⭐️ SỬA: Import Appointment
 import com.example.medibookandroid.data.model.Appointment;
 import com.example.medibookandroid.data.model.DoctorSchedule;
 import com.example.medibookandroid.databinding.DialogAddScheduleSlotBinding;
@@ -33,7 +32,7 @@ import java.util.Locale;
 public class DoctorScheduleFragment extends Fragment implements
         DoctorAvailableSlotAdapter.OnEditClickListener,
         DoctorAvailableSlotAdapter.OnDeleteClickListener,
-        DoctorAppointmentAdapter.OnCompleteClickListener { // ⭐️ THÊM INTERFACE MỚI
+        DoctorAppointmentAdapter.OnCompleteClickListener {
 
     private FragmentDoctorScheduleBinding binding;
     private DoctorScheduleViewModel viewModel; // Sử dụng ViewModel
@@ -84,8 +83,11 @@ public class DoctorScheduleFragment extends Fragment implements
         binding.rvAvailableSlots.setAdapter(slotAdapter);
 
         binding.rvConfirmedAppointments.setLayoutManager(new LinearLayoutManager(getContext()));
-        // ⭐️ SỬA: Truyền 'this' (cho OnCompleteClickListener) vào constructor
-        appointmentAdapter = new DoctorAppointmentAdapter(new ArrayList<>(), viewModel, this);
+
+        // ⭐️ BẮT ĐẦU SỬA: Thêm `getViewLifecycleOwner()` ⭐️
+        appointmentAdapter = new DoctorAppointmentAdapter(new ArrayList<>(), viewModel, this, getViewLifecycleOwner());
+        // ⭐️ KẾT THÚC SỬA ⭐️
+
         binding.rvConfirmedAppointments.setAdapter(appointmentAdapter);
     }
 
@@ -106,6 +108,8 @@ public class DoctorScheduleFragment extends Fragment implements
     private void setupObservers() {
         // Observer cho ca làm việc
         viewModel.getAvailableSlots().observe(getViewLifecycleOwner(), schedules -> {
+            // ⭐️ SỬA: Thêm kiểm tra null
+            if (schedules == null) return;
             slotAdapter.updateData(schedules); // Cập nhật adapter
             if (schedules.isEmpty()) {
                 binding.tvNoAvailableSlots.setVisibility(View.VISIBLE);
@@ -118,6 +122,8 @@ public class DoctorScheduleFragment extends Fragment implements
 
         // Observer cho lịch đã hẹn
         viewModel.getConfirmedAppointments().observe(getViewLifecycleOwner(), appointments -> {
+            // ⭐️ SỬA: Thêm kiểm tra null
+            if (appointments == null) return;
             appointmentAdapter.updateData(appointments); // Cập nhật adapter
             if (appointments.isEmpty()) {
                 binding.tvNoConfirmedAppointments.setVisibility(View.VISIBLE);
@@ -135,7 +141,6 @@ public class DoctorScheduleFragment extends Fragment implements
             }
         });
 
-        // ⭐️ BẮT ĐẦU THÊM MỚI ⭐️
         // Quan sát trạng thái "Hoàn tất" (để báo lỗi nếu cần)
         viewModel.getCompletionStatus().observe(getViewLifecycleOwner(), success -> {
             if (success == null) return;
@@ -145,14 +150,13 @@ public class DoctorScheduleFragment extends Fragment implements
                 Toast.makeText(getContext(), "Lỗi: Không thể hoàn tất lịch hẹn", Toast.LENGTH_SHORT).show();
             }
         });
-        // ⭐️ KẾT THÚC THÊM MỚI ⭐️
     }
 
     // Hàm này chỉ cập nhật UI, không lấy data
     private void updateTitles(Date date) {
         String formattedDate = displayDateFormat.format(date);
-        binding.tvAppointmentsTitle.setText("Lịch hẹn đã xác nhận (" + formattedDate + ")");
-        binding.tvAvailableSlotsTitle.setText("Ca làm việc có sẵn (" + formattedDate + ")");
+        binding.tvAppointmentsTitle.setText("📅 Lịch hẹn đã xác nhận (" + formattedDate + ")");
+        binding.tvAvailableSlotsTitle.setText("🕘 Ca làm việc có sẵn (" + formattedDate + ")");
     }
 
     // Sửa lại hàm này để dùng DoctorSchedule
@@ -171,18 +175,23 @@ public class DoctorScheduleFragment extends Fragment implements
 
         if (slotToEdit != null) {
             // Chế độ Sửa
-            dialogBinding.toolbar.setTitle("Sửa ca làm việc");
+            // ⭐️ SỬA: Đặt text cho TextView, không phải Toolbar
+            dialogBinding.tvDialogTitle.setText("Sửa ca làm việc");
             dialogBinding.etStartTime.setText(slotToEdit.getStartTime());
             dialogBinding.etEndTime.setText(slotToEdit.getEndTime());
             try {
-                startTime.setTime(timeFormat.parse(slotToEdit.getStartTime()));
-                endTime.setTime(timeFormat.parse(slotToEdit.getEndTime()));
+                if (slotToEdit.getStartTime() != null)
+                    startTime.setTime(timeFormat.parse(slotToEdit.getStartTime()));
+                if (slotToEdit.getEndTime() != null)
+                    endTime.setTime(timeFormat.parse(slotToEdit.getEndTime()));
             } catch (ParseException e) {
                 Log.e("DoctorScheduleFragment", "Lỗi parse thời gian khi sửa", e);
             }
         } else {
             // Chế độ Thêm mới
-            dialogBinding.toolbar.setTitle("Tạo ca làm việc mới");
+            // (Giữ nguyên text mặc định "Tạo ca làm việc mới" từ XML)
+            // hoặc
+            // dialogBinding.tvDialogTitle.setText("Tạo ca làm việc mới");
         }
 
         dialogBinding.etStartTime.setOnClickListener(v -> {
@@ -221,7 +230,8 @@ public class DoctorScheduleFragment extends Fragment implements
             // ViewModel sẽ tự động cập nhật LiveData, Observers sẽ bắt và refresh UI
         });
 
-        dialogBinding.toolbar.setNavigationOnClickListener(v -> dialog.dismiss());
+        // ⭐️ SỬA: Gán listener cho nút 'X' (ib_close_dialog)
+        dialogBinding.ibCloseDialog.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
     }
 
@@ -250,7 +260,6 @@ public class DoctorScheduleFragment extends Fragment implements
                 .show();
     }
 
-    // ⭐️ BẮT ĐẦU THÊM MỚI ⭐️
     /**
      * Được gọi khi bác sĩ nhấn nút "Hoàn tất" (dấu tích)
      */
@@ -271,7 +280,6 @@ public class DoctorScheduleFragment extends Fragment implements
                 })
                 .show();
     }
-    // ⭐️ KẾT THÚC THÊM MỚI ⭐️
 
     @Override
     public void onDestroyView() {
@@ -279,4 +287,3 @@ public class DoctorScheduleFragment extends Fragment implements
         binding = null;
     }
 }
-
