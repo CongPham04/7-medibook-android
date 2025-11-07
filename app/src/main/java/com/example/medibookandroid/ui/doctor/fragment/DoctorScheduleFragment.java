@@ -35,10 +35,9 @@ public class DoctorScheduleFragment extends Fragment implements
         DoctorAppointmentAdapter.OnCompleteClickListener {
 
     private FragmentDoctorScheduleBinding binding;
-    private DoctorScheduleViewModel viewModel; // Sử dụng ViewModel
+    private DoctorScheduleViewModel viewModel;
     private Calendar selectedDate;
 
-    // Định dạng ngày
     private final SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
     private final SimpleDateFormat firestoreDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
@@ -57,37 +56,25 @@ public class DoctorScheduleFragment extends Fragment implements
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // 1. Khởi tạo ViewModel
         viewModel = new ViewModelProvider(this).get(DoctorScheduleViewModel.class);
-
         selectedDate = Calendar.getInstance();
-
-        // 2. Setup RecyclerViews với Adapter rỗng
         setupRecyclerViews();
-
-        // 3. Setup Listeners
         setupListeners();
+        setupObservers(); // ⭐️ SỬA: Gọi hàm này
 
-        // 4. Setup Observers (Lắng nghe ViewModel)
-        setupObservers();
-
-        // 5. Tải dữ liệu lần đầu
+        // ⭐️ SỬA: Tải dữ liệu lần đầu (đã bao gồm loading)
         updateTitles(selectedDate.getTime());
         viewModel.loadDataForDate(selectedDate.getTime());
     }
 
     private void setupRecyclerViews() {
         binding.rvAvailableSlots.setLayoutManager(new LinearLayoutManager(getContext()));
-        // Khởi tạo adapter với this (ViewModel) và list rỗng
         slotAdapter = new DoctorAvailableSlotAdapter(new ArrayList<>(), this, this);
         binding.rvAvailableSlots.setAdapter(slotAdapter);
 
         binding.rvConfirmedAppointments.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        // ⭐️ BẮT ĐẦU SỬA: Thêm `getViewLifecycleOwner()` ⭐️
+        // ⭐️ SỬA: Thêm `getViewLifecycleOwner()`
         appointmentAdapter = new DoctorAppointmentAdapter(new ArrayList<>(), viewModel, this, getViewLifecycleOwner());
-        // ⭐️ KẾT THÚC SỬA ⭐️
-
         binding.rvConfirmedAppointments.setAdapter(appointmentAdapter);
     }
 
@@ -95,71 +82,97 @@ public class DoctorScheduleFragment extends Fragment implements
         binding.calendarView.setOnDateChangeListener((v, year, month, dayOfMonth) -> {
             selectedDate.set(year, month, dayOfMonth);
             updateTitles(selectedDate.getTime());
-            // Chỉ cần bảo ViewModel tải data
             viewModel.loadDataForDate(selectedDate.getTime());
         });
 
         binding.fabAddSlot.setOnClickListener(v -> {
-            // Truyền null vì đây là tạo mới
             showAddOrEditSlotDialog(null);
         });
     }
 
+    // ⭐️ BẮT ĐẦU SỬA: Tách riêng logic Observe ⭐️
     private void setupObservers() {
-        // Observer cho ca làm việc
+        // 1. Lắng nghe Ca làm việc
         viewModel.getAvailableSlots().observe(getViewLifecycleOwner(), schedules -> {
-            // ⭐️ SỬA: Thêm kiểm tra null
-            if (schedules == null) return;
-            slotAdapter.updateData(schedules); // Cập nhật adapter
-            if (schedules.isEmpty()) {
-                binding.tvNoAvailableSlots.setVisibility(View.VISIBLE);
+            if (schedules != null) {
+                slotAdapter.updateData(schedules);
+            }
+            // Logic loading/empty được chuyển sang observer 2
+        });
+
+        // 2. Lắng nghe trạng thái TẢI Ca làm việc
+        viewModel.isLoadingAvailable().observe(getViewLifecycleOwner(), isLoading -> {
+            if (isLoading == null) return;
+            if (isLoading) {
+                binding.progressBarAvailable.setVisibility(View.VISIBLE);
                 binding.rvAvailableSlots.setVisibility(View.GONE);
-            } else {
                 binding.tvNoAvailableSlots.setVisibility(View.GONE);
-                binding.rvAvailableSlots.setVisibility(View.VISIBLE);
-            }
-        });
-
-        // Observer cho lịch đã hẹn
-        viewModel.getConfirmedAppointments().observe(getViewLifecycleOwner(), appointments -> {
-            // ⭐️ SỬA: Thêm kiểm tra null
-            if (appointments == null) return;
-            appointmentAdapter.updateData(appointments); // Cập nhật adapter
-            if (appointments.isEmpty()) {
-                binding.tvNoConfirmedAppointments.setVisibility(View.VISIBLE);
-                binding.rvConfirmedAppointments.setVisibility(View.GONE);
             } else {
-                binding.tvNoConfirmedAppointments.setVisibility(View.GONE);
-                binding.rvConfirmedAppointments.setVisibility(View.VISIBLE);
+                binding.progressBarAvailable.setVisibility(View.GONE);
+                // Kiểm tra lại list sau khi tải xong
+                if (slotAdapter.getItemCount() == 0) {
+                    binding.rvAvailableSlots.setVisibility(View.GONE);
+                    binding.tvNoAvailableSlots.setVisibility(View.VISIBLE);
+                } else {
+                    binding.rvAvailableSlots.setVisibility(View.VISIBLE);
+                    binding.tvNoAvailableSlots.setVisibility(View.GONE);
+                }
             }
         });
 
-        // Observer cho thông báo (Toast)
+        // 3. Lắng nghe Lịch hẹn
+        viewModel.getConfirmedAppointments().observe(getViewLifecycleOwner(), appointments -> {
+            if (appointments != null) {
+                appointmentAdapter.updateData(appointments);
+            }
+            // Logic loading/empty được chuyển sang observer 4
+        });
+
+        // 4. Lắng nghe trạng thái TẢI Lịch hẹn
+        viewModel.isLoadingConfirmed().observe(getViewLifecycleOwner(), isLoading -> {
+            if (isLoading == null) return;
+            if (isLoading) {
+                binding.progressBarConfirmed.setVisibility(View.VISIBLE);
+                binding.rvConfirmedAppointments.setVisibility(View.GONE);
+                binding.tvNoConfirmedAppointments.setVisibility(View.GONE);
+            } else {
+                binding.progressBarConfirmed.setVisibility(View.GONE);
+                // Kiểm tra lại list sau khi tải xong
+                if (appointmentAdapter.getItemCount() == 0) {
+                    binding.rvConfirmedAppointments.setVisibility(View.GONE);
+                    binding.tvNoConfirmedAppointments.setVisibility(View.VISIBLE);
+                } else {
+                    binding.rvConfirmedAppointments.setVisibility(View.VISIBLE);
+                    binding.tvNoConfirmedAppointments.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        // 5. Lắng nghe thông báo (Toast)
         viewModel.getToastMessage().observe(getViewLifecycleOwner(), message -> {
             if (message != null && !message.isEmpty()) {
                 Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
             }
         });
 
-        // Quan sát trạng thái "Hoàn tất" (để báo lỗi nếu cần)
+        // 6. Lắng nghe trạng thái "Hoàn tất"
         viewModel.getCompletionStatus().observe(getViewLifecycleOwner(), success -> {
             if (success == null) return;
-
             if (Boolean.FALSE.equals(success)) {
-                // Chỉ báo lỗi nếu thất bại, vì thành công đã có toast "Đã hoàn tất"
                 Toast.makeText(getContext(), "Lỗi: Không thể hoàn tất lịch hẹn", Toast.LENGTH_SHORT).show();
             }
         });
     }
+    // ⭐️ KẾT THÚC SỬA ⭐️
 
-    // Hàm này chỉ cập nhật UI, không lấy data
+    // (Hàm updateTitles giữ nguyên)
     private void updateTitles(Date date) {
         String formattedDate = displayDateFormat.format(date);
         binding.tvAppointmentsTitle.setText("📅 Lịch hẹn đã xác nhận (" + formattedDate + ")");
         binding.tvAvailableSlotsTitle.setText("🕘 Ca làm việc có sẵn (" + formattedDate + ")");
     }
 
-    // Sửa lại hàm này để dùng DoctorSchedule
+    // (Hàm showAddOrEditSlotDialog giữ nguyên)
     private void showAddOrEditSlotDialog(@Nullable DoctorSchedule slotToEdit) {
         if (getContext() == null) return;
 
@@ -175,7 +188,6 @@ public class DoctorScheduleFragment extends Fragment implements
 
         if (slotToEdit != null) {
             // Chế độ Sửa
-            // ⭐️ SỬA: Đặt text cho TextView, không phải Toolbar
             dialogBinding.tvDialogTitle.setText("Sửa ca làm việc");
             dialogBinding.etStartTime.setText(slotToEdit.getStartTime());
             dialogBinding.etEndTime.setText(slotToEdit.getEndTime());
@@ -188,10 +200,7 @@ public class DoctorScheduleFragment extends Fragment implements
                 Log.e("DoctorScheduleFragment", "Lỗi parse thời gian khi sửa", e);
             }
         } else {
-            // Chế độ Thêm mới
-            // (Giữ nguyên text mặc định "Tạo ca làm việc mới" từ XML)
-            // hoặc
-            // dialogBinding.tvDialogTitle.setText("Tạo ca làm việc mới");
+            // Chế độ Thêm mới (dùng text mặc định từ XML)
         }
 
         dialogBinding.etStartTime.setOnClickListener(v -> {
@@ -218,16 +227,12 @@ public class DoctorScheduleFragment extends Fragment implements
             String endTimeStr = dialogBinding.etEndTime.getText().toString();
             String dateString = firestoreDateFormat.format(selectedDate.getTime());
 
-            // Fragment không tự kiểm tra, chỉ gửi lệnh cho ViewModel
             if (slotToEdit != null) {
-                // Gửi lệnh SỬA
                 viewModel.updateScheduleSlot(slotToEdit, startTimeStr, endTimeStr);
             } else {
-                // Gửi lệnh TẠO MỚI
                 viewModel.createScheduleSlot(dateString, startTimeStr, endTimeStr);
             }
             dialog.dismiss();
-            // ViewModel sẽ tự động cập nhật LiveData, Observers sẽ bắt và refresh UI
         });
 
         // ⭐️ SỬA: Gán listener cho nút 'X' (ib_close_dialog)
@@ -235,22 +240,20 @@ public class DoctorScheduleFragment extends Fragment implements
         dialog.show();
     }
 
-    // Interface click từ Adapter
+    // (Hàm onEditClick giữ nguyên)
     @Override
     public void onEditClick(DoctorSchedule schedule) {
         showAddOrEditSlotDialog(schedule);
     }
 
-    // Interface click từ Adapter
+    // (Hàm onDeleteClick giữ nguyên)
     @Override
     public void onDeleteClick(DoctorSchedule schedule) {
         if (getContext() == null) return;
-
         new AlertDialog.Builder(getContext())
                 .setTitle("Xác nhận xóa")
                 .setMessage("Bạn có chắc chắn muốn xóa ca làm việc này không?\n(" + schedule.getStartTime() + " - " + schedule.getEndTime() + ")")
                 .setPositiveButton("Xóa", (dialog, which) -> {
-                    // Chỉ gửi lệnh XÓA cho ViewModel
                     viewModel.deleteScheduleSlot(schedule);
                     dialog.dismiss();
                 })
@@ -260,9 +263,7 @@ public class DoctorScheduleFragment extends Fragment implements
                 .show();
     }
 
-    /**
-     * Được gọi khi bác sĩ nhấn nút "Hoàn tất" (dấu tích)
-     */
+    // (Hàm onCompleteClick giữ nguyên)
     @Override
     public void onCompleteClick(Appointment appointment) {
         if (getContext() == null) return;
@@ -271,7 +272,6 @@ public class DoctorScheduleFragment extends Fragment implements
                 .setTitle("Xác nhận Hoàn tất")
                 .setMessage("Bạn có chắc chắn muốn đánh dấu lịch hẹn này là đã hoàn thành không?")
                 .setPositiveButton("Hoàn tất", (dialog, which) -> {
-                    // Gọi ViewModel
                     viewModel.markAsCompleted(appointment);
                     dialog.dismiss();
                 })

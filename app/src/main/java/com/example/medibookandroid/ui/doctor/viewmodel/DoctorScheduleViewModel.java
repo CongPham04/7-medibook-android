@@ -12,6 +12,7 @@ import com.example.medibookandroid.data.model.Patient;
 // ⭐️ SỬA: Import cả 2 repository
 import com.example.medibookandroid.data.repository.AppointmentRepository;
 import com.example.medibookandroid.data.repository.ScheduleRepository;
+import com.example.medibookandroid.data.repository.OnOperationCompleteListener; // ⭐️ THÊM
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -31,6 +32,11 @@ public class DoctorScheduleViewModel extends ViewModel {
     private final String currentDoctorId; // UID của bác sĩ đang đăng nhập
     private final SimpleDateFormat firestoreDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+
+    // ⭐️ BẮT ĐẦU SỬA: Thêm LiveData cho loading ⭐️
+    private final MutableLiveData<Boolean> _isLoadingAvailable = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> _isLoadingConfirmed = new MutableLiveData<>(false);
+    // ⭐️ KẾT THÚC SỬA ⭐️
 
     // LiveData cho View "quan sát"
     private final MutableLiveData<List<DoctorSchedule>> availableSlots = new MutableLiveData<>();
@@ -55,24 +61,28 @@ public class DoctorScheduleViewModel extends ViewModel {
         }
     }
 
-    // Getters cho LiveData (Giữ nguyên)
+    // Getters cho LiveData
     public LiveData<List<DoctorSchedule>> getAvailableSlots() {
         return availableSlots;
     }
     public LiveData<List<Appointment>> getConfirmedAppointments() {
         return confirmedAppointments;
     }
-
     public LiveData<String> getToastMessage() {
+        toastMessage.setValue(null); // Reset
         return toastMessage;
     }
-
-    /**
-     * Lấy LiveData cho trạng thái hoàn tất (để Fragment observe)
-     */
     public LiveData<Boolean> getCompletionStatus() {
         completionStatus.setValue(null); // Reset
         return completionStatus;
+    }
+
+    // ⭐️ THÊM: Getters cho loading ⭐️
+    public LiveData<Boolean> isLoadingAvailable() {
+        return _isLoadingAvailable;
+    }
+    public LiveData<Boolean> isLoadingConfirmed() {
+        return _isLoadingConfirmed;
     }
 
     // Hàm View gọi khi đổi ngày
@@ -80,9 +90,9 @@ public class DoctorScheduleViewModel extends ViewModel {
         String dateString = firestoreDateFormat.format(date);
         Log.d("ScheduleVM", "Đang tải data cho Doctor ID: " + currentDoctorId + " | Ngày: " + dateString);
 
-        // ⭐️ SỬA: Gọi đúng repository cho đúng việc
-        scheduleRepository.getSchedules(currentDoctorId, dateString, availableSlots);
-        appointmentRepository.getConfirmedAppointmentsForDoctorByDate(currentDoctorId, dateString, confirmedAppointments);
+        // ⭐️ SỬA: Gọi hàm repo 4 tham số
+        scheduleRepository.getSchedules(currentDoctorId, dateString, availableSlots, _isLoadingAvailable);
+        appointmentRepository.getConfirmedAppointmentsForDoctorByDate(currentDoctorId, dateString, confirmedAppointments, _isLoadingConfirmed);
     }
 
     // Hàm View gọi khi lưu ca làm việc mới

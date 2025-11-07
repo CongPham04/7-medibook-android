@@ -1,5 +1,7 @@
-package com.example.medibookandroid.ui.adapter; // (Hoặc package của bạn)
+package com.example.medibookandroid.ui.adapter;
 
+import android.os.Build; // ⭐️ THÊM
+import android.text.Html; // ⭐️ THÊM
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +33,7 @@ public class DoctorAvailableSlotAdapter extends RecyclerView.Adapter<DoctorAvail
         this.onDeleteClickListener = deleteListener;
     }
 
-    // ⭐️⭐️ THÊM HÀM NÀY VÀO ⭐️⭐️
+
     /**
      * Cập nhật danh sách ca làm việc và báo cho RecyclerView vẽ lại
      */
@@ -39,33 +41,49 @@ public class DoctorAvailableSlotAdapter extends RecyclerView.Adapter<DoctorAvail
         this.availableSlots = newSlots;
         notifyDataSetChanged(); // Rất quan trọng!
     }
-    // ⭐️⭐️ KẾT THÚC HÀM MỚI ⭐️⭐️
+
 
     @NonNull
     @Override
     public SlotViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // (Giữ nguyên)
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_doctor_available_slot, parent, false);
         return new SlotViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull SlotViewHolder holder, int position) {
-        // (Giữ nguyên)
+
         DoctorSchedule slot = availableSlots.get(position);
-        String timeSlot = slot.getStartTime() + " - " + slot.getEndTime();
-        holder.tvSlotTime.setText(timeSlot);
+
+        // ⭐️ BẮT ĐẦU SỬA: Thêm logic HTML ⭐️
+
+        // Lấy số thứ tự (position bắt đầu từ 0, nên + 1)
+        int caNumber = position + 1;
+
+        // Tạo chuỗi in đậm
+        String caLabel = "<b>Ca " + caNumber + ":</b> ";
+        // Tạo chuỗi thường
+        String timeValue = slot.getStartTime() + " - " + slot.getEndTime();
+
+        // Gán vào TextView
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            holder.tvSlotTime.setText(Html.fromHtml(caLabel + timeValue, Html.FROM_HTML_MODE_LEGACY));
+        } else {
+            holder.tvSlotTime.setText(Html.fromHtml(caLabel + timeValue));
+        }
+        // ⭐️ KẾT THÚC SỬA ⭐️
+
         holder.ibEdit.setOnClickListener(v -> onEditClickListener.onEditClick(slot));
         holder.ibDelete.setOnClickListener(v -> onDeleteClickListener.onDeleteClick(slot));
     }
 
     @Override
     public int getItemCount() {
-        return availableSlots.size(); // (Giữ nguyên)
+        return availableSlots.size();
     }
 
     static class SlotViewHolder extends RecyclerView.ViewHolder {
-        // (Giữ nguyên)
+
         TextView tvSlotTime;
         ImageButton ibEdit;
         ImageButton ibDelete;

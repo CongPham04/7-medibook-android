@@ -1,4 +1,4 @@
-package com.example.medibookandroid.data.repository; // Tạo package repository
+package com.example.medibookandroid.data.repository;
 
 import android.util.Log;
 
@@ -16,53 +16,57 @@ public class ScheduleRepository {
     private static final String TAG = "ScheduleRepository";
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    // Lấy ca làm việc (DoctorSchedules)
-    public void getSchedules(String doctorId, String date, MutableLiveData<List<DoctorSchedule>> schedulesLiveData) {
+    /**
+     * Lấy ca làm việc (DoctorSchedules)
+     */
+    public void getSchedules(String doctorId, String date, MutableLiveData<List<DoctorSchedule>> schedulesLiveData, MutableLiveData<Boolean> loadingLiveData) {
+        loadingLiveData.setValue(true); // Bật loading
         db.collection("doctor_schedules")
                 .whereEqualTo("doctorId", doctorId)
                 .whereEqualTo("date", date)
                 .whereEqualTo("available", true)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    // ⭐️⭐️ THÊM DÒNG NÀY VÀO ⭐️⭐️
                     Log.d(TAG, "Query getSchedules thành công! Tìm thấy: " + queryDocumentSnapshots.size() + " ca làm việc.");
-                    // ⭐️⭐️ KẾT THÚC ⭐️⭐️
                     schedulesLiveData.setValue(queryDocumentSnapshots.toObjects(DoctorSchedule.class));
+                    loadingLiveData.setValue(false); // Tắt loading
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error getting schedules: ", e);
                     schedulesLiveData.setValue(new ArrayList<>()); // Trả về list rỗng nếu lỗi
+                    loadingLiveData.setValue(false); // Tắt loading
                 });
     }
 
+    // ⭐️ BẮT ĐẦU SỬA: Điền code ⭐️
     // Thêm ca làm việc
-    public void addSchedule(DoctorSchedule schedule, OnOperationCompleteListener listener) { // <-- SỬA Ở ĐÂY
+    public void addSchedule(DoctorSchedule schedule, OnOperationCompleteListener listener) {
         db.collection("doctor_schedules").add(schedule)
-                .addOnSuccessListener(documentReference -> listener.onComplete(true)) // <-- SỬA Ở ĐÂY
-                .addOnFailureListener(e -> listener.onComplete(false)); // <-- SỬA Ở ĐÂY
+                .addOnSuccessListener(documentReference -> listener.onComplete(true))
+                .addOnFailureListener(e -> listener.onComplete(false));
     }
 
     // Sửa ca làm việc
-    public void updateSchedule(DoctorSchedule schedule, OnOperationCompleteListener listener) { // <-- SỬA Ở ĐÂY
+    public void updateSchedule(DoctorSchedule schedule, OnOperationCompleteListener listener) {
         if (schedule.getScheduleId() == null) {
-            listener.onComplete(false); // <-- SỬA Ở ĐÂY
+            listener.onComplete(false);
             return;
         }
         db.collection("doctor_schedules").document(schedule.getScheduleId())
                 .set(schedule)
-                .addOnSuccessListener(aVoid -> listener.onComplete(true)) // <-- SỬA Ở ĐÂY
-                .addOnFailureListener(e -> listener.onComplete(false)); // <-- SỬA Ở ĐÂY
+                .addOnSuccessListener(aVoid -> listener.onComplete(true))
+                .addOnFailureListener(e -> listener.onComplete(false));
     }
 
     // Xóa ca làm việc
-    public void deleteSchedule(String scheduleId, OnOperationCompleteListener listener) { // <-- SỬA Ở ĐÂY
+    public void deleteSchedule(String scheduleId, OnOperationCompleteListener listener) {
         db.collection("doctor_schedules").document(scheduleId)
                 .delete()
-                .addOnSuccessListener(aVoid -> listener.onComplete(true)) // <-- SỬA Ở ĐÂY
-                .addOnFailureListener(e -> listener.onComplete(false)); // <-- SỬA Ở ĐÂY
+                .addOnSuccessListener(aVoid -> listener.onComplete(true))
+                .addOnFailureListener(e -> listener.onComplete(false));
     }
+    // ⭐️ KẾT THÚC SỬA ⭐️
 
-    // ⭐️⭐️ BẮT ĐẦU HÀM MỚI (DÙNG CHO PATIENTVIEWMODEL) ⭐️⭐️
     /**
      * Lấy TẤT CẢ các ca làm việc CÒN TRỐNG của một bác sĩ
      * (Dùng cho bệnh nhân xem lịch)
@@ -72,7 +76,7 @@ public class ScheduleRepository {
 
         db.collection("doctor_schedules")
                 .whereEqualTo("doctorId", doctorId)
-                .whereEqualTo("available", true) // ⭐️ Bệnh nhân chỉ thấy ca còn trống
+                .whereEqualTo("available", true) // Bệnh nhân chỉ thấy ca còn trống
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     Log.d(TAG, "Query getSchedulesForDoctor thành công! Tìm thấy: " + queryDocumentSnapshots.size());
@@ -85,5 +89,4 @@ public class ScheduleRepository {
 
         return schedulesLiveData; // Trả về LiveData
     }
-    // ⭐️⭐️ KẾT THÚC HÀM MỚI ⭐️⭐️
 }

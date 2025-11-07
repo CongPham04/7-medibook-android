@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".DoctorScheduleFragment">
+    tools:context=".ui.doctor.fragment.DoctorScheduleFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -15,7 +15,6 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize">
-            <!-- Đã xóa app:title và app:navigationIconTint="?attr/colorOnSurface" -->
             <!-- Đã thêm TextView căn giữa -->
             <TextView
                 android:layout_width="wrap_content"
@@ -74,8 +73,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:nestedScrollingEnabled="true"
+                    android:visibility="gone"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    tools:listitem="@layout/item_doctor_appointment_card" />
+                    tools:listitem="@layout/item_doctor_appointment_card"
+                    tools:visibility="visible"/>
 
                 <TextView
                     android:id="@+id/tv_no_confirmed_appointments"
@@ -85,7 +86,16 @@
                     android:text="Không có lịch hẹn"
                     android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                     android:textColor="?attr/colorOnSurfaceVariant"
-                    android:visibility="gone" />
+                    android:visibility="gone" /> <!-- ⭐️ SỬA: Ẩn ban đầu -->
+
+                <!-- ⭐️ THÊM: ProgressBar cho Lịch hẹn -->
+                <ProgressBar
+                    android:id="@+id/progress_bar_confirmed"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="visible" /> <!-- ⭐️ SỬA: Hiện ban đầu -->
 
             </FrameLayout>
 
@@ -114,8 +124,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:nestedScrollingEnabled="true"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    tools:listitem="@layout/item_doctor_available_slot" />
+                    android:visibility="gone"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_doctor_available_slot"
+                tools:visibility="visible"/>
 
                 <TextView
                     android:id="@+id/tv_no_available_slots"
@@ -125,7 +137,16 @@
                     android:text="Chưa có ca làm việc"
                     android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                     android:textColor="?attr/colorOnSurfaceVariant"
-                    android:visibility="gone" />
+                    android:visibility="gone" /> <!-- ⭐️ SỬA: Ẩn ban đầu -->
+
+                <!-- ⭐️ THÊM: ProgressBar cho Ca làm việc -->
+                <ProgressBar
+                    android:id="@+id/progress_bar_available"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="visible" /> <!-- ⭐️ SỬA: Hiện ban đầu -->
 
             </FrameLayout>
 

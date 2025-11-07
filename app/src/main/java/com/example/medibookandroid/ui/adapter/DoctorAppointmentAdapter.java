@@ -1,10 +1,12 @@
 package com.example.medibookandroid.ui.adapter;
 
-import android.content.Context; // ⭐️ THÊM
+import android.content.Context;
+import android.os.Build; // ⭐️ THÊM
+import android.text.Html; // ⭐️ THÊM
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
-import androidx.lifecycle.LifecycleOwner; // ⭐️ THÊM
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -20,21 +22,20 @@ public class DoctorAppointmentAdapter extends RecyclerView.Adapter<DoctorAppoint
     private List<Appointment> appointments;
     private DoctorScheduleViewModel viewModel;
     private OnCompleteClickListener completeClickListener;
-    private LifecycleOwner lifecycleOwner; // ⭐️ THÊM: Biến để giữ LifecycleOwner
+    private LifecycleOwner lifecycleOwner;
 
     public interface OnCompleteClickListener {
         void onCompleteClick(Appointment appointment);
     }
 
-    // ⭐️ SỬA: Constructor (hàm khởi tạo) giờ nhận 4 tham số
     public DoctorAppointmentAdapter(List<Appointment> appointments,
                                     DoctorScheduleViewModel viewModel,
                                     OnCompleteClickListener completeClickListener,
-                                    LifecycleOwner lifecycleOwner) { // ⭐️ THÊM
+                                    LifecycleOwner lifecycleOwner) {
         this.appointments = appointments;
         this.viewModel = viewModel;
         this.completeClickListener = completeClickListener;
-        this.lifecycleOwner = lifecycleOwner; // ⭐️ THÊM
+        this.lifecycleOwner = lifecycleOwner;
     }
 
 
@@ -50,15 +51,13 @@ public class DoctorAppointmentAdapter extends RecyclerView.Adapter<DoctorAppoint
     @Override
     public AppointmentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         ItemDoctorAppointmentCardBinding binding = ItemDoctorAppointmentCardBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-        // ⭐️ SỬA: Chỉ cần truyền ViewModel
         return new AppointmentViewHolder(binding, viewModel);
     }
 
     @Override
     public void onBindViewHolder(@NonNull AppointmentViewHolder holder, int position) {
         Appointment appointment = appointments.get(position);
-        // ⭐️ SỬA: Truyền listener và owner (đã lưu) vào hàm bind
-        holder.bind(appointment, completeClickListener, lifecycleOwner);
+        holder.bind(appointment, completeClickListener, lifecycleOwner, position);
     }
 
     @Override
@@ -69,35 +68,62 @@ public class DoctorAppointmentAdapter extends RecyclerView.Adapter<DoctorAppoint
     static class AppointmentViewHolder extends RecyclerView.ViewHolder {
         private final ItemDoctorAppointmentCardBinding binding;
         private DoctorScheduleViewModel viewModel;
-        // ⭐️ XÓA: Không cần listener ở đây
 
-        // ⭐️ SỬA: Constructor chỉ cần ViewModel
         public AppointmentViewHolder(ItemDoctorAppointmentCardBinding binding, DoctorScheduleViewModel viewModel) {
             super(binding.getRoot());
             this.binding = binding;
             this.viewModel = viewModel;
         }
 
-        // ⭐️ SỬA: Hàm bind nhận listener và owner
-        public void bind(final Appointment appointment, final OnCompleteClickListener listener, LifecycleOwner owner) {
-            binding.tvAppointmentTime.setText("Thời gian: " + appointment.getTime());
+        public void bind(final Appointment appointment, final OnCompleteClickListener listener, LifecycleOwner owner, int position) {
+
+            // ⭐️ BẮT ĐẦU SỬA (Hiển thị Time) ⭐️
+            String timeLabel = "<b>Thời gian:</b> "; // In đậm
+            String timeValue = appointment.getTime();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                binding.tvAppointmentTime.setText(Html.fromHtml(timeLabel + timeValue, Html.FROM_HTML_MODE_LEGACY));
+            } else {
+                binding.tvAppointmentTime.setText(Html.fromHtml(timeLabel + timeValue));
+            }
+            // ⭐️ KẾT THÚC SỬA ⭐️
 
             // Gán sự kiện click cho nút "Hoàn tất"
             binding.ibMarkCompleted.setOnClickListener(v -> {
                 listener.onCompleteClick(appointment);
             });
 
-            binding.tvPatientName.setText("Đang tải...");
+            // Lấy số thứ tự (position bắt đầu từ 0, nên + 1)
+            int benhNhanNumber = position + 1;
+            String patientLabel = "<b>Bệnh nhân " + benhNhanNumber + ":</b> "; // In đậm
+
+            // ⭐️ BẮT ĐẦU SỬA (Hiển thị tên - trạng thái Đang tải) ⭐️
+            String loadingText = "Đang tải...";
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                binding.tvPatientName.setText(Html.fromHtml(patientLabel + loadingText, Html.FROM_HTML_MODE_LEGACY));
+            } else {
+                binding.tvPatientName.setText(Html.fromHtml(patientLabel + loadingText));
+            }
+            // ⭐️ KẾT THÚC SỬA ⭐️
+
             MutableLiveData<Patient> patientLiveData = new MutableLiveData<>();
             viewModel.loadPatientInfo(appointment.getPatientId(), patientLiveData);
 
             // Dùng owner (LifecycleOwner) để observe
             patientLiveData.observe(owner, patient -> {
+                // ⭐️ BẮT ĐẦU SỬA (Hiển thị tên - trạng thái Tải xong) ⭐️
+                String patientName;
                 if (patient != null) {
-                    binding.tvPatientName.setText("Bệnh nhân: " + patient.getFullName());
+                    patientName = patient.getFullName();
                 } else {
-                    binding.tvPatientName.setText("Không rõ bệnh nhân");
+                    patientName = "Không rõ";
                 }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    binding.tvPatientName.setText(Html.fromHtml(patientLabel + patientName, Html.FROM_HTML_MODE_LEGACY));
+                } else {
+                    binding.tvPatientName.setText(Html.fromHtml(patientLabel + patientName));
+                }
+                // ⭐️ KẾT THÚC SỬA ⭐️
             });
         }
     }

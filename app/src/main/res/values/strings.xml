@@ -90,5 +90,5 @@
     <string name="profile">Hồ sơ</string>
     <string name="schedule">Lịch trình</string>
     <string name="requests">Yêu cầu</string>
-
+    <string name="terms_and_conditions_styled">Bằng việc tiếp tục, bạn đồng ý với <b>Điều khoản sử dụng và Chính sách bảo mật</b> của chúng tôi.</string>
 </resources>

@@ -1,7 +1,9 @@
 package com.example.medibookandroid.ui.adapter;
 
 import android.content.Context;
-import android.util.Log; // ⭐️ THÊM
+import android.os.Build; // ⭐️ THÊM
+import android.text.Html; // ⭐️ THÊM
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +19,7 @@ import com.example.medibookandroid.data.model.Doctor;
 import com.example.medibookandroid.ui.patient.viewmodel.PatientAppointmentsViewModel;
 
 import java.text.SimpleDateFormat;
-import java.util.Date; // ⭐️ THÊM
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -70,12 +72,7 @@ public class PatientAppointmentAdapter extends RecyclerView.Adapter<PatientAppoi
         private final PatientAppointmentsViewModel viewModel;
         private final Context context;
 
-        // ⭐️ BẮT ĐẦU SỬA: Thêm 2 định dạng (input và output) ⭐️
-        // Định dạng (Format) của ngày lưu trên Firestore ("2025-11-06")
-        private static final SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        // Định dạng bạn muốn hiển thị ("06/11/2025")
-        private static final SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-        // ⭐️ KẾT THÚC SỬA ⭐️
+        // ⭐️ SỬA: Xóa 2 dòng SimpleDateFormat 'static' khỏi đây
 
         public AppointmentViewHolder(ItemPatientAppointmentCardBinding binding, PatientAppointmentsViewModel viewModel) {
             super(binding.getRoot());
@@ -85,42 +82,69 @@ public class PatientAppointmentAdapter extends RecyclerView.Adapter<PatientAppoi
         }
 
         public void bind(final Appointment appointment, final OnAppointmentCancelListener listener, LifecycleOwner owner) {
-            // 1. Tải thông tin bác sĩ (giữ nguyên)
-            binding.tvDoctorName.setText("Đang tải...");
+
+            // ⭐️ BẮT ĐẦU SỬA: Logic in đậm ⭐️
+
+            // --- 1. Tải thông tin bác sĩ (với nhãn in đậm) ---
+            String nameLabel = "<b>Bs.</b> ";
+            String loadingText = "Đang tải...";
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                binding.tvDoctorName.setText(Html.fromHtml(nameLabel + loadingText, Html.FROM_HTML_MODE_LEGACY));
+            } else {
+                binding.tvDoctorName.setText(Html.fromHtml(nameLabel + loadingText));
+            }
 
             viewModel.getDoctorById(appointment.getDoctorId()).observe(owner, doctor -> {
+                String nameValue;
                 if (doctor != null) {
-                    binding.tvDoctorName.setText("Bs. " + doctor.getFullName());
+                    nameValue = doctor.getFullName();
                     if (doctor.getAvatarUrl() != null && !doctor.getAvatarUrl().isEmpty()) {
                         Glide.with(context)
                                 .load(doctor.getAvatarUrl())
                                 .placeholder(R.drawable.logo2)
                                 .circleCrop()
                                 .into(binding.ivDoctorAvatar);
+                    } else {
+                        binding.ivDoctorAvatar.setImageResource(R.drawable.logo2);
                     }
                 } else {
-                    binding.tvDoctorName.setText("Không rõ bác sĩ");
+                    nameValue = "Không rõ bác sĩ";
+                    binding.ivDoctorAvatar.setImageResource(R.drawable.logo2);
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    binding.tvDoctorName.setText(Html.fromHtml(nameLabel + nameValue, Html.FROM_HTML_MODE_LEGACY));
+                } else {
+                    binding.tvDoctorName.setText(Html.fromHtml(nameLabel + nameValue));
                 }
             });
 
-            // ⭐️ BẮT ĐẦU SỬA: Logic định dạng lại ngày ⭐️
-            // 2. Gán dữ liệu lịch hẹn
+            // --- 2. Gán dữ liệu lịch hẹn (với nhãn in đậm) ---
             String displayDate = appointment.getDate(); // Mặc định là chuỗi gốc
-            try {
-                // Cố gắng "parse" (phân tích) chuỗi từ "yyyy-MM-dd"
-                Date date = inputFormat.parse(appointment.getDate());
-                if (date != null) {
-                    // "format" (định dạng) lại thành "dd/MM/yyyy"
-                    displayDate = outputFormat.format(date);
+
+            if (appointment.getDate() != null && !appointment.getDate().isEmpty()) {
+                try {
+                    // ⭐️ SỬA: Khởi tạo SimpleDateFormat bên trong hàm
+                    SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                    SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+
+                    Date date = inputFormat.parse(appointment.getDate());
+                    if (date != null) {
+                        displayDate = outputFormat.format(date);
+                    }
+                } catch (Exception e) {
+                    Log.e("PatientApptAdapter", "Lỗi định dạng ngày: " + e.getMessage());
                 }
-            } catch (Exception e) {
-                // Nếu lỗi (ví dụ: date là null hoặc sai định dạng),
-                // cứ dùng giá trị gốc (displayDate)
-                Log.e("PatientApptAdapter", "Lỗi định dạng ngày: " + e.getMessage());
             }
 
-            String dateTime = appointment.getTime() + ", " + displayDate; // Dùng 'displayDate' đã định dạng
-            binding.tvAppointmentDatetime.setText("Thời gian: " + dateTime);
+            String timeLabel = "<b>Thời gian:</b> ";
+            String dateTimeValue = appointment.getTime() + ", " + displayDate;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                binding.tvAppointmentDatetime.setText(Html.fromHtml(timeLabel + dateTimeValue, Html.FROM_HTML_MODE_LEGACY));
+            } else {
+                binding.tvAppointmentDatetime.setText(Html.fromHtml(timeLabel + dateTimeValue));
+            }
             // ⭐️ KẾT THÚC SỬA ⭐️
 
             // 3. Xử lý logic nút Hủy (giữ nguyên)

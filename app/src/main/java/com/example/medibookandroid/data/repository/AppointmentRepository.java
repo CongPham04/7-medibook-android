@@ -13,15 +13,11 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
-// ⭐️ THÊM IMPORT NÀY (Bạn phải tự tạo file interface này)
-import com.example.medibookandroid.data.repository.OnOperationCompleteListener;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Repository for handling all data operations related to Appointments.
- * This class abstracts the data source (Firestore) from the rest of the application.
  */
 public class AppointmentRepository {
 
@@ -36,9 +32,6 @@ public class AppointmentRepository {
 
     /**
      * Tạo lịch hẹn mới VÀ cập nhật ca làm việc thành "đã đặt" (atomic).
-     *
-     * @param appointment     Lịch hẹn mới
-     * @param listener        Callback để báo kết quả về ViewModel
      */
     public void createAppointment(Appointment appointment, OnOperationCompleteListener listener) {
         // 1. Lấy WriteBatch
@@ -74,17 +67,12 @@ public class AppointmentRepository {
 
     /**
      * Fetches all appointments for a specific patient.
-     *
-     * @param patientId The ID of the patient.
-     * @param loadingLiveData LiveData để báo cáo trạng thái đang tải
-     * @return A LiveData object containing the list of appointments. Returns null on failure.
      */
     public LiveData<List<Appointment>> getAppointmentsForPatient(String patientId, MutableLiveData<Boolean> loadingLiveData) {
         loadingLiveData.setValue(true); // Bật loading
         MutableLiveData<List<Appointment>> appointmentsLiveData = new MutableLiveData<>();
         db.collection(APPOINTMENT_COLLECTION)
                 .whereEqualTo("patientId", patientId)
-                // Xóa .orderBy("createdAt",...) để tránh lỗi Index
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     List<Appointment> appointments = new ArrayList<>();
@@ -104,15 +92,11 @@ public class AppointmentRepository {
 
     /**
      * Fetches all appointments for a specific doctor.
-     *
-     * @param doctorId The ID of the doctor.
-     * @return A LiveData object containing the list of appointments. Returns null on failure.
      */
     public LiveData<List<Appointment>> getAppointmentsForDoctor(String doctorId) {
         MutableLiveData<List<Appointment>> appointmentsLiveData = new MutableLiveData<>();
         db.collection(APPOINTMENT_COLLECTION)
                 .whereEqualTo("doctorId", doctorId)
-                // Xóa .orderBy("createdAt",...) để tránh lỗi Index
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     List<Appointment> appointments = new ArrayList<>();
@@ -146,7 +130,6 @@ public class AppointmentRepository {
                 });
     }
 
-    // ⭐️ BẮT ĐẦU SỬA: Dùng addSnapshotListener ⭐️
     /**
      * Lắng nghe (real-time) TẤT CẢ các lịch hẹn đang "pending" cho một bác sĩ
      */
@@ -173,12 +156,14 @@ public class AppointmentRepository {
                     loadingLiveData.setValue(false); // Tắt loading
                 });
     }
-    // ⭐️ KẾT THÚC SỬA ⭐️
 
+    // ⭐️ BẮT ĐẦU SỬA: Thêm 'loadingLiveData' ⭐️
     /**
      * Lấy các lịch hẹn ĐÃ XÁC NHẬN cho bác sĩ theo NGÀY CỤ THỂ
      */
-    public void getConfirmedAppointmentsForDoctorByDate(String doctorId, String date, MutableLiveData<List<Appointment>> appointmentsLiveData) {
+    public void getConfirmedAppointmentsForDoctorByDate(String doctorId, String date, MutableLiveData<List<Appointment>> appointmentsLiveData, MutableLiveData<Boolean> loadingLiveData) {
+        loadingLiveData.setValue(true); // Bật loading
+
         db.collection(APPOINTMENT_COLLECTION)
                 .whereEqualTo("doctorId", doctorId)
                 .whereEqualTo("date", date)
@@ -191,12 +176,15 @@ public class AppointmentRepository {
                         appointments.add(document.toObject(Appointment.class));
                     }
                     appointmentsLiveData.setValue(appointments);
+                    loadingLiveData.setValue(false); // Tắt loading
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error getting confirmed appointments by date", e);
                     appointmentsLiveData.setValue(new ArrayList<>());
+                    loadingLiveData.setValue(false); // Tắt loading
                 });
     }
+    // ⭐️ KẾT THÚC SỬA ⭐️
 
     /**
      * Lấy thông tin chi tiết của 1 Patient (Dùng cho Adapter)
