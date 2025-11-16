@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -82,6 +83,9 @@ public class PatientDoctorDetailFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        // Trong onViewCreated
+        binding.calendarView.setMinDate(System.currentTimeMillis());
+
         super.onViewCreated(view, savedInstanceState);
 
         navController = Navigation.findNavController(view);
@@ -200,9 +204,51 @@ public class PatientDoctorDetailFragment extends Fragment {
         }
 
         String dateString = firestoreDateFormat.format(selectedDate.getTime());
+        // --- ⭐️ BỔ SUNG LOGIC THỜI GIAN (Hoàn) ⭐️ ---
+        Calendar now = Calendar.getInstance();
+        String todayString = firestoreDateFormat.format(now.getTime());
 
+        // Biến này phải là "effectively final" (không gán lại sau lần này)
+        final boolean isToday = dateString.equals(todayString);
+
+        // Khai báo 2 biến final
+        final int finalCurrentHour;
+        final int finalCurrentMinute;
+
+        if (isToday) {
+            // Gán giá trị 1 lần duy nhất cho các biến final
+            finalCurrentHour = now.get(Calendar.HOUR_OF_DAY); // 24h format
+            finalCurrentMinute = now.get(Calendar.MINUTE);
+        } else {
+            // Gán giá trị mặc định nếu không phải hôm nay
+            finalCurrentHour = -1;
+            finalCurrentMinute = -1;
+        }
+        // --- ⭐️ KẾT THÚC SỬA ⭐️ ---
         List<DoctorSchedule> filteredSlots = allAvailableSchedules.stream()
-                .filter(schedule -> schedule.getDate() != null && schedule.getDate().equals(dateString))
+                .filter(schedule -> {
+                    if (schedule.getDate() == null || !schedule.getDate().equals(dateString)) {
+                        return false; // Lọc theo ngày (như cũ)
+                    }
+                    // ⭐️ SỬA: Dùng biến final trong lambda ⭐️
+                    if (isToday) {
+                        try {
+                            // Giả sử startTime là "09:00"
+                            String[] timeParts = schedule.getStartTime().split(":");
+                            int slotHour = Integer.parseInt(timeParts[0]);
+                            int slotMinute = Integer.parseInt(timeParts[1]);
+
+                            // So sánh với các biến final
+                            if (slotHour < finalCurrentHour) return false;
+                            if (slotHour == finalCurrentHour && slotMinute <= finalCurrentMinute) return false;
+
+                        } catch (Exception e) {
+                            Log.e("TimeSlotFilter", "Lỗi parse giờ: " + schedule.getStartTime());
+                            return false; // Bỏ qua nếu giờ bị lỗi
+                        }
+                    }
+                    return true; // Vượt qua tất cả
+                })
                 .collect(Collectors.toList());
 
         timeSlotAdapter.updateData(filteredSlots);

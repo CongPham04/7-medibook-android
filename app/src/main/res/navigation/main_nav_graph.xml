@@ -39,10 +39,6 @@
         <action
             android:id="@+id/action_registerFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
-        <!-- IMPORTANT: This action is needed to navigate to the OTP screen -->
-        <action
-            android:id="@+id/action_registerFragment_to_otpVerificationFragment"
-            app:destination="@id/patientMainActivity" />
     </fragment>
 
     <activity
