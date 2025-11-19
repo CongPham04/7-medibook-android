@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioButton;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -123,7 +124,18 @@ public class PatientEditProfileFragment extends Fragment {
 
         binding.tilFullName.getEditText().setText(patient.getFullName());
         binding.tilDob.getEditText().setText(patient.getDob());
-        binding.tilGender.getEditText().setText(patient.getGender());
+
+        // Sửa trong hàm populateUi(Patient patient) Hoàn
+        String gender = patient.getGender();
+        if (gender != null) {
+            if (gender.equals("Nam")) {
+                binding.radioNam.setChecked(true);
+            } else if (gender.equals("Nữ")) {
+                binding.radioNu.setChecked(true);
+            } else if (gender.equals("Khác")) {
+                binding.radioKhac.setChecked(true);
+            }
+        }
         binding.tilPhone.getEditText().setText(patient.getPhone());
         binding.tilAddress.getEditText().setText(patient.getAddress());
     }
@@ -152,7 +164,7 @@ public class PatientEditProfileFragment extends Fragment {
         // Reset lỗi
         binding.tilFullName.setError(null);
         binding.tilDob.setError(null);
-        binding.tilGender.setError(null);
+        binding.tvGenderError.setVisibility(View.GONE);
         binding.tilPhone.setError(null);
         binding.tilAddress.setError(null);
 
@@ -160,7 +172,6 @@ public class PatientEditProfileFragment extends Fragment {
 
         String name = binding.tilFullName.getEditText().getText().toString().trim();
         String dob = binding.tilDob.getEditText().getText().toString().trim();
-        String gender = binding.tilGender.getEditText().getText().toString().trim();
         String phone = binding.tilPhone.getEditText().getText().toString().trim();
         String address = binding.tilAddress.getEditText().getText().toString().trim();
 
@@ -190,12 +201,15 @@ public class PatientEditProfileFragment extends Fragment {
             binding.tilDob.setError("Ngày sinh không được để trống");
             valid = false;
         }
-        if (gender.isEmpty()) {
-            binding.tilGender.setError("Giới tính không được để trống");
-            valid = false;
-        }
         if (address.isEmpty()) {
             binding.tilAddress.setError("Địa chỉ không được để trống");
+            valid = false;
+        }
+
+        // 4. Kiểm tra Giới tính
+        if (binding.radioGroupGender.getCheckedRadioButtonId() == -1) {
+            // -1 có nghĩa là không có nút nào được chọn
+            binding.tvGenderError.setVisibility(View.VISIBLE); // Hiển thị lỗi
             valid = false;
         }
 
@@ -230,7 +244,9 @@ public class PatientEditProfileFragment extends Fragment {
         // Lấy dữ liệu mới từ Form
         String newFullName = binding.tilFullName.getEditText().getText().toString();
         String newDob = binding.tilDob.getEditText().getText().toString();
-        String newGender = binding.tilGender.getEditText().getText().toString();
+        int selectedGenderId = binding.radioGroupGender.getCheckedRadioButtonId();
+        RadioButton selectedRadioButton = (RadioButton) getView().findViewById(selectedGenderId);
+        String newGender = selectedRadioButton.getText().toString(); // Sẽ là "Nam", "Nữ" hoặc "Khác"
         String newPhone = binding.tilPhone.getEditText().getText().toString();
         String newAddress = binding.tilAddress.getEditText().getText().toString();
 
