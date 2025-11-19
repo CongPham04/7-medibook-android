@@ -1,5 +1,8 @@
 package com.example.medibookandroid.ui.patient.fragment;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +17,9 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.bumptech.glide.Glide;
+import com.cloudinary.android.MediaManager;
+import com.cloudinary.android.callback.ErrorInfo;
+import com.cloudinary.android.callback.UploadCallback;
 import com.example.medibookandroid.R;
 import com.example.medibookandroid.data.model.Patient;
 import com.example.medibookandroid.databinding.FragmentPatientEditProfileBinding;
@@ -22,8 +28,11 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class PatientEditProfileFragment extends Fragment {
+import java.util.Map;
 
+public class PatientEditProfileFragment extends Fragment {
+    // Hằng số nhận diện request khi mở thư viện ảnh
+    private static final int PICK_IMAGE_REQUEST = 101;
     private FragmentPatientEditProfileBinding binding;
     private PatientViewModel viewModel;
     private NavController navController;
@@ -150,10 +159,60 @@ public class PatientEditProfileFragment extends Fragment {
 
         binding.ivEditAvatarIcon.setOnClickListener(v -> {
             // TODO: Mở thư viện ảnh/camera
-            Toast.makeText(getContext(), "Chức năng đổi avatar chưa được triển khai", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getContext(), "Chức năng đổi avatar chưa được triển khai", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent();
+            intent.setType("image/*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(Intent.createChooser(intent, "Chọn ảnh"), PICK_IMAGE_REQUEST);
         });
 
         binding.toolbar.setNavigationOnClickListener(v -> navController.popBackStack());
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
+            Uri imageUri = data.getData();
+            uploadImageToCloudinary(imageUri);
+        }
+    }
+
+    private void uploadImageToCloudinary(Uri imageUri) {
+        if (imageUri == null) return;
+        if (binding != null) {
+            binding.progressAvatarUpload.setVisibility(View.VISIBLE);
+            binding.ivUserAvatar.setAlpha(0.4f);
+        }
+        MediaManager.get().upload(imageUri)
+                .unsigned("Medibook_img") // tên upload preset
+                .callback(new UploadCallback() {
+                    @Override
+                    public void onStart(String requestId) {}
+                    @Override
+                    public void onProgress(String requestId, long bytes, long totalBytes) {}
+                    @Override
+                    public void onSuccess(String requestId, Map resultData) {
+                        if (!isAdded()) return;
+                        String imageUrl = (String) resultData.get("secure_url");
+                        currentPatientData.setAvatarUrl(imageUrl);
+                        Glide.with(requireContext())
+                                .load(imageUrl)
+                                .placeholder(R.drawable.logo2)
+                                .circleCrop()
+                                .into(binding.ivUserAvatar);
+                        binding.progressAvatarUpload.setVisibility(View.GONE);
+                        binding.ivUserAvatar.setAlpha(1f);
+                    }
+                    @Override
+                    public void onError(String requestId, ErrorInfo error) {
+                        if (!isAdded()) return;
+                        Toast.makeText(getContext(), "Upload thất bại: " + error.getDescription(), Toast.LENGTH_SHORT).show();
+                        binding.progressAvatarUpload.setVisibility(View.GONE);
+                        binding.ivUserAvatar.setAlpha(1f);
+                    }
+                    @Override
+                    public void onReschedule(String requestId, ErrorInfo error) {}
+                }).dispatch();
     }
 
     // ⭐️ BẮT ĐẦU THÊM MỚI: Logic Validate ⭐️

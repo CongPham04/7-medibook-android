@@ -117,7 +117,7 @@ public class DoctorProfileFragment extends Fragment {
         binding.itemSettings.setOnClickListener(v -> {
             // Điều hướng đến Cài đặt
             // Bạn cần đảm bảo action 'action_doctorProfileFragment_to_doctorSettingsFragment' tồn tại
-            // navController.navigate(R.id.action_doctorProfileFragment_to_doctorSettingsFragment);
+            navController.navigate(R.id.action_doctorProfileFragment_to_doctorSettingsFragment);
             Toast.makeText(getContext(), "Chuyển sang Cài đặt (Bác sĩ)", Toast.LENGTH_SHORT).show();
         });
 

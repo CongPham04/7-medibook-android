@@ -30,7 +30,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-buildFeatures {
+    buildFeatures {
         viewBinding = true
     }
 }
@@ -56,4 +56,6 @@ dependencies {
 
     implementation("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+    // upload ảnh bằng Cloudinary
+    implementation("com.cloudinary:cloudinary-android:2.5.0")
 }
