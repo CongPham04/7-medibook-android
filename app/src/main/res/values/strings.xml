@@ -53,7 +53,7 @@
     <string name="save_changes">Save Changes</string>
 
     <!-- Notifications -->
-    <string name="notifications">Thông báo</string>
+    <string name="notifications">Notifications</string>
     <string name="no_new_notifications">No new notifications</string>
 
     <!-- Doctor Login -->
@@ -85,10 +85,10 @@
     <string name="update">Update</string>
 
     <!-- Bottom Nav -->
-    <string name="home">Trang chủ</string>
-    <string name="appointments">Lịch hẹn</string>
-    <string name="profile">Hồ sơ</string>
-    <string name="schedule">Lịch trình</string>
-    <string name="requests">Yêu cầu</string>
-    <string name="terms_and_conditions_styled">Bằng việc tiếp tục, bạn đồng ý với <b>Điều khoản sử dụng và Chính sách bảo mật</b> của chúng tôi.</string>
+    <string name="home">Home</string>
+    <string name="appointments">Appointments</string>
+    <string name="profile">Profile</string>
+    <string name="schedule">Schedule</string>
+    <string name="requests">Request</string>
+    <string name="terms_and_conditions_styled">By continuing, you agree to our <b>Terms of Use and Privacy Policy</b>.</string>
 </resources>
