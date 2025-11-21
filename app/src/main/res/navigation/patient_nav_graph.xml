@@ -71,7 +71,7 @@
         android:id="@+id/patientProfileFragment"
         android:name="com.example.medibookandroid.ui.patient.fragment.PatientProfileFragment"
         android:label="fragment_patient_profile"
-        tools:layout="@layout/fragment_patient_profile" > <!-- Sửa layout nếu bạn đã đổi tên -->
+        tools:layout="@layout/fragment_user_profile" > <!-- Sửa layout nếu bạn đã đổi tên -->
         <action
             android:id="@+id/action_patientProfileFragment_to_patientEditProfileFragment"
             app:destination="@id/patientEditProfileFragment" />
@@ -105,17 +105,17 @@
     </fragment>
     <fragment
         android:id="@+id/notificationSettingsFragment"
-        android:name="com.example.medibookandroid.ui.common.NotificationSettingsFragment"
+        android:name="com.example.medibookandroid.ui.patient.fragment.PatientNotificationSettingsFragment"
         android:label="fragment_notification_settings"
         tools:layout="@layout/fragment_notification_settings" />
     <fragment
         android:id="@+id/languageSettingsFragment"
-        android:name="com.example.medibookandroid.ui.common.LanguageSettingsFragment"
+        android:name="com.example.medibookandroid.ui.patient.fragment.PatientLanguageSettingsFragment"
         android:label="fragment_language_settings"
         tools:layout="@layout/fragment_language_settings" />
     <fragment
         android:id="@+id/passwordManagerFragment"
-        android:name="com.example.medibookandroid.ui.common.PasswordManagerFragment"
+        android:name="com.example.medibookandroid.ui.patient.fragment.PatientPasswordManagerFragment"
         android:label="fragment_password_manager"
         tools:layout="@layout/fragment_password_manager" />
 

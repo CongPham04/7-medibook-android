@@ -20,6 +20,9 @@ import com.example.medibookandroid.data.model.Appointment;
 import com.example.medibookandroid.data.model.Doctor;
 import com.example.medibookandroid.ui.patient.viewmodel.PatientViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+// ⭐️ IMPORT HELPER ĐỂ PHÁT LOA ⭐️
+import com.example.medibookandroid.data.repository.NotificationHelper;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -173,22 +176,31 @@ public class BookingSummaryFragment extends Fragment {
         binding.toolbar.setNavigationOnClickListener(v -> navController.popBackStack());
     }
 
+    // ⭐️ PHẦN QUAN TRỌNG NHẤT ĐÃ SỬA ⭐️
     private void setupObservers() {
+        // 1. Quan sát trạng thái tạo lịch hẹn (để điều hướng UI)
         viewModel.getAppointmentCreationStatus().observe(getViewLifecycleOwner(), success -> {
-            // Chỉ chạy khi success không phải null
-            if (success == null) {
-                return;
-            }
+            if (success == null) return;
 
             if (Boolean.TRUE.equals(success)) {
-                // Thành công, điều hướng
+                // Điều hướng sang màn hình thành công
                 navController.navigate(R.id.action_bookingSummaryFragment_to_bookingSuccessFragment);
             } else {
-                // Thất bại
                 Toast.makeText(getContext(), "Đặt lịch thất bại, vui lòng thử lại.", Toast.LENGTH_SHORT).show();
-                // Kích hoạt lại nút
                 binding.btnConfirmBooking.setEnabled(true);
                 binding.btnConfirmBooking.setText("Xác nhận Đặt lịch");
+            }
+        });
+
+        // 2. ⭐️ Quan sát Thông báo thành công (để PHÁT LOA & RUNG) ⭐️
+        viewModel.getBookingSuccessNotification().observe(getViewLifecycleOwner(), notification -> {
+            if (notification != null) {
+                // Gọi Helper để hiển thị thông báo hệ thống (có âm thanh tùy chỉnh)
+                NotificationHelper.showBookingNotification(
+                        requireContext(),
+                        notification.getTitle(),
+                        notification.getMessage()
+                );
             }
         });
     }

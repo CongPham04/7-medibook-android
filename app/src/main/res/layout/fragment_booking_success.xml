@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".BookingSuccessFragment">
+    tools:context=".ui.common.BookingSuccessFragment">
 
     <ImageView
         android:id="@+id/iv_success_icon"

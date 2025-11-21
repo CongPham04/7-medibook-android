@@ -17,7 +17,7 @@ import androidx.navigation.Navigation;
 import com.bumptech.glide.Glide; // ⭐️ THÊM
 import com.example.medibookandroid.MainActivity; // ⭐️ SỬA IMPORT
 import com.example.medibookandroid.R; // ⭐️ THÊM
-import com.example.medibookandroid.databinding.FragmentPatientProfileBinding;
+import com.example.medibookandroid.databinding.FragmentUserProfileBinding;
 import com.example.medibookandroid.ui.auth.AuthViewModel; // ⭐️ THÊM
 import com.example.medibookandroid.ui.patient.viewmodel.PatientViewModel; // ⭐️ THÊM
 import com.google.firebase.auth.FirebaseAuth; // ⭐️ THÊM
@@ -25,7 +25,7 @@ import com.google.firebase.auth.FirebaseUser; // ⭐️ THÊM
 
 public class PatientProfileFragment extends Fragment {
 
-    private FragmentPatientProfileBinding binding;
+    private FragmentUserProfileBinding binding;
     // ⭐️ SỬA: Dùng ViewModels
     private PatientViewModel patientViewModel;
     private AuthViewModel authViewModel;
@@ -35,7 +35,7 @@ public class PatientProfileFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        binding = FragmentPatientProfileBinding.inflate(inflater, container, false);
+        binding = FragmentUserProfileBinding.inflate(inflater, container, false);
         // ⭐️ XÓA: StorageRepository
         return binding.getRoot();
     }

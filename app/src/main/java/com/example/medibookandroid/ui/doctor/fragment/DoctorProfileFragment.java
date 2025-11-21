@@ -17,7 +17,7 @@ import androidx.navigation.Navigation;
 import com.bumptech.glide.Glide; // ⭐️ THÊM
 import com.example.medibookandroid.MainActivity; // ⭐️ THÊM
 import com.example.medibookandroid.R; // ⭐️ THÊM
-import com.example.medibookandroid.databinding.FragmentDoctorProfileBinding;
+import com.example.medibookandroid.databinding.FragmentUserProfileBinding;
 // ⭐️ SỬA IMPORTS
 import com.example.medibookandroid.ui.auth.AuthViewModel;
 import com.example.medibookandroid.ui.doctor.viewmodel.DoctorViewModel;
@@ -26,7 +26,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class DoctorProfileFragment extends Fragment {
 
-    private FragmentDoctorProfileBinding binding;
+    private FragmentUserProfileBinding binding;
 
     // ⭐️ SỬA: Dùng ViewModels
     private DoctorViewModel doctorViewModel;
@@ -37,7 +37,7 @@ public class DoctorProfileFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        binding = FragmentDoctorProfileBinding.inflate(inflater, container, false);
+        binding = FragmentUserProfileBinding.inflate(inflater, container, false);
         // ⭐️ XÓA: StorageRepository
         return binding.getRoot();
     }
@@ -117,8 +117,7 @@ public class DoctorProfileFragment extends Fragment {
         binding.itemSettings.setOnClickListener(v -> {
             // Điều hướng đến Cài đặt
             // Bạn cần đảm bảo action 'action_doctorProfileFragment_to_doctorSettingsFragment' tồn tại
-            // navController.navigate(R.id.action_doctorProfileFragment_to_doctorSettingsFragment);
-            Toast.makeText(getContext(), "Chuyển sang Cài đặt (Bác sĩ)", Toast.LENGTH_SHORT).show();
+            navController.navigate(R.id.action_doctorProfileFragment_to_doctorSettingsFragment);
         });
 
         binding.itemHelp.setOnClickListener(v -> {

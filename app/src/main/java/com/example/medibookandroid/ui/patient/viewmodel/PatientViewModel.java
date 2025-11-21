@@ -48,11 +48,14 @@ public class PatientViewModel extends ViewModel {
     private MutableLiveData<String> searchQuery = new MutableLiveData<>();
     private LiveData<List<Doctor>> doctorList;
 
-    // LiveData cho trạng thái tạo Appointment
-    private MutableLiveData<Boolean> appointmentCreationStatus = new MutableLiveData<>();
 
     // LiveData cho trạng thái CẬP NHẬT Patient
     private MutableLiveData<Boolean> updatePatientStatus = new MutableLiveData<>();
+
+    // THÊM MỚI: LiveData này dùng để gửi thông báo ra Fragment (để phát loa/rung)
+    private MutableLiveData<Notification> _bookingSuccessNotification = new MutableLiveData<>();
+
+    private MutableLiveData<Boolean> appointmentCreationStatus = new MutableLiveData<>();
 
     public PatientViewModel() {
         patientRepository = new PatientRepository();
@@ -60,20 +63,13 @@ public class PatientViewModel extends ViewModel {
         appointmentRepository = new AppointmentRepository();
         doctorScheduleRepository = new ScheduleRepository();
         notificationRepository = new NotificationRepository();
-        reviewRepository = new ReviewRepository(); // (Giả sử bạn có repo này)
+        reviewRepository = new ReviewRepository();
 
-        // Khi patientId thay đổi, gọi getPatientById
-        currentPatient = Transformations.switchMap(patientId, id ->
-                patientRepository.getPatientById(id)
-        );
+        currentPatient = Transformations.switchMap(patientId, id -> patientRepository.getPatientById(id));
 
-        // Khi searchQuery thay đổi, gọi repo tương ứng
         doctorList = Transformations.switchMap(searchQuery, query -> {
-            if (query == null || query.isEmpty()) {
-                return doctorRepository.getAllDoctors();
-            } else {
-                return doctorRepository.searchDoctors(query);
-            }
+            if (query == null || query.isEmpty()) return doctorRepository.getAllDoctors();
+            else return doctorRepository.searchDoctors(query);
         });
     }
 
@@ -133,32 +129,32 @@ public class PatientViewModel extends ViewModel {
      * Gọi Repository để tạo lịch hẹn
      */
     public void createAppointment(Appointment appointment, Doctor doctor) {
-        // Hàm này gọi repository và repository sẽ cập nhật
-        // `appointmentCreationStatus` LiveData thông qua listener
         appointmentRepository.createAppointment(appointment, success -> {
             appointmentCreationStatus.postValue(success);
 
-            // ⭐️ BẮT ĐẦU SỬA: Logic định dạng ngày cho thông báo ⭐️
             if (Boolean.TRUE.equals(success)) {
-
-                // Định dạng lại ngày để hiển thị
-                String displayDate = appointment.getDate(); // Mặc định là chuỗi gốc
+                // --- LOGIC TẠO NỘI DUNG THÔNG BÁO ---
+                String displayDate = appointment.getDate();
                 try {
                     Date date = inputFormat.parse(appointment.getDate());
                     if (date != null) {
-                        displayDate = outputFormat.format(date); // Chuyển sang "dd/MM/yyyy"
+                        displayDate = outputFormat.format(date);
                     }
-                } catch (Exception e) {
-                    // Bỏ qua nếu lỗi, dùng ngày gốc
-                }
+                } catch (Exception e) { /* Ignore */ }
 
                 String title = "✔ Đặt lịch thành công!";
-                String message = "Bạn đã đặt lịch khám thành công với Bác sĩ " + doctor.getFullName() +
-                        " vào lúc " + appointment.getTime() + ", " + displayDate + "."; // Dùng displayDate
+                String message = "Bạn đã đặt lịch khám với Bác sĩ " + doctor.getFullName() +
+                        " vào lúc " + appointment.getTime() + ", " + displayDate + ".";
+
+                // Tạo đối tượng Notification
                 Notification notif = new Notification(appointment.getPatientId(), title, message, "booking_success");
+
+                // 1. Gửi xuống Repository để LƯU VÀO DB (Cho lịch sử)
                 notificationRepository.createNotification(notif);
+
+                // 2. ⭐️ Gửi ra Fragment để PHÁT LOA/RUNG (Hệ thống)
+                _bookingSuccessNotification.postValue(notif);
             }
-            // ⭐️ KẾT THÚC SỬA ⭐️
         });
     }
 
@@ -169,11 +165,16 @@ public class PatientViewModel extends ViewModel {
         appointmentCreationStatus.setValue(null); // Reset
         return appointmentCreationStatus;
     }
+    // ⭐️ 2. THÊM GETTER CHO NOTIFICATION LIVE DATA
+    // Fragment sẽ observe hàm này
+    public LiveData<Notification> getBookingSuccessNotification() {
+        _bookingSuccessNotification.setValue(null); // Reset để tránh phát lại khi xoay màn hình
+        return _bookingSuccessNotification;
+    }
 
     public LiveData<List<DoctorSchedule>> getSchedulesForDoctor(String doctorId) {
         return doctorScheduleRepository.getSchedulesForDoctor(doctorId);
     }
-
     public LiveData<List<Review>> getReviewsForDoctor(String doctorId) {
         return reviewRepository.getReviewsForDoctor(doctorId);
     }
