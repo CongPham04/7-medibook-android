@@ -54,6 +54,13 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
 
+    // THÊM FCM dependency (Hoàn)
+    implementation("com.google.firebase:firebase-messaging")
+    // AndroidX core for notification
+    implementation("androidx.core:core:1.9.0")
+    // Kết thúc
+
     implementation("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+
 }
