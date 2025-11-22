@@ -1,83 +1,76 @@
-package com.example.medibookandroid.ui.common;
+package com.example.medibookandroid.ui.common; // Nên để trong package service
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.media.AudioAttributes;
-import android.net.Uri;
-import android.os.Build;
-
+import android.util.Log;
 import androidx.annotation.NonNull;
-import androidx.core.app.NotificationCompat;
 
-import com.example.medibookandroid.R;
+import com.example.medibookandroid.data.repository.NotificationHelper; // Import Helper của bạn
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import java.util.Map;
+
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
-    private static final String CHANNEL_ID = "doctor_notifications";
+    private static final String TAG = "MyFirebaseMsgService";
 
+    /**
+     * Hàm này được gọi khi có tin nhắn đến từ FCM
+     */
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
+        super.onMessageReceived(remoteMessage);
 
-        SharedPreferences prefs = getSharedPreferences("notification_settings", MODE_PRIVATE);
-
-        boolean isGeneralEnabled = prefs.getBoolean("general", true);
-        boolean soundEnabled = prefs.getBoolean("sound", true);
-        boolean vibrateEnabled = prefs.getBoolean("vibrate", false);
-
-        if (!isGeneralEnabled) {
-            return; // tắt hết thông báo
+        // 1. Xử lý tin nhắn chứa Data (Thường dùng khi Backend gửi)
+        // Dạng này giúp App xử lý ngầm được ngay cả khi User đang dùng App
+        if (remoteMessage.getData().size() > 0) {
+            Log.d(TAG, "Message data payload: " + remoteMessage.getData());
+            handleDataMessage(remoteMessage.getData());
         }
 
-        createNotificationChannel(soundEnabled, vibrateEnabled);
+        // 2. Xử lý tin nhắn chứa Notification (Thường dùng khi test từ Firebase Console)
+        if (remoteMessage.getNotification() != null) {
+            String title = remoteMessage.getNotification().getTitle();
+            String body = remoteMessage.getNotification().getBody();
 
-        NotificationCompat.Builder builder =
-                new NotificationCompat.Builder(this, CHANNEL_ID)
-                        .setContentTitle(remoteMessage.getNotification().getTitle())
-                        .setContentText(remoteMessage.getNotification().getBody())
-                        .setSmallIcon(R.drawable.ic_notifications)
-                        .setAutoCancel(true);
-
-        if (soundEnabled) {
-            builder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.notification_sound));
+            // ⭐️ QUAN TRỌNG: Gọi lại Helper để dùng chung logic Âm thanh/Rung/Channel
+            NotificationHelper.showBookingNotification(getApplicationContext(), title, body);
         }
-
-        if (vibrateEnabled) {
-            builder.setVibrate(new long[]{0, 300, 200, 300});
-        }
-
-        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.notify(1, builder.build());
     }
 
-    private void createNotificationChannel(boolean sound, boolean vibrate) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+    private void handleDataMessage(Map<String, String> data) {
+        String title = data.get("title"); // Key do Backend quy định
+        String body = data.get("body");
 
-            NotificationChannel channel = new NotificationChannel(
-                    CHANNEL_ID,
-                    "Thông báo bác sĩ",
-                    NotificationManager.IMPORTANCE_HIGH
-            );
+        // Nếu không có title/body thì đặt mặc định
+        if (title == null) title = "Thông báo mới";
+        if (body == null) body = "Bạn có tin nhắn mới từ MediBook";
 
-            if (sound) {
-                Uri soundUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.notification_sound);
-                AudioAttributes attrs = new AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_NOTIFICATION)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                        .build();
-                channel.setSound(soundUri, attrs);
-            } else {
-                channel.setSound(null, null);
-            }
+        // Gọi Helper hiển thị
+        NotificationHelper.showBookingNotification(getApplicationContext(), title, body);
+    }
 
-            channel.enableVibration(vibrate);
+    /**
+     * Hàm này được gọi khi Token thay đổi (ví dụ cài lại app)
+     * Cần cập nhật Token mới lên Firestore để server biết đường gửi
+     */
+    @Override
+    public void onNewToken(@NonNull String token) {
+        Log.d(TAG, "Refreshed token: " + token);
+        sendRegistrationToServer(token);
+    }
 
-            NotificationManager manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(channel);
+    private void sendRegistrationToServer(String token) {
+        String userId = FirebaseAuth.getInstance().getUid();
+        if (userId != null) {
+            // Lưu token vào document của user hiện tại
+            // Lưu ý: Bạn cần xác định collection là "patients" hay "doctors"
+            // Ở đây ví dụ lưu vào patients
+            FirebaseFirestore.getInstance().collection("patients")
+                    .document(userId)
+                    .update("fcmToken", token)
+                    .addOnFailureListener(e -> Log.e(TAG, "Không thể cập nhật Token lên Server", e));
         }
-
     }
 }

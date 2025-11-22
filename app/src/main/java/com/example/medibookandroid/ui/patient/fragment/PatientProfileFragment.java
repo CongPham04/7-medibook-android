@@ -17,6 +17,7 @@ import androidx.navigation.Navigation;
 import com.bumptech.glide.Glide; // ⭐️ THÊM
 import com.example.medibookandroid.MainActivity; // ⭐️ SỬA IMPORT
 import com.example.medibookandroid.R; // ⭐️ THÊM
+import com.example.medibookandroid.data.local.SharedPrefHelper;
 import com.example.medibookandroid.databinding.FragmentUserProfileBinding;
 import com.example.medibookandroid.ui.auth.AuthViewModel; // ⭐️ THÊM
 import com.example.medibookandroid.ui.patient.viewmodel.PatientViewModel; // ⭐️ THÊM
@@ -133,10 +134,14 @@ public class PatientProfileFragment extends Fragment {
      * Xử lý logic đăng xuất và quay về màn hình chính
      */
     private void logout() {
-        // 1. Gọi AuthViewModel để đăng xuất khỏi FirebaseAuth
+        // 1. Xóa SharedPreferences
+        SharedPrefHelper prefHelper = new SharedPrefHelper(requireContext());
+        prefHelper.clear(); // Hoặc prefHelper.remove("user_role");
+
+        // 2. Gọi AuthViewModel để đăng xuất khỏi FirebaseAuth
         authViewModel.logout();
 
-        // 2. Điều hướng về MainActivity, xóa hết stack cũ
+        // 3. Điều hướng về MainActivity, xóa hết stack cũ
         Intent intent = new Intent(getActivity(), MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
