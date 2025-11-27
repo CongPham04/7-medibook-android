@@ -2,6 +2,7 @@
     <string name="app_name">MedibookAndroid</string>
 
     <!-- Welcome -->
+    <string name="slogan">Đặt lịch khám trực tuyến</string>
     <string name="log_in">Đăng nhập</string>
     <string name="sign_up">Đăng ký</string>
 
@@ -9,17 +10,38 @@
     <string name="welcome_back">Chào mừng trở lại</string>
     <string name="phone_number">Số điện thoại</string>
     <string name="password">Mật khẩu</string>
+    <string name="forgot_password">Quên mật khẩu</string>
+    <string name="not_account">Chưa có tài khoản</string>
 
     <!-- Register -->
     <string name="create_new_account">Tạo tài khoản mới</string>
     <string name="full_name">Họ và Tên</string>
+    <string name="email">Email</string>
+    <string name="have_account">Đã có tài khoản</string>
+
+
+    <!-- Setting  -->
+    <string name="settings">Cài đặt</string>
+    <string name="password_manager">Quản lí mật khẩu</string>
+    <string name="notifications_settings">Cài đặt thông báo</string>
+    <string name="language_setting">Cài đặt ngôn ngữ</string>
+    <string name="delete_account">Xóa tài khoản"</string>
+
+    <!-- Password Manager  -->
+    <string name="current_password">Mật khẩu hiện tại</string>
+    <string name="new_password">Mật khẩu mới</string>
+    <string name="confirm_newpassword">Xác nhận mật khẩu mới</string>
+    <string name="change_password">Đổi mật khẩu</string>
 
     <!-- Patient Home -->
     <string name="welcome_patient">Chào mừng, %s</string>
     <string name="search_doctor">Tìm bác sĩ theo tên, chuyên khoa...</string>
     <string name="doctor_list">Danh sách Bác sĩ</string>
+    <string name="notfound_doctor">Không tìm thấy bác sĩ nào</string>
 
     <!-- Patient Doctor Detail -->
+    <string name="doctor_detail">Thông tin chi tiết bác sĩ</string>
+    <string name="degrees">Bằng cấp</string>
     <string name="experience">Kinh nghiệm</string>
     <string name="workplace">Nơi công tác</string>
     <string name="reviews">Đánh giá</string>
@@ -42,19 +64,35 @@
     <string name="cancel_reschedule">Hủy/Dời lịch</string>
 
     <!-- Patient Profile -->
+    <string name="patient_profile">Hồ sơ của tôi</string>
     <string name="patient_name">%s</string>
     <string name="edit_profile">Chỉnh sửa hồ sơ</string>
+    <string name="help">Trợ giúp</string>
     <string name="logout">Đăng xuất</string>
 
     <!-- Patient Edit Profile -->
+
     <string name="date_of_birth">Ngày sinh</string>
     <string name="gender">Giới tính</string>
+    <string name="male">Nam</string>
+    <string name="female">Nữ</string>
+    <string name="other">Khác</string>
     <string name="address">Địa chỉ</string>
+    <string name="pls_select_gender">Vui lòng chonj giới tính</string>
     <string name="save_changes">Lưu thay đổi</string>
+
 
     <!-- Notifications -->
     <string name="notifications">Thông báo</string>
+    <string name="delete_all">Xóa tất cả</string>
+    <string name="no_notifications">Không có thông báo"</string>
     <string name="no_new_notifications">Không có thông báo mới</string>
+    <string name="readed">Đã đọc</string>
+
+    <!-- Notifications Settings -->
+    <string name="general_notification">Thông báo chung</string>
+    <string name="sound">Âm thanh</string>
+    <string name="vibration">Rung</string>
 
     <!-- Doctor Login -->
     <string name="doctor_log_in">Đăng nhập cho Bác sĩ</string>

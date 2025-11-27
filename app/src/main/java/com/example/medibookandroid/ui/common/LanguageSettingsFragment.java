@@ -95,25 +95,47 @@ public class LanguageSettingsFragment extends Fragment {
      * Lưu lựa chọn mới và khởi động lại ứng dụng để áp dụng thay đổi.
      * @param langCode Mã ngôn ngữ mới ("vi" hoặc "en").
      */
+// code mới fix lỗi login lại khi change language
     private void applyAndRestart(String langCode) {
-        if (getContext() == null) return; // Kiểm tra an toàn
+        // Kiểm tra an toàn, đảm bảo Fragment vẫn còn "gắn" vào Activity
+        if (getContext() == null || getActivity() == null) return;
 
-        // 1. Lưu ngôn ngữ mới vào bộ nhớ điện thoại (SharedPreferences)
+        // 1. Lưu ngôn ngữ mới vào SharedPreferences để ghi nhớ cho lần mở app sau
         SharedPreferences prefs = requireActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putString(PREF_LANGUAGE_KEY, langCode).apply();
 
-        // 2. Áp dụng ngôn ngữ mới cho ứng dụng ngay lập tức
+        // 2. Áp dụng ngôn ngữ mới cho ứng dụng
         LocaleListCompat appLocale = LocaleListCompat.forLanguageTags(langCode);
         AppCompatDelegate.setApplicationLocales(appLocale);
 
-        // 3. Khởi động lại ứng dụng để thay đổi có hiệu lực trên mọi màn hình
-        Intent intent = new Intent(requireContext(), MainActivity.class); // ❗️ QUAN TRỌNG
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-
-        // Kết thúc activity hiện tại để người dùng không thể quay lại
-        requireActivity().finish();
+        /*
+         * 3. KHỞI ĐỘNG LẠI ACTIVITY HIỆN TẠI (THAY VÌ TOÀN BỘ APP)
+         * Đây là thay đổi quan trọng nhất. Nó sẽ "vẽ lại" MainActivity và
+         * các Fragment bên trong nó mà không xóa đi trạng thái đăng nhập của người dùng.
+         */
+        getActivity().recreate();
     }
+
+    //code cũ
+//    private void applyAndRestart(String langCode) {
+//        if (getContext() == null) return; // Kiểm tra an toàn
+//
+//        // 1. Lưu ngôn ngữ mới vào bộ nhớ điện thoại (SharedPreferences)
+//        SharedPreferences prefs = requireActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+//        prefs.edit().putString(PREF_LANGUAGE_KEY, langCode).apply();
+//
+//        // 2. Áp dụng ngôn ngữ mới cho ứng dụng ngay lập tức
+//        LocaleListCompat appLocale = LocaleListCompat.forLanguageTags(langCode);
+//        AppCompatDelegate.setApplicationLocales(appLocale);
+//
+//        // 3. Khởi động lại ứng dụng để thay đổi có hiệu lực trên mọi màn hình
+//        Intent intent = new Intent(requireContext(), MainActivity.class); // ❗️ QUAN TRỌNG
+//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//        startActivity(intent);
+//
+//        // Kết thúc activity hiện tại để người dùng không thể quay lại
+//        requireActivity().finish();
+//    }
 
 
     // 2. THÊM onResume ĐỂ ẨN BOTTOM NAV

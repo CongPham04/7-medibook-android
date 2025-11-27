@@ -39,7 +39,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Đã đọc"
+            android:text="@string/readed"
             android:textAppearance="@style/TextAppearance.Material3.BodySmall"
             android:textColor="?attr/colorOnSurfaceVariant"
             android:textStyle="italic"
