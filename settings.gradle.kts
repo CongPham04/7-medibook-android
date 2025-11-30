@@ -5,6 +5,7 @@ pluginManagement {
                 includeGroupByRegex("com\\.android.*")
                 includeGroupByRegex("com\\.google.*")
                 includeGroupByRegex("androidx.*")
+
             }
         }
         mavenCentral()
@@ -22,6 +23,10 @@ dependencyResolutionManagement {
         maven {
             url = uri("https://linkedin.jfrog.io/artifactory/litr-repo")
         }
+        // Thư viện OTP
+//        maven {
+//            url = uri("https://jitpack.io")
+//        }
     }
 }
 
