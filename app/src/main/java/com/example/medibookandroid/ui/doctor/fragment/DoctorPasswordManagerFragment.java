@@ -104,10 +104,8 @@ public class DoctorPasswordManagerFragment extends Fragment {
 
         if (user != null && user.getEmail() != null) {
             AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), oldPassword);
-
             user.reauthenticate(credential).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    // Pass cũ đúng -> Gửi mail
                     sendOtpEmail(user.getEmail());
                 } else {
                     progressDialog.dismiss();
@@ -152,10 +150,8 @@ public class DoctorPasswordManagerFragment extends Fragment {
 
     private void showOtpOverlay() {
         binding.layoutOtpOverlay.setVisibility(View.VISIBLE);
-        binding.otpView.setText(""); // Reset ô nhập
+        binding.otpView.setText("");
         binding.otpView.requestFocus();
-
-        // Hiện thông báo email
         FirebaseUser user = mAuth.getCurrentUser();
         if(user != null) {
             binding.tvOtpMessage.setText("Đã gửi mã 6 số tới: " + user.getEmail());
@@ -164,16 +160,13 @@ public class DoctorPasswordManagerFragment extends Fragment {
 
     private void startCountDownTimer() {
         if (countDownTimer != null) countDownTimer.cancel();
-
         binding.tvResendOtp.setEnabled(false);
         binding.tvResendOtp.setAlpha(0.5f);
-
         countDownTimer = new CountDownTimer(OTP_VALIDITY_DURATION, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 binding.tvOtpTimer.setText((millisUntilFinished / 1000) + "s");
             }
-
             @Override
             public void onFinish() {
                 binding.tvOtpTimer.setText("0s");
@@ -182,7 +175,6 @@ public class DoctorPasswordManagerFragment extends Fragment {
             }
         }.start();
     }
-
     private void resendOtp() {
         progressDialog.setMessage("Đang gửi lại mã...");
         progressDialog.show();
@@ -198,19 +190,16 @@ public class DoctorPasswordManagerFragment extends Fragment {
             showToast("Vui lòng nhập đủ 6 số!");
             return;
         }
-
         if (!inputOtp.equals(generatedOTP)) {
             showToast("Mã OTP không đúng!");
-            binding.otpView.setText(""); // Xóa mã nhập sai
+            binding.otpView.setText("");
             return;
         }
-
         long currentTime = System.currentTimeMillis();
         if (currentTime - otpGenerationTime > OTP_VALIDITY_DURATION) {
             showToast("Mã OTP đã hết hạn. Hãy gửi lại!");
             return;
         }
-
         progressDialog.setMessage("Đang đổi mật khẩu...");
         progressDialog.show();
 
