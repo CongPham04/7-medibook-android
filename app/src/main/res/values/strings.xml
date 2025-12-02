@@ -5,6 +5,8 @@
     <string name="slogan">Book medical appointments online</string>
     <string name="log_in">Log In</string>
     <string name="sign_up">Sign Up</string>
+    <string name="title">Welcome to Medibook.\nMake an appointment quickly, anytime, anywhere.</string>
+
 
     <!-- Login -->
     <string name="welcome_back">Welcome Back</string>

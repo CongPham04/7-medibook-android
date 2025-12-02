@@ -74,7 +74,7 @@
         android:layout_marginTop="32dp"
         android:fontFamily="sans-serif"
         android:gravity="center_horizontal"
-        android:text="Chào mừng bạn đến với Medibook.\nĐặt lịch khám nhanh chóng, mọi lúc mọi nơi."
+        android:text="@string/title"
         android:textColor="@color/material_on_surface_emphasis_medium"
         android:textSize="14sp"
         app:layout_constraintTop_toBottomOf="@+id/iv_register_logo"
