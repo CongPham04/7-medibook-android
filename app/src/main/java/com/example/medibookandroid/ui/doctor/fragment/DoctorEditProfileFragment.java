@@ -1,5 +1,9 @@
 package com.example.medibookandroid.ui.doctor.fragment;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +17,9 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.bumptech.glide.Glide;
+import com.cloudinary.android.MediaManager;
+import com.cloudinary.android.callback.ErrorInfo;
+import com.cloudinary.android.callback.UploadCallback;
 import com.example.medibookandroid.R;
 import com.example.medibookandroid.data.model.Doctor;
 import com.example.medibookandroid.databinding.FragmentDoctorEditProfileBinding;
@@ -21,8 +28,19 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class DoctorEditProfileFragment extends Fragment {
+import org.json.JSONObject;
 
+import java.io.InputStream;
+import java.security.MessageDigest;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+public class DoctorEditProfileFragment extends Fragment {
+    // Hằng số nhận diện request khi mở thư viện ảnh
+    private static final int PICK_IMAGE_REQUEST = 101;
+    // Lưu hash url
+    private final Map<String, String> uploadedImages = new HashMap<>();
     private FragmentDoctorEditProfileBinding binding;
     private DoctorViewModel viewModel;
     private NavController navController;
@@ -69,7 +87,7 @@ public class DoctorEditProfileFragment extends Fragment {
         }
 
         viewModel = new ViewModelProvider(this).get(DoctorViewModel.class);
-
+        loadUploadedImagesFromPrefs();
         // 1. Tải dữ liệu
         loadProfileData();
 
@@ -145,12 +163,156 @@ public class DoctorEditProfileFragment extends Fragment {
 
         binding.ivEditAvatarIcon.setOnClickListener(v -> {
             // TODO: Mở thư viện ảnh/camera
-            Toast.makeText(getContext(), "Chức năng đổi avatar chưa được triển khai", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getContext(), "Chức năng đổi avatar chưa được triển khai", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent();
+            intent.setType("image/*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(Intent.createChooser(intent, "Chọn ảnh"), PICK_IMAGE_REQUEST);
         });
 
         binding.toolbar.setNavigationOnClickListener(v -> navController.popBackStack());
     }
+    // Kiểm tra kích cỡ ảnh, >10MB sẽ lỗi
+    private boolean isImageSizeValid(Uri imageUri, long maxSizeBytes) {
+        try {
+            InputStream inputStream = requireContext().getContentResolver().openInputStream(imageUri);
+            if (inputStream == null) return false;
+            int fileSize = inputStream.available();
+            inputStream.close();
+            return fileSize <= maxSizeBytes;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
+            Uri imageUri = data.getData();
 
+            // Kiểm tra kích thước
+            long maxSize = 10 * 1024 * 1024; // 10 MB
+            if (!isImageSizeValid(imageUri, maxSize)) {
+                Toast.makeText(getContext(), "Ảnh quá lớn. Vui lòng chọn ảnh dưới 10 MB.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            // Tính hash MD5
+            String hash = getImageHash(imageUri);
+            if (hash == null) {
+                Toast.makeText(getContext(), "Không thể xử lý ảnh.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            // Kiểm tra xem đã upload chưa
+            if (uploadedImages.containsKey(hash)) {
+                String existingUrl = uploadedImages.get(hash);
+                currentDoctorData.setAvatarUrl(existingUrl);
+                Glide.with(requireContext())
+                        .load(existingUrl)
+                        .placeholder(R.drawable.logo2)
+                        .circleCrop()
+                        .into(binding.ivDoctorAvatar);
+            } else {
+                uploadImageToCloudinary(imageUri, hash);
+            }
+        }
+    }
+    // Hàm tính Hash ảnh
+    private String getImageHash(Uri imageUri) {
+        try {
+            InputStream is = requireContext().getContentResolver().openInputStream(imageUri);
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = is.read(buffer)) != -1) {
+                digest.update(buffer, 0, read);
+            }
+            is.close();
+            byte[] hashBytes = digest.digest();
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hashBytes) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    // Tải ảnh lên Cloudinary
+    private void uploadImageToCloudinary(Uri imageUri, String hash) {
+        if (imageUri == null) return; // return luôn tránh crash khi không chọn ảnh
+        if (binding != null) {
+            binding.progressAvatarUpload.setVisibility(View.VISIBLE);
+            binding.ivDoctorAvatar.setAlpha(0.4f); // làm mờ avatar khi đang upload
+        }
+        MediaManager.get().upload(imageUri)
+                .unsigned("Medibook_img")
+                .option("public_id", hash)
+                .callback(new UploadCallback() {
+                    @Override
+                    public void onStart(String requestId) {
+                    }
+                    @Override
+                    public void onProgress(String requestId, long bytes, long totalBytes) {
+                    }
+                    @Override
+                    public void onSuccess(String requestId, Map resultData) {
+                        // Kiểm tra fragment còn attach và binding != null
+                        if (!isAdded() || binding == null) return;
+                        String imageUrl = (String) resultData.get("secure_url");
+                        currentDoctorData.setAvatarUrl(imageUrl);
+                        uploadedImages.put(hash, imageUrl);
+                        saveUploadedImagesToPrefs();
+                        // Cập nhật avatar
+                        Glide.with(requireContext())
+                                .load(imageUrl)
+                                .placeholder(R.drawable.logo2)
+                                .circleCrop()
+                                .into(binding.ivDoctorAvatar);
+                        binding.progressAvatarUpload.setVisibility(View.GONE);
+                        binding.ivDoctorAvatar.setAlpha(1f);
+                        Toast.makeText(getContext(), "Tải ảnh lên thành công", Toast.LENGTH_SHORT).show();
+                    }
+                    @Override
+                    public void onError(String requestId, ErrorInfo error) {
+                        if (!isAdded()) return;
+                        Toast.makeText(getContext(), "Upload thất bại: " + error.getDescription(), Toast.LENGTH_SHORT).show();
+                        binding.progressAvatarUpload.setVisibility(View.GONE);
+                        binding.ivDoctorAvatar.setAlpha(1f);
+                    }
+                    @Override
+                    public void onReschedule(String requestId, ErrorInfo error) {
+                    }
+                })
+                .dispatch();
+    }
+    private void saveUploadedImagesToPrefs() {
+        if (currentDoctorData == null) return;
+        SharedPreferences prefs = requireContext().getSharedPreferences("avatar_prefs", getContext().MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        try {
+            JSONObject json = new JSONObject(uploadedImages);
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user != null) editor.putString("uploaded_images_" + user.getUid(), json.toString());
+            editor.apply();
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+    private void loadUploadedImagesFromPrefs() {
+        SharedPreferences prefs = requireContext().getSharedPreferences("avatar_prefs", getContext().MODE_PRIVATE);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String jsonStr = "{}";
+        if (user != null) jsonStr = prefs.getString("uploaded_images_" + user.getUid(), "{}");
+        try {
+            JSONObject json = new JSONObject(jsonStr);
+            uploadedImages.clear();
+            Iterator<String> keys = json.keys();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                uploadedImages.put(key, json.getString(key));
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+    }
     // ⭐️ BẮT ĐẦU THÊM MỚI: Logic Validate ⭐️
     /**
      * Kiểm tra các trường input

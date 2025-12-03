@@ -30,8 +30,16 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-buildFeatures {
+    buildFeatures {
         viewBinding = true
+    }
+    packaging {
+        resources {
+            excludes += "META-INF/LICENSE.md"
+            excludes += "META-INF/NOTICE.md"
+            excludes += "META-INF/LICENSE"
+            excludes += "META-INF/NOTICE"
+        }
     }
 }
 
@@ -54,16 +62,19 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
 
-    // THÊM FCM dependency (Hoàn)
-    implementation("com.google.firebase:firebase-messaging")
-    // AndroidX core for notification
-    implementation("androidx.core:core:1.9.0")
-    // Kết thúc
-
     implementation("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
-
+    // upload ảnh bằng Cloudinary
+    implementation("com.cloudinary:cloudinary-android:2.5.0")
+    // Thư viện JavaMail
+    implementation("com.sun.mail:android-mail:1.6.7")
+    implementation("com.sun.mail:android-activation:1.6.7")
+    // Thư viện OTP View
+    implementation("io.github.chaosleung:pinview:1.4.4")
+    // Retrofit để gọi API
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    implementation("com.google.firebase:firebase-messaging:23.4.0")
 
 }

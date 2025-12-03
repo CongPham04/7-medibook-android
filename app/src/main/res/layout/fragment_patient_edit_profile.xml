@@ -26,7 +26,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Chỉnh sửa Hồ sơ"
+                android:text="@string/edit_profile"
                 android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                 android:textColor="@android:color/white"
                 android:textStyle="bold" />
@@ -44,6 +44,16 @@
             app:layout_constraintTop_toBottomOf="@+id/toolbar"
             app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
             tools:src="@tools:sample/avatars" />
+
+        <ProgressBar
+            android:id="@+id/progress_avatar_upload"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="@+id/iv_user_avatar"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_user_avatar"
+            app:layout_constraintStart_toStartOf="@+id/iv_user_avatar"
+            app:layout_constraintEnd_toEndOf="@+id/iv_user_avatar" />
 
         <ImageView
             android:id="@+id/iv_edit_avatar_icon"
@@ -64,7 +74,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="24dp"
             android:layout_marginEnd="16dp"
-            android:hint="Họ và tên"
+            android:hint="@string/full_name"
             app:boxCornerRadiusBottomEnd="24dp"
             app:boxCornerRadiusBottomStart="24dp"
             app:boxCornerRadiusTopEnd="24dp"
@@ -88,7 +98,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            android:hint="Ngày sinh (DD/MM/YYYY)"
+            android:hint="@string/date_of_birth"
             app:boxCornerRadiusBottomEnd="24dp"
             app:boxCornerRadiusBottomStart="24dp"
             app:boxCornerRadiusTopEnd="24dp"
@@ -121,21 +131,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Nam" />
+                android:text="@string/male" />
 
             <RadioButton
                 android:id="@+id/radio_nu"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Nữ" />
+                android:text="@string/female" />
 
             <RadioButton
                 android:id="@+id/radio_khac"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Khác" />
+                android:text="@string/other" />
         </RadioGroup>
 
         <TextView
@@ -143,7 +153,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
-            android:text="Vui lòng chọn giới tính"
+            android:text="@string/pls_select_gender"
             android:textColor="@color/design_default_color_error"
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
@@ -157,7 +167,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            android:hint="Số điện thoại"
+            android:hint="@string/phone_number"
             app:boxCornerRadiusBottomEnd="24dp"
             app:boxCornerRadiusBottomStart="24dp"
             app:boxCornerRadiusTopEnd="24dp"
@@ -182,7 +192,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            android:hint="Địa chỉ"
+            android:hint="@string/address"
             app:boxCornerRadiusBottomEnd="24dp"
             app:boxCornerRadiusBottomStart="24dp"
             app:boxCornerRadiusTopEnd="24dp"
@@ -206,7 +216,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="32dp"
             android:layout_marginEnd="16dp"
-            android:text="Lưu thay đổi"
+            android:text="@string/save_changes"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/til_address" />

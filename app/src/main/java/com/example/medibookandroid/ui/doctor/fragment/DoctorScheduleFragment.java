@@ -58,6 +58,8 @@ public class DoctorScheduleFragment extends Fragment implements
 
         viewModel = new ViewModelProvider(this).get(DoctorScheduleViewModel.class);
         selectedDate = Calendar.getInstance();
+//        Đặt ngày tối thiểu là ngày hiện tại để không chọn ca trong quá khứ , vô hiệu hóa tuwf bước chọn ngày
+        binding.calendarView.setMinDate(System.currentTimeMillis());
         setupRecyclerViews();
         setupListeners();
         setupObservers(); // ⭐️ SỬA: Gọi hàm này
@@ -86,6 +88,11 @@ public class DoctorScheduleFragment extends Fragment implements
         });
 
         binding.fabAddSlot.setOnClickListener(v -> {
+//            Thông báo khi chọn ngày trong quá khứ để chọn ca
+            if (isDateInPast(selectedDate)) {
+                Toast.makeText(getContext(), "Không thể thêm ca làm việc trong quá khứ", Toast.LENGTH_SHORT).show();
+                return;
+            }
             showAddOrEditSlotDialog(null);
         });
     }
@@ -285,5 +292,17 @@ public class DoctorScheduleFragment extends Fragment implements
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+//    Kiểm tra ngày đã chọn có trong quá khứ không
+    private boolean isDateInPast(Calendar date) {
+        Calendar today = Calendar.getInstance();
+        // Đặt giờ, phút, giây, mili-giây về 0 để chỉ so sánh ngày
+        today.set(Calendar.HOUR_OF_DAY, 0);
+        today.set(Calendar.MINUTE, 0);
+        today.set(Calendar.SECOND, 0);
+        today.set(Calendar.MILLISECOND, 0);
+
+        // So sánh ngày đã chọn với ngày hôm nay (đã được làm tròn về đầu ngày)
+        return date.before(today);
     }
 }

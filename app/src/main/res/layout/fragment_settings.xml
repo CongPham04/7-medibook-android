@@ -20,7 +20,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Cài đặt"
+            android:text="@string/settings"
             android:layout_gravity="center"
             android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
             android:textStyle="bold"
@@ -57,7 +57,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"/>
             <TextView
                 android:layout_width="0dp" android:layout_height="wrap_content"
-                android:text="Cài đặt Thông báo"
+                android:text="@string/notifications_settings"
                 android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                 android:layout_marginStart="16dp"
                 app:layout_constraintStart_toEndOf="@id/icon_notification_setting"
@@ -89,7 +89,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"/>
             <TextView
                 android:layout_width="0dp" android:layout_height="wrap_content"
-                android:text="Cài đặt Ngôn ngữ"
+                android:text="@string/language_setting"
                 android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                 android:layout_marginStart="16dp"
                 app:layout_constraintStart_toEndOf="@id/icon_language_setting"
@@ -121,7 +121,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"/>
             <TextView
                 android:layout_width="0dp" android:layout_height="wrap_content"
-                android:text="Quản lý Mật khẩu"
+                android:text="@string/password_manager"
                 android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                 android:layout_marginStart="16dp"
                 app:layout_constraintStart_toEndOf="@id/icon_password_manager"
@@ -153,7 +153,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"/>
             <TextView
                 android:layout_width="0dp" android:layout_height="wrap_content"
-                android:text="Xóa Tài khoản"
+                android:text="@string/delete_account"
                 android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                 android:textColor="?attr/colorError"
                 android:layout_marginStart="16dp"

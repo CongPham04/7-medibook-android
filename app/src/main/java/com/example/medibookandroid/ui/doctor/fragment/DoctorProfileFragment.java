@@ -17,7 +17,6 @@ import androidx.navigation.Navigation;
 import com.bumptech.glide.Glide; // ⭐️ THÊM
 import com.example.medibookandroid.MainActivity; // ⭐️ THÊM
 import com.example.medibookandroid.R; // ⭐️ THÊM
-import com.example.medibookandroid.data.local.SharedPrefHelper;
 import com.example.medibookandroid.databinding.FragmentUserProfileBinding;
 // ⭐️ SỬA IMPORTS
 import com.example.medibookandroid.ui.auth.AuthViewModel;
@@ -118,7 +117,8 @@ public class DoctorProfileFragment extends Fragment {
         binding.itemSettings.setOnClickListener(v -> {
             // Điều hướng đến Cài đặt
             // Bạn cần đảm bảo action 'action_doctorProfileFragment_to_doctorSettingsFragment' tồn tại
-            navController.navigate(R.id.action_doctorProfileFragment_to_doctorSettingsFragment);
+            // navController.navigate(R.id.action_doctorProfileFragment_to_doctorSettingsFragment);
+            Toast.makeText(getContext(), "Chuyển sang Cài đặt (Bác sĩ)", Toast.LENGTH_SHORT).show();
         });
 
         binding.itemHelp.setOnClickListener(v -> {
@@ -142,14 +142,10 @@ public class DoctorProfileFragment extends Fragment {
      * Xử lý logic đăng xuất và quay về màn hình chính
      */
     private void logout() {
-        // 1. Xóa SharedPreferences
-        SharedPrefHelper prefHelper = new SharedPrefHelper(requireContext());
-        prefHelper.clear(); // Hoặc prefHelper.remove("user_role");
-
-        // 2. Gọi AuthViewModel để đăng xuất khỏi FirebaseAuth
+        // 1. Gọi AuthViewModel để đăng xuất khỏi FirebaseAuth
         authViewModel.logout();
 
-        // 3. Điều hướng về MainActivity, xóa hết stack cũ
+        // 2. Điều hướng về MainActivity, xóa hết stack cũ
         Intent intent = new Intent(getActivity(), MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

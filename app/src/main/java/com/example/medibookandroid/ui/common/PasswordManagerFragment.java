@@ -1,4 +1,4 @@
-package com.example.medibookandroid.ui.doctor.fragment;
+package com.example.medibookandroid.ui.common;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
@@ -16,17 +16,19 @@ import androidx.navigation.Navigation;
 
 import com.example.medibookandroid.R;
 import com.example.medibookandroid.databinding.FragmentPasswordManagerBinding;
+// Import Utils & Library
 import com.example.medibookandroid.utils.JavaMailAPI;
+import com.chaos.view.PinView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.chaos.view.PinView;
+
 import java.util.regex.Pattern;
 
-public class DoctorPasswordManagerFragment extends Fragment {
+public class PasswordManagerFragment extends Fragment {
 
     private FragmentPasswordManagerBinding binding;
     private FirebaseAuth mAuth;
@@ -34,7 +36,7 @@ public class DoctorPasswordManagerFragment extends Fragment {
 
     private String generatedOTP;
     private long otpGenerationTime;
-    private static final long OTP_VALIDITY_DURATION = 60 * 1000;
+    private static final long OTP_VALIDITY_DURATION = 60 * 1000; // 60s
     private CountDownTimer countDownTimer;
 
     private static final Pattern PASSWORD_PATTERN =
@@ -58,15 +60,13 @@ public class DoctorPasswordManagerFragment extends Fragment {
 
         final NavController navController = Navigation.findNavController(view);
         binding.toolbar.setNavigationOnClickListener(v -> navController.navigateUp());
-        binding.btnContinue.setOnClickListener(v -> {
-            handleVerifyAndSendMail();
-        });
-        binding.btnConfirmOtp.setOnClickListener(v -> {
-            handleVerifyOtpAndChangePass(navController);
-        });
-        binding.tvResendOtp.setOnClickListener(v -> {
-            resendOtp();
-        });
+
+        binding.btnContinue.setOnClickListener(v -> handleVerifyAndSendMail());
+
+        binding.btnConfirmOtp.setOnClickListener(v -> handleVerifyOtpAndChangePass(navController));
+
+        binding.tvResendOtp.setOnClickListener(v -> resendOtp());
+
         binding.tvCancelOtp.setOnClickListener(v -> {
             binding.layoutOtpOverlay.setVisibility(View.GONE);
             if(countDownTimer != null) countDownTimer.cancel();
@@ -77,7 +77,6 @@ public class DoctorPasswordManagerFragment extends Fragment {
         String oldPassword = binding.tilCurrentPassword.getEditText().getText().toString().trim();
         String newPassword = binding.tilNewPassword.getEditText().getText().toString().trim();
         String confirmPassword = binding.tilConfirmNewPassword.getEditText().getText().toString().trim();
-
         binding.tilCurrentPassword.setError(null);
         binding.tilNewPassword.setError(null);
         binding.tilConfirmNewPassword.setError(null);
@@ -98,12 +97,12 @@ public class DoctorPasswordManagerFragment extends Fragment {
             binding.tilConfirmNewPassword.setError("Mật khẩu xác nhận không khớp");
             return;
         }
-
         progressDialog.show();
         FirebaseUser user = mAuth.getCurrentUser();
 
         if (user != null && user.getEmail() != null) {
             AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), oldPassword);
+
             user.reauthenticate(credential).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     sendOtpEmail(user.getEmail());
@@ -130,9 +129,8 @@ public class DoctorPasswordManagerFragment extends Fragment {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
                         progressDialog.dismiss();
-                        showToast("Đã gửi mã xác thực!");
-
-                        showOtpOverlay();
+                        showToast("Đã gửi mã OTP!");
+                        showOtpOverlay(); // Hiện overlay
                         startCountDownTimer();
                     });
                 }
@@ -152,21 +150,24 @@ public class DoctorPasswordManagerFragment extends Fragment {
         binding.layoutOtpOverlay.setVisibility(View.VISIBLE);
         binding.otpView.setText("");
         binding.otpView.requestFocus();
+
         FirebaseUser user = mAuth.getCurrentUser();
         if(user != null) {
-            binding.tvOtpMessage.setText("Đã gửi mã 6 số tới: " + user.getEmail());
+            binding.tvOtpMessage.setText("Đã gửi mã tới: " + user.getEmail());
         }
     }
-
     private void startCountDownTimer() {
         if (countDownTimer != null) countDownTimer.cancel();
+
         binding.tvResendOtp.setEnabled(false);
         binding.tvResendOtp.setAlpha(0.5f);
+
         countDownTimer = new CountDownTimer(OTP_VALIDITY_DURATION, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 binding.tvOtpTimer.setText((millisUntilFinished / 1000) + "s");
             }
+
             @Override
             public void onFinish() {
                 binding.tvOtpTimer.setText("0s");
@@ -175,13 +176,13 @@ public class DoctorPasswordManagerFragment extends Fragment {
             }
         }.start();
     }
+
     private void resendOtp() {
         progressDialog.setMessage("Đang gửi lại mã...");
         progressDialog.show();
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) sendOtpEmail(user.getEmail());
     }
-
     private void handleVerifyOtpAndChangePass(NavController navController) {
         String inputOtp = binding.otpView.getText() != null ? binding.otpView.getText().toString() : "";
         String newPassword = binding.tilNewPassword.getEditText().getText().toString().trim();
@@ -190,16 +191,18 @@ public class DoctorPasswordManagerFragment extends Fragment {
             showToast("Vui lòng nhập đủ 6 số!");
             return;
         }
+
         if (!inputOtp.equals(generatedOTP)) {
             showToast("Mã OTP không đúng!");
             binding.otpView.setText("");
             return;
         }
-        long currentTime = System.currentTimeMillis();
-        if (currentTime - otpGenerationTime > OTP_VALIDITY_DURATION) {
-            showToast("Mã OTP đã hết hạn. Hãy gửi lại!");
+
+        if (System.currentTimeMillis() - otpGenerationTime > OTP_VALIDITY_DURATION) {
+            showToast("Mã OTP đã hết hạn!");
             return;
         }
+
         progressDialog.setMessage("Đang đổi mật khẩu...");
         progressDialog.show();
 
@@ -216,9 +219,25 @@ public class DoctorPasswordManagerFragment extends Fragment {
             });
         }
     }
-
     private void showToast(String msg) {
         if (getContext() != null) Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getActivity() != null) {
+            BottomNavigationView bottomNav = getActivity().findViewById(R.id.patient_bottom_nav);
+            if (bottomNav != null) bottomNav.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (getActivity() != null) {
+            BottomNavigationView bottomNav = getActivity().findViewById(R.id.patient_bottom_nav);
+            if (bottomNav != null) bottomNav.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -226,22 +245,5 @@ public class DoctorPasswordManagerFragment extends Fragment {
         super.onDestroyView();
         if (countDownTimer != null) countDownTimer.cancel();
         binding = null;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (getActivity() != null) {
-            BottomNavigationView bottomNav = getActivity().findViewById(R.id.doctor_bottom_nav);
-            if (bottomNav != null) bottomNav.setVisibility(View.GONE);
-        }
-    }
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (getActivity() != null) {
-            BottomNavigationView bottomNav = getActivity().findViewById(R.id.doctor_bottom_nav);
-            if (bottomNav != null) bottomNav.setVisibility(View.VISIBLE);
-        }
     }
 }
