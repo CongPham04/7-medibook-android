@@ -1,0 +1,134 @@
+<resources>
+    <string name="app_name">MedibookAndroid</string>
+
+    <!-- Welcome -->
+    <string name="slogan">Đặt lịch khám trực tuyến</string>
+    <string name="log_in">Đăng nhập</string>
+    <string name="sign_up">Đăng ký</string>
+    <string name="title">Chào mừng bạn đến với Medibook.\nĐặt lịch khám nhanh chóng, mọi lúc mọi nơi</string>
+
+
+    <!-- Login -->
+    <string name="welcome_back">Chào mừng trở lại</string>
+    <string name="phone_number">Số điện thoại</string>
+    <string name="password">Mật khẩu</string>
+    <string name="forgot_password">Quên mật khẩu</string>
+    <string name="not_account">Chưa có tài khoản</string>
+
+    <!-- Register -->
+    <string name="create_new_account">Tạo tài khoản mới</string>
+    <string name="full_name">Họ và Tên</string>
+    <string name="email">Email</string>
+    <string name="have_account">Đã có tài khoản</string>
+
+
+    <!-- Setting  -->
+    <string name="settings">Cài đặt</string>
+    <string name="password_manager">Quản lí mật khẩu</string>
+    <string name="notifications_settings">Cài đặt thông báo</string>
+    <string name="language_setting">Cài đặt ngôn ngữ</string>
+    <string name="delete_account">Xóa tài khoản"</string>
+
+    <!-- Password Manager  -->
+    <string name="current_password">Mật khẩu hiện tại</string>
+    <string name="new_password">Mật khẩu mới</string>
+    <string name="confirm_newpassword">Xác nhận mật khẩu mới</string>
+    <string name="change_password">Đổi mật khẩu</string>
+
+    <!-- Patient Home -->
+    <string name="welcome_patient">Chào mừng, %s</string>
+    <string name="search_doctor">Tìm bác sĩ theo tên, chuyên khoa...</string>
+    <string name="doctor_list">Danh sách Bác sĩ</string>
+    <string name="notfound_doctor">Không tìm thấy bác sĩ nào</string>
+
+    <!-- Patient Doctor Detail -->
+    <string name="doctor_detail">Thông tin chi tiết bác sĩ</string>
+    <string name="degrees">Bằng cấp</string>
+    <string name="experience">Kinh nghiệm</string>
+    <string name="workplace">Nơi công tác</string>
+    <string name="reviews">Đánh giá</string>
+    <string name="select_appointment_slot">Chọn ca khám</string>
+
+    <!-- Booking Summary -->
+    <string name="confirm_appointment">Xác nhận lịch hẹn</string>
+    <string name="brief_description">Mô tả ngắn về tình trạng sức khỏe</string>
+    <string name="confirm_booking">Xác nhận đặt lịch</string>
+
+    <!-- Booking Success -->
+    <string name="booking_successful">Đặt lịch thành công!</string>
+    <string name="back_to_home">Về trang chủ</string>
+
+    <!-- Patient Appointments -->
+    <string name="manage_appointments">Quản lý lịch hẹn</string>
+    <string name="upcoming">Sắp tới</string>
+    <string name="history">Lịch sử</string>
+    <string name="canceled">Đã hủy</string>
+    <string name="cancel_reschedule">Hủy/Dời lịch</string>
+
+    <!-- Patient Profile -->
+    <string name="patient_profile">Hồ sơ của tôi</string>
+    <string name="patient_name">%s</string>
+    <string name="edit_profile">Chỉnh sửa hồ sơ</string>
+    <string name="help">Trợ giúp</string>
+    <string name="logout">Đăng xuất</string>
+
+    <!-- Patient Edit Profile -->
+
+    <string name="date_of_birth">Ngày sinh</string>
+    <string name="gender">Giới tính</string>
+    <string name="male">Nam</string>
+    <string name="female">Nữ</string>
+    <string name="other">Khác</string>
+    <string name="address">Địa chỉ</string>
+    <string name="pls_select_gender">Vui lòng chonj giới tính</string>
+    <string name="save_changes">Lưu thay đổi</string>
+
+
+    <!-- Notifications -->
+    <string name="notifications">Thông báo</string>
+    <string name="delete_all">Xóa tất cả</string>
+    <string name="no_notifications">Không có thông báo"</string>
+    <string name="no_new_notifications">Không có thông báo mới</string>
+    <string name="readed">Đã đọc</string>
+
+    <!-- Notifications Settings -->
+    <string name="general_notification">Thông báo chung</string>
+    <string name="sound">Âm thanh</string>
+    <string name="vibration">Rung</string>
+
+    <!-- Doctor Login -->
+    <string name="doctor_log_in">Đăng nhập cho Bác sĩ</string>
+    <string name="username">Tên đăng nhập</string>
+
+    <!-- Doctor Schedule -->
+    <string name="my_schedule">Lịch trình của tôi</string>
+    <string name="appointments_for">Lịch hẹn ngày %s</string>
+
+    <!-- Add Schedule Slot -->
+    <string name="create_new_slot">Tạo ca làm việc mới</string>
+    <string name="selected_date">Ngày: </string>
+    <string name="start_time">Giờ bắt đầu</string>
+    <string name="end_time">Giờ kết thúc</string>
+    <string name="save">Lưu</string>
+
+    <!-- Doctor Requests -->
+    <string name="appointment_requests">Yêu cầu đặt lịch</string>
+    <string name="no_new_requests">Không có yêu cầu mới</string>
+    <string name="decline">Từ chối</string>
+    <string name="accept">Chấp nhận</string>
+
+    <!-- Doctor Profile -->
+    <string name="doctor_profile">Hồ sơ Bác sĩ</string>
+    <string name="specialty">Chuyên khoa</string>
+    <string name="qualifications">Bằng cấp</string>
+    <string name="biography_description">Tiểu sử/Mô tả</string>
+    <string name="update">Cập nhật</string>
+
+    <!-- Bottom Nav -->
+    <string name="home">Trang chủ</string>
+    <string name="appointments">Lịch hẹn</string>
+    <string name="profile">Hồ sơ</string>
+    <string name="schedule">Lịch trình</string>
+    <string name="requests">Yêu cầu</string>
+    <string name="terms_and_conditions_styled">Bằng việc tiếp tục, bạn đồng ý với <b>Điều khoản sử dụng và Chính sách bảo mật</b> của chúng tôi.</string>
+</resources>

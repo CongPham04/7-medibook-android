@@ -83,7 +83,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
         android:layout_marginEnd="8dp"
-        android:text="Chào [Tên Bệnh Nhân]"
+        android:text="@string/welcome_patient"
         android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
         app:layout_constraintBottom_toBottomOf="@+id/iv_user_avatar"
         app:layout_constraintEnd_toStartOf="@+id/fl_notifications_icon"
@@ -98,7 +98,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:hint="Tìm bác sĩ theo tên, chuyên khoa..."
+        android:hint="@string/search_doctor"
         app:boxBackgroundColor="#CAD6FF"
         app:boxCornerRadiusBottomEnd="24dp"
         app:boxCornerRadiusBottomStart="24dp"
@@ -150,7 +150,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="👨‍⚕️Danh sách bác sĩ"
+                android:text="@string/doctor_list"
                 android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/iv_hospital_banner" />
@@ -187,7 +187,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Không tìm thấy bác sĩ nào"
+                    android:text="@string/notfound_doctor"
                     android:visibility="gone" />
 
             </FrameLayout>

@@ -65,13 +65,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:text="Từ chối" />
+                android:text="@string/decline" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_accept"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Chấp nhận" />
+                android:text="@string/accept" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
