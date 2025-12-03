@@ -73,4 +73,33 @@ public class DoctorViewModel extends ViewModel {
 
     // (Các hàm createSchedule, deleteSchedule... sẽ cần sửa Repository
     // giống như updateDoctor, nhưng chúng ta sẽ làm khi cần)
+
+    public void confirmAppointment(Appointment appointment) {
+        // ⭐️ SỬA: Dùng appointmentRepository
+        appointmentRepository.updateAppointmentStatus(
+                appointment.getAppointmentId(),
+                "confirmed",
+                appointment.getPatientId(),
+                success -> {
+                    if (success) {
+                        // Toast: Đã xác nhận
+                        // Reload list (nếu cần)
+                    }
+                }
+        );
+    }
+
+    public void cancelAppointment(Appointment appointment) {
+        // ⭐️ SỬA: Dùng appointmentRepository
+        appointmentRepository.updateAppointmentStatus(
+                appointment.getAppointmentId(),
+                "cancelled",
+                appointment.getPatientId(),
+                success -> {
+                    if (success) {
+                        // Toast: Đã hủy
+                    }
+                }
+        );
+    }
 }

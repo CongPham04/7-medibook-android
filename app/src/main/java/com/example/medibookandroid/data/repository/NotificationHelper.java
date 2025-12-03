@@ -14,7 +14,9 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.example.medibookandroid.MainActivity;
 import com.example.medibookandroid.R;
-
+import com.example.medibookandroid.ui.doctor.DoctorMainActivity;
+import com.example.medibookandroid.ui.patient.PatientMainActivity;
+import com.example.medibookandroid.data.local.SharedPrefHelper; // Import Helper
 public class NotificationHelper {
 
     // Đổi ID này nếu bạn muốn reset lại cài đặt âm thanh (quan trọng!)
@@ -34,13 +36,23 @@ public class NotificationHelper {
         // 2. Lấy đường dẫn file âm thanh custom
         Uri soundUri = Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.notification_sound);
 
+        // Cập nhật
+        SharedPrefHelper prefHelper = new SharedPrefHelper(context);
+        String role = prefHelper.getString("user_role");
+
+        Intent intent;
+        if ("doctor".equals(role)) {
+            intent = new Intent(context, DoctorMainActivity.class);
+        } else {
+            intent = new Intent(context, PatientMainActivity.class); // Mặc định là Patient
+        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                context, 0, intent, PendingIntent.FLAG_IMMUTABLE
+        );
         // 3. Tạo Notification Channel (Bắt buộc cho Android 8.0+)
         createNotificationChannel(context, soundUri, isSoundEnabled, isVibrateEnabled);
-
-        // 4. Chuẩn bị Intent khi bấm vào thông báo
-        Intent intent = new Intent(context, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
 
         // 5. Xây dựng thông báo
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)

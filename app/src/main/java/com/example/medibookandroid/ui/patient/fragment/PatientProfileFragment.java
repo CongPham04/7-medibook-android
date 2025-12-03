@@ -10,19 +10,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider; // ⭐️ THÊM
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import com.bumptech.glide.Glide; // ⭐️ THÊM
-import com.example.medibookandroid.MainActivity; // ⭐️ SỬA IMPORT
-import com.example.medibookandroid.R; // ⭐️ THÊM
+import com.bumptech.glide.Glide;
+import com.example.medibookandroid.MainActivity;
+import com.example.medibookandroid.R;
 import com.example.medibookandroid.data.local.SharedPrefHelper;
 import com.example.medibookandroid.databinding.FragmentUserProfileBinding;
-import com.example.medibookandroid.ui.auth.AuthViewModel; // ⭐️ THÊM
-import com.example.medibookandroid.ui.patient.viewmodel.PatientViewModel; // ⭐️ THÊM
-import com.google.firebase.auth.FirebaseAuth; // ⭐️ THÊM
-import com.google.firebase.auth.FirebaseUser; // ⭐️ THÊM
+import com.example.medibookandroid.ui.auth.AuthViewModel;
+import com.example.medibookandroid.ui.patient.viewmodel.PatientViewModel;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class PatientProfileFragment extends Fragment {
 

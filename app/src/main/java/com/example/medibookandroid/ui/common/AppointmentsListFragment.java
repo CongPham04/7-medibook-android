@@ -125,29 +125,50 @@ public class AppointmentsListFragment extends Fragment implements PatientAppoint
     private void filterAndDisplay(List<Appointment> allAppointments) {
         if (allAppointments == null || binding == null) return;
 
-        // 1. Xác định các trạng thái thực tế cần lọc
-        List<String> statusesToFilter;
-        if (statusType.equals("Upcoming")) {
-            statusesToFilter = Arrays.asList("pending", "confirmed");
-        } else if (statusType.equals("History")) {
-            statusesToFilter = Arrays.asList("completed");
-        } else { // "cancelled"
-            statusesToFilter = Arrays.asList("cancelled");
-        }
+        List<Appointment> tempList = new ArrayList<>();
 
-        // 2. Lọc danh sách
-        List<Appointment> appointments = allAppointments.stream()
-                .filter(a -> a.getStatus() != null && statusesToFilter.contains(a.getStatus().toLowerCase()))
-                .collect(Collectors.toList());
+        for (Appointment appt : allAppointments) {
+            // 1. Kiểm tra an toàn dữ liệu
+            if (appt.getStatus() == null) continue;
+
+            String status = appt.getStatus().toLowerCase();
+            boolean isPast = isAppointmentInPast(appt); // Gọi hàm kiểm tra thời gian
+
+            // 2. Phân loại dựa trên Tab hiện tại
+            switch (statusType) {
+                case "Upcoming":
+                    // Logic: Trạng thái là "chờ" hoặc "đã nhận" VÀ Thời gian chưa trôi qua
+                    if ((status.equals("pending") || status.equals("confirmed")) && !isPast) {
+                        tempList.add(appt);
+                    }
+                    break;
+
+                case "History":
+                    // Logic: Trạng thái là "hoàn thành"
+                    // HOẶC ("đã nhận" nhưng thời gian đã trôi qua -> coi như lịch sử)
+                    if (status.equals("completed") || (status.equals("confirmed") && isPast)) {
+                        tempList.add(appt);
+                    }
+                    break;
+
+                case "Canceled":
+                    // Logic: "đã hủy" hoặc "từ chối" (không quan tâm thời gian)
+                    // Lưu ý: Chuỗi "Canceled" (1 chữ l) phải khớp với bên Adapter truyền sang
+                    if (status.equals("cancelled") || status.equals("rejected")) {
+                        tempList.add(appt);
+                    }
+                    break;
+            }
+        }
 
         // 3. Cập nhật Adapter
         filteredAppointments.clear();
-        filteredAppointments.addAll(appointments);
+        filteredAppointments.addAll(tempList);
         adapter.notifyDataSetChanged();
 
         // 4. Hiển thị/Ẩn thông báo "Không có lịch hẹn"
         // (Chỉ cập nhật nếu không còn đang tải)
-        if(viewModel.isLoading().getValue() != null && !viewModel.isLoading().getValue()) {
+        if (viewModel.isLoading().getValue() != null && !viewModel.isLoading().getValue()) {
             updateEmptyView();
         }
     }
@@ -186,5 +207,26 @@ public class AppointmentsListFragment extends Fragment implements PatientAppoint
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    // Thêm hàm này vào cuối class AppointmentsListFragment
+    private boolean isAppointmentInPast(Appointment appt) {
+        if (appt.getDate() == null || appt.getTime() == null) return false;
+
+        // Giả sử date lưu dạng "yyyy-MM-dd" và time lưu dạng "HH:mm"
+        // Nếu định dạng khác, bạn cần sửa lại chuỗi pattern bên dưới
+        String dateTimeString = appt.getDate() + " " + appt.getTime();
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault());
+
+        try {
+            java.util.Date appointmentDate = sdf.parse(dateTimeString);
+            java.util.Date now = new java.util.Date();
+
+            // Nếu ngày hẹn TRƯỚC ngày hiện tại -> return true (Là quá khứ)
+            return appointmentDate != null && appointmentDate.before(now);
+        } catch (java.text.ParseException e) {
+            e.printStackTrace();
+            return false; // Nếu lỗi format thì tạm coi như chưa qua
+        }
     }
 }

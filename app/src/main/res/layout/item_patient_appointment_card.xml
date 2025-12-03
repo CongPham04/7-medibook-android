@@ -6,7 +6,8 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
     android:layout_marginTop="8dp"
-    android:layout_marginBottom="8dp">
+    android:layout_marginBottom="8dp"
+    tools:context=".ui.adapter.PatientAppointmentAdapter">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -17,12 +18,26 @@
             android:id="@+id/iv_doctor_avatar"
             android:layout_width="64dp"
             android:layout_height="64dp"
-            android:scaleType="centerCrop"
             android:background="@drawable/logo2"
+            android:scaleType="centerCrop"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
             tools:src="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/tv_status_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp"
+            android:text="Đang chờ"
+            android:textColor="#FFA500"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:background="@color/md_theme_onPrimary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/tv_doctor_name"
@@ -30,8 +45,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:text="Dr. Olivia Turner"
-            android:textColor="?attr/colorPrimary"
             android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+            android:textColor="?attr/colorPrimary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/iv_doctor_avatar"
             app:layout_constraintTop_toTopOf="@+id/iv_doctor_avatar" />
@@ -56,9 +71,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Cancel/Reschedule"
+            app:backgroundTint="@android:color/white"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_appointment_datetime"
-            app:backgroundTint="@android:color/white"/>
+            app:layout_constraintTop_toBottomOf="@+id/tv_appointment_datetime" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

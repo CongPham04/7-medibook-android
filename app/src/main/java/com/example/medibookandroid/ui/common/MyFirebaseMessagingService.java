@@ -3,12 +3,14 @@ package com.example.medibookandroid.ui.common; // Nên để trong package servi
 import android.util.Log;
 import androidx.annotation.NonNull;
 
+import com.example.medibookandroid.data.local.SharedPrefHelper;
 import com.example.medibookandroid.data.repository.NotificationHelper; // Import Helper của bạn
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
@@ -57,20 +59,43 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      */
     @Override
     public void onNewToken(@NonNull String token) {
-        Log.d(TAG, "Refreshed token: " + token);
-        sendRegistrationToServer(token);
+        Log.d("FCM", "Token refreshed: " + token);
+
+        // 1. Kiểm tra xem người dùng đã đăng nhập chưa
+        String uid = FirebaseAuth.getInstance().getUid();
+
+        // --- TRƯỜNG HỢP A: CHƯA ĐĂNG NHẬP ---
+        if (uid == null) {
+            // Chỉ Log báo hiệu, không làm gì cả để tránh lỗi Permission
+            // Token này sẽ được cập nhật SAU khi user đăng nhập (nhờ code trong LoginFragment)
+            Log.w("FCM", "User chưa đăng nhập, bỏ qua việc lưu token lên Server.");
+            return;
+        }
+
+        // --- TRƯỜNG HỢP B: ĐÃ ĐĂNG NHẬP (VD: Token thay đổi khi đang dùng app) ---
+        SharedPrefHelper pref = new SharedPrefHelper(getApplicationContext());
+        String role = pref.getString("user_role");
+
+        // Nếu vì lý do nào đó mà mất Role (VD: Xóa cache), ta dừng lại để an toàn
+        if (role == null) {
+            Log.w("FCM", "Không tìm thấy User Role, không thể xác định bảng để lưu.");
+            return;
+        }
+
+        // Xác định bảng (Collection)
+        String collection = "doctor".equalsIgnoreCase(role) ? "doctors" : "patients";
+
+        // Chuẩn bị dữ liệu
+        Map<String, Object> data = new HashMap<>();
+        data.put("fcmToken", token);
+
+        // Cập nhật lên Firestore
+        FirebaseFirestore.getInstance()
+                .collection(collection)
+                .document(uid)
+                .update(data)
+                .addOnSuccessListener(aVoid -> Log.d("FCM", "Đã cập nhật Token mới lên Server thành công."))
+                .addOnFailureListener(e -> Log.e("FCM", "Lỗi cập nhật token lên Server", e));
     }
 
-    private void sendRegistrationToServer(String token) {
-        String userId = FirebaseAuth.getInstance().getUid();
-        if (userId != null) {
-            // Lưu token vào document của user hiện tại
-            // Lưu ý: Bạn cần xác định collection là "patients" hay "doctors"
-            // Ở đây ví dụ lưu vào patients
-            FirebaseFirestore.getInstance().collection("patients")
-                    .document(userId)
-                    .update("fcmToken", token)
-                    .addOnFailureListener(e -> Log.e(TAG, "Không thể cập nhật Token lên Server", e));
-        }
-    }
 }
