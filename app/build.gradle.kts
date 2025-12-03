@@ -33,6 +33,14 @@ android {
     buildFeatures {
         viewBinding = true
     }
+    packaging {
+        resources {
+            excludes += "META-INF/LICENSE.md"
+            excludes += "META-INF/NOTICE.md"
+            excludes += "META-INF/LICENSE"
+            excludes += "META-INF/NOTICE"
+        }
+    }
 }
 
 dependencies {
@@ -58,4 +66,9 @@ dependencies {
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
     // upload ảnh bằng Cloudinary
     implementation("com.cloudinary:cloudinary-android:2.5.0")
+    // Thư viện JavaMail
+    implementation("com.sun.mail:android-mail:1.6.7")
+    implementation("com.sun.mail:android-activation:1.6.7")
+    // Thư viện OTP View
+    implementation("io.github.chaosleung:pinview:1.4.4")
 }
