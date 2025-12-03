@@ -1,7 +1,9 @@
 package com.example.medibookandroid.ui.patient.fragment;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -28,11 +30,20 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import org.json.JSONObject;
+
+import java.io.InputStream;
+import java.security.MessageDigest;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class PatientEditProfileFragment extends Fragment {
     // Hằng số nhận diện request khi mở thư viện ảnh
     private static final int PICK_IMAGE_REQUEST = 101;
+    // Lưu hash url
+    private final Map<String, String> uploadedImages = new HashMap<>();
+
     private FragmentPatientEditProfileBinding binding;
     private PatientViewModel viewModel;
     private NavController navController;
@@ -73,6 +84,7 @@ public class PatientEditProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         navController = Navigation.findNavController(view);
         viewModel = new ViewModelProvider(this).get(PatientViewModel.class);
+        loadUploadedImagesFromPrefs();
 
         // 1. Tải dữ liệu
         loadPatientData();
@@ -168,16 +180,75 @@ public class PatientEditProfileFragment extends Fragment {
 
         binding.toolbar.setNavigationOnClickListener(v -> navController.popBackStack());
     }
+    // Kiểm tra kích cỡ ảnh, >10MB sẽ lỗi
+    private boolean isImageSizeValid(Uri imageUri, long maxSizeBytes) {
+        try {
+            InputStream inputStream = requireContext().getContentResolver().openInputStream(imageUri);
+            if (inputStream == null) return false;
+            int fileSize = inputStream.available();
+            inputStream.close();
+            return fileSize <= maxSizeBytes;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
             Uri imageUri = data.getData();
-            uploadImageToCloudinary(imageUri);
+
+            // Kiểm tra kích thước
+            long maxSize = 10 * 1024 * 1024; // 10 MB
+            if (!isImageSizeValid(imageUri, maxSize)) {
+                Toast.makeText(getContext(), "Ảnh quá lớn. Vui lòng chọn ảnh dưới 10 MB.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            // Tính hash MD5
+            String hash = getImageHash(imageUri);
+            if (hash == null) {
+                Toast.makeText(getContext(), "Không thể xử lý ảnh.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            // Kiểm tra xem đã upload chưa
+            if (uploadedImages.containsKey(hash)) {
+                String existingUrl = uploadedImages.get(hash);
+                currentPatientData.setAvatarUrl(existingUrl);
+                Glide.with(requireContext())
+                        .load(existingUrl)
+                        .placeholder(R.drawable.logo2)
+                        .circleCrop()
+                        .into(binding.ivUserAvatar);
+            } else {
+                uploadImageToCloudinary(imageUri, hash);
+            }
+        }
+    }
+    // Hàm tính Hash ảnh
+    private String getImageHash(Uri imageUri) {
+        try {
+            InputStream is = requireContext().getContentResolver().openInputStream(imageUri);
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = is.read(buffer)) != -1) {
+                digest.update(buffer, 0, read);
+            }
+            is.close();
+            byte[] hashBytes = digest.digest();
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hashBytes) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
-    private void uploadImageToCloudinary(Uri imageUri) {
+    private void uploadImageToCloudinary(Uri imageUri, String hash) {
         if (imageUri == null) return;
         if (binding != null) {
             binding.progressAvatarUpload.setVisibility(View.VISIBLE);
@@ -185,6 +256,7 @@ public class PatientEditProfileFragment extends Fragment {
         }
         MediaManager.get().upload(imageUri)
                 .unsigned("Medibook_img") // tên upload preset
+                .option("public_id", hash)
                 .callback(new UploadCallback() {
                     @Override
                     public void onStart(String requestId) {}
@@ -194,7 +266,9 @@ public class PatientEditProfileFragment extends Fragment {
                     public void onSuccess(String requestId, Map resultData) {
                         if (!isAdded()) return;
                         String imageUrl = (String) resultData.get("secure_url");
+                        uploadedImages.put(hash, imageUrl);
                         currentPatientData.setAvatarUrl(imageUrl);
+                        saveUploadedImagesToPrefs();
                         Glide.with(requireContext())
                                 .load(imageUrl)
                                 .placeholder(R.drawable.logo2)
@@ -202,6 +276,7 @@ public class PatientEditProfileFragment extends Fragment {
                                 .into(binding.ivUserAvatar);
                         binding.progressAvatarUpload.setVisibility(View.GONE);
                         binding.ivUserAvatar.setAlpha(1f);
+                        Toast.makeText(getContext(), "Tải ảnh lên thành công", Toast.LENGTH_SHORT).show();
                     }
                     @Override
                     public void onError(String requestId, ErrorInfo error) {
@@ -213,6 +288,42 @@ public class PatientEditProfileFragment extends Fragment {
                     @Override
                     public void onReschedule(String requestId, ErrorInfo error) {}
                 }).dispatch();
+    }
+    // SharedPreferences helpers - lưu theo UID
+    private void saveUploadedImagesToPrefs() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentPatientData == null || user == null) return;
+
+        SharedPreferences prefs = requireContext().getSharedPreferences("avatar_prefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        try {
+            JSONObject json = new JSONObject(uploadedImages);
+            String key = "uploaded_images_" + user.getUid(); // riêng theo UID
+            editor.putString(key, json.toString());
+            editor.apply();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadUploadedImagesFromPrefs() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) return;
+
+        SharedPreferences prefs = requireContext().getSharedPreferences("avatar_prefs", Context.MODE_PRIVATE);
+        String key = "uploaded_images_" + user.getUid(); // riêng theo UID
+        String jsonStr = prefs.getString(key, "{}");
+        try {
+            JSONObject json = new JSONObject(jsonStr);
+            uploadedImages.clear();
+            Iterator<String> keys = json.keys();
+            while (keys.hasNext()) {
+                String k = keys.next();
+                uploadedImages.put(k, json.getString(k));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     // ⭐️ BẮT ĐẦU THÊM MỚI: Logic Validate ⭐️
