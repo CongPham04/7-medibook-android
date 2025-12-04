@@ -2,7 +2,9 @@ package com.example.medibookandroid.data.model;
 
 import com.google.firebase.firestore.DocumentId;
 import java.io.Serializable;
+import com.google.firebase.firestore.IgnoreExtraProperties; // ⭐️ Import cái này
 
+@IgnoreExtraProperties
 public class Patient implements Serializable {
 
     @DocumentId

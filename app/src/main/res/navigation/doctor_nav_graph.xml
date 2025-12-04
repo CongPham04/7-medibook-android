@@ -47,7 +47,7 @@
         tools:layout="@layout/fragment_doctor_settings" >
         <action
             android:id="@+id/action_doctorSettingsFragment_to_doctorNotificationSettingsFragment"
-            app:destination="@id/doctorNotificationSettingsFragment" />
+            app:destination="@id/notificationSettingsFragment" />
         <action
             android:id="@+id/action_doctorSettingsFragment_to_doctorLanguageSettingsFragment"
             app:destination="@id/doctorLanguageSettingsFragment" />
@@ -58,10 +58,10 @@
 
     <!-- Settings Sub-screens -->
     <fragment
-        android:id="@+id/doctorNotificationSettingsFragment"
-        android:name="com.example.medibookandroid.ui.doctor.fragment.DoctorNotificationSettingsFragment"
-        android:label="fragment_doctor_notification_settings"
-        tools:layout="@layout/fragment_doctor_notification_settings" />
+        android:id="@+id/notificationSettingsFragment"
+        android:name="com.example.medibookandroid.ui.common.NotificationSettingsFragment"
+        android:label="fragment_notification_settings"
+        tools:layout="@layout/fragment_notification_settings" />
     <fragment
         android:id="@+id/doctorLanguageSettingsFragment"
         android:name="com.example.medibookandroid.ui.doctor.fragment.DoctorLanguageSettingsFragment"

@@ -20,6 +20,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.example.medibookandroid.R;
+import com.example.medibookandroid.data.local.SharedPrefHelper;
 import com.example.medibookandroid.databinding.FragmentLoginBinding;
 import com.example.medibookandroid.ui.common.LoadingDialog;
 import com.example.medibookandroid.ui.doctor.DoctorMainActivity;
@@ -153,6 +154,17 @@ public class LoginFragment extends Fragment {
                         "Đăng nhập thành công với vai trò: " + user.getRole(),
                         Toast.LENGTH_SHORT).show();
 
+                // --- ⭐️ BỔ SUNG 1: LƯU ROLE VÀO SHAREDPREFS ---
+                // Để sau này mở app lên (Auto Login) còn biết user là ai
+                SharedPrefHelper prefHelper = new SharedPrefHelper(requireContext());
+                prefHelper.putString("user_role", user.getRole());
+
+                // --- ⭐️ BỔ SUNG 2: CẬP NHẬT FCM TOKEN LÊN FIREBASE ---
+                // Xác định lưu vào bảng "doctors" hay "patients" dựa trên role
+                String collectionName = "doctor".equalsIgnoreCase(user.getRole()) ? "doctors" : "patients";
+                viewModel.updateFCMToken(collectionName);
+
+                // --- 3. ĐIỀU HƯỚNG (Giữ nguyên logic của bạn) ---
                 if ("patient".equalsIgnoreCase(user.getRole())) {
                     startActivity(new Intent(getContext(), PatientMainActivity.class));
                     requireActivity().finish();

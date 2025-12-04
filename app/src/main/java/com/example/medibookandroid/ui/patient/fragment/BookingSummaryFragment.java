@@ -19,16 +19,15 @@ import com.example.medibookandroid.databinding.FragmentBookingSummaryBinding;
 import com.example.medibookandroid.data.model.Appointment;
 import com.example.medibookandroid.data.model.Doctor;
 import com.example.medibookandroid.ui.patient.viewmodel.PatientViewModel;
+// ⭐️ IMPORT HELPER ĐỂ PHÁT LOA ⭐️
+import com.example.medibookandroid.data.repository.NotificationHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import java.io.Serializable;
-// ⭐️ THÊM CÁC IMPORT NÀY ⭐️
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-// ⭐️ KẾT THÚC THÊM ⭐️
 
 public class BookingSummaryFragment extends Fragment {
 
@@ -47,7 +46,6 @@ public class BookingSummaryFragment extends Fragment {
         return binding.getRoot();
     }
 
-    // (Các hàm onResume, onPause giữ nguyên)
     @Override
     public void onResume() {
         super.onResume();
@@ -76,19 +74,18 @@ public class BookingSummaryFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         navController = Navigation.findNavController(view);
-        // Lấy PatientViewModel (được chia sẻ từ Activity hoặc tạo mới)
         viewModel = new ViewModelProvider(this).get(PatientViewModel.class);
 
-        // 1. Lấy thông tin người dùng (Patient)
+        // 1. Lấy thông tin người dùng
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
             Toast.makeText(getContext(), "Lỗi xác thực, vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
-            navController.popBackStack(R.id.patientHomeFragment, false); // Quay về Home
+            navController.popBackStack(R.id.patientHomeFragment, false);
             return;
         }
         currentPatientId = currentUser.getUid();
 
-        // 2. Lấy dữ liệu (Doctor và Schedule) từ arguments
+        // 2. Lấy dữ liệu từ arguments
         try {
             selectedDoctor = (Doctor) getArguments().getSerializable("doctor");
             selectedSchedule = (DoctorSchedule) getArguments().getSerializable("schedule");
@@ -103,45 +100,35 @@ public class BookingSummaryFragment extends Fragment {
             return;
         }
 
-        // 3. Hiển thị thông tin lên UI
         populateSummaryCard();
-
-        // 4. Setup Listeners
         setupListeners();
-
-        // 5. Setup Observers (Lắng nghe kết quả)
         setupObservers();
     }
 
-    // ⭐️ BẮT ĐẦU SỬA: Logic định dạng ngày ⭐️
     private void populateSummaryCard() {
         binding.tvDoctorNameSummary.setText("Bs. " + selectedDoctor.getFullName());
 
-        String displayDate = selectedSchedule.getDate(); // Mặc định là chuỗi gốc
+        String displayDate = selectedSchedule.getDate();
 
         if (selectedSchedule.getDate() != null && !selectedSchedule.getDate().isEmpty()) {
             try {
-                // Định dạng (Format) của ngày lưu trên Firestore ("2025-11-06")
                 SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                // Định dạng bạn muốn hiển thị ("06/11/2025")
                 SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 
                 Date date = inputFormat.parse(selectedSchedule.getDate());
                 if (date != null) {
-                    displayDate = outputFormat.format(date); // Chuyển sang "dd/MM/yyyy"
+                    displayDate = outputFormat.format(date);
                 }
             } catch (Exception e) {
                 Log.e("BookingSummary", "Lỗi định dạng ngày: " + e.getMessage());
-                // Nếu lỗi, cứ dùng ngày gốc (displayDate)
             }
         }
 
-        String dateTime = "Thời gian: " + displayDate + // Dùng 'displayDate' đã định dạng
+        String dateTime = "Thời gian: " + displayDate +
                 ", lúc " + selectedSchedule.getStartTime() +
                 " - " + selectedSchedule.getEndTime();
         binding.tvAppointmentTimeSummary.setText(dateTime);
     }
-    // ⭐️ KẾT THÚC SỬA ⭐️
 
     private void setupListeners() {
         binding.btnConfirmBooking.setOnClickListener(v -> {
@@ -157,15 +144,14 @@ public class BookingSummaryFragment extends Fragment {
                     selectedDoctor.getDoctorId(),
                     selectedSchedule.getScheduleId(),
                     selectedSchedule.getDate(),
-                    selectedSchedule.getStartTime(), // Dùng giờ bắt đầu làm "time"
+                    selectedSchedule.getStartTime(),
                     symptoms,
-                    "pending" // Trạng thái ban đầu
+                    "pending"
             );
 
-            // Gọi viewModel.createAppointment (truyền cả doctor để tạo thông báo)
+            // Gọi ViewModel để tạo lịch (ViewModel sẽ xử lý việc bắn Notification)
             viewModel.createAppointment(newAppointment, selectedDoctor);
 
-            // Vô hiệu hóa nút để tránh click 2 lần
             binding.btnConfirmBooking.setEnabled(false);
             binding.btnConfirmBooking.setText("Đang xử lý...");
         });
@@ -173,22 +159,31 @@ public class BookingSummaryFragment extends Fragment {
         binding.toolbar.setNavigationOnClickListener(v -> navController.popBackStack());
     }
 
+    // ⭐️ PHẦN QUAN TRỌNG NHẤT ĐÃ SỬA ⭐️
     private void setupObservers() {
+        // 1. Quan sát trạng thái tạo lịch hẹn (để điều hướng UI)
         viewModel.getAppointmentCreationStatus().observe(getViewLifecycleOwner(), success -> {
-            // Chỉ chạy khi success không phải null
-            if (success == null) {
-                return;
-            }
+            if (success == null) return;
 
             if (Boolean.TRUE.equals(success)) {
-                // Thành công, điều hướng
+                // Điều hướng sang màn hình thành công
                 navController.navigate(R.id.action_bookingSummaryFragment_to_bookingSuccessFragment);
             } else {
-                // Thất bại
                 Toast.makeText(getContext(), "Đặt lịch thất bại, vui lòng thử lại.", Toast.LENGTH_SHORT).show();
-                // Kích hoạt lại nút
                 binding.btnConfirmBooking.setEnabled(true);
                 binding.btnConfirmBooking.setText("Xác nhận Đặt lịch");
+            }
+        });
+
+        // 2. ⭐️ Quan sát Thông báo thành công (để PHÁT LOA & RUNG) ⭐️
+        viewModel.getBookingSuccessNotification().observe(getViewLifecycleOwner(), notification -> {
+            if (notification != null) {
+                // Gọi Helper để hiển thị thông báo hệ thống (có âm thanh tùy chỉnh)
+                NotificationHelper.showBookingNotification(
+                        requireContext(),
+                        notification.getTitle(),
+                        notification.getMessage()
+                );
             }
         });
     }
