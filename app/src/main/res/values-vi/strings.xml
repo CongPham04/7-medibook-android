@@ -14,6 +14,9 @@
     <string name="password">Mật khẩu</string>
     <string name="forgot_password">Quên mật khẩu</string>
     <string name="not_account">Chưa có tài khoản</string>
+    <string name="enter_your_email">Nhập email đã đăng ký, chúng tôi sẽ gửi link đặt lại mật khẩu cho bạn.</string>
+    <string name="send_recovery_link">Gửi link khôi phục</string>
+    <string name="backto_login">Quay lại đăng nhập</string>
 
     <!-- Register -->
     <string name="create_new_account">Tạo tài khoản mới</string>
@@ -29,11 +32,24 @@
     <string name="language_setting">Cài đặt ngôn ngữ</string>
     <string name="delete_account">Xóa tài khoản"</string>
 
+    <!-- LanguageSettings -->
+    <string name="select_language">Chọn ngôn ngữ để hiển thị: </string>
+    <string name="vie_language">Tiếng Việt</string>
+    <string name="eng_language">Tiếng ANh</string>
+    <string name="language">Ngôn ngữ</string>
+
     <!-- Password Manager  -->
     <string name="current_password">Mật khẩu hiện tại</string>
     <string name="new_password">Mật khẩu mới</string>
     <string name="confirm_newpassword">Xác nhận mật khẩu mới</string>
     <string name="change_password">Đổi mật khẩu</string>
+    <string name="action_continue">Tiếp tục</string>
+    <string name="auth_email">Xác thực Email</string>
+    <string name="auth_otp_email">Nhập mã xác thực đã gửi tới email của bạn</string>"
+    <string name="resent_code">Gửi lại mã</string>
+    <string name="confirm">Xác nhận</string>
+    <string name="cancel">Hủy bỏ</string>
+
 
     <!-- Patient Home -->
     <string name="welcome_patient">Chào mừng, %s</string>
@@ -64,6 +80,7 @@
     <string name="history">Lịch sử</string>
     <string name="canceled">Đã hủy</string>
     <string name="cancel_reschedule">Hủy/Dời lịch</string>
+
 
     <!-- Patient Profile -->
     <string name="patient_profile">Hồ sơ của tôi</string>
@@ -103,6 +120,11 @@
     <!-- Doctor Schedule -->
     <string name="my_schedule">Lịch trình của tôi</string>
     <string name="appointments_for">Lịch hẹn ngày %s</string>
+    <string name="appointments_confirmed">Lịch hẹn đã xác nhận</string>
+    <string name="no_appointment">Không có lịch hẹn</string>
+    <string name="shifts_available">🕘 Ca làm việc có sẵn</string>
+    <string name="no_shifts_yet">Chưa có ca làm việc</string>
+
 
     <!-- Add Schedule Slot -->
     <string name="create_new_slot">Tạo ca làm việc mới</string>

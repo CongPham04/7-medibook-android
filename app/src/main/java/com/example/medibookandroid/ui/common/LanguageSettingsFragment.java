@@ -84,7 +84,7 @@ public class LanguageSettingsFragment extends Fragment {
     private String getCurrentAppLanguage() {
         LocaleListCompat locales = AppCompatDelegate.getApplicationLocales();
         if (locales.isEmpty() || locales.get(0) == null) {
-            return "en"; // Mặc định là 'en' nếu chưa được đặt
+            return "vi"; // Mặc định là 'vi' nếu chưa được đặt
         }
         return locales.get(0).getLanguage();
     }

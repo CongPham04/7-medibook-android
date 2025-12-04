@@ -41,7 +41,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:fontFamily="sans-serif"
-        android:text="Đặt lịch khám trực tuyến"
+        android:text="@string/slogan"
         android:textColor="@color/md_theme_secondaryContainer"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="@+id/tv_app_name"

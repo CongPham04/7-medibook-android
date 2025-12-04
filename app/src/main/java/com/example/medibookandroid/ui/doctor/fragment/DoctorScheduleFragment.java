@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.example.medibookandroid.R;
 import com.example.medibookandroid.data.model.Appointment;
 import com.example.medibookandroid.data.model.DoctorSchedule;
 import com.example.medibookandroid.databinding.DialogAddScheduleSlotBinding;
@@ -172,12 +173,24 @@ public class DoctorScheduleFragment extends Fragment implements
     }
     // ⭐️ KẾT THÚC SỬA ⭐️
 
-    // (Hàm updateTitles giữ nguyên)
+//     (Hàm updateTitles giữ nguyên)
     private void updateTitles(Date date) {
         String formattedDate = displayDateFormat.format(date);
         binding.tvAppointmentsTitle.setText("📅 Lịch hẹn đã xác nhận (" + formattedDate + ")");
         binding.tvAvailableSlotsTitle.setText("🕘 Ca làm việc có sẵn (" + formattedDate + ")");
     }
+
+//    private void updateTitles(Date date) {
+//        // Chỉ cần getContext() là đủ, không cần requireContext() vì ta đã kiểm tra null trong các hàm khác
+//        if (getContext() == null) return;
+//
+//        String formattedDate = displayDateFormat.format(date);
+//
+//        // Sử dụng getString(resourceId, formatArgs) để chèn ngày vào chuỗi
+//        binding.tvAppointmentsTitle.setText(getString(R.string.appointments_confirmed, formattedDate));
+//        binding.tvAvailableSlotsTitle.setText(getString(R.string.shifts_available, formattedDate));
+//    }
+
 
     // (Hàm showAddOrEditSlotDialog giữ nguyên)
     private void showAddOrEditSlotDialog(@Nullable DoctorSchedule slotToEdit) {
