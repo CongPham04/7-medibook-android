@@ -19,7 +19,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hồ sơ của tôi"
+            android:text="@string/doctor_profile"
             android:layout_gravity="center"
             android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
             android:textStyle="bold"
@@ -88,7 +88,7 @@
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Hồ sơ"
+                android:text="@string/profile"
                 android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                 android:layout_marginStart="16dp"
                 app:layout_constraintStart_toEndOf="@id/icon_profile"
@@ -131,7 +131,7 @@
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Cài đặt"
+                android:text="@string/settings"
                 android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                 android:layout_marginStart="16dp"
                 app:layout_constraintStart_toEndOf="@id/icon_settings"
@@ -171,7 +171,7 @@
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Trợ giúp"
+                android:text="@string/help"
                 android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                 android:layout_marginStart="16dp"
                 app:layout_constraintStart_toEndOf="@id/icon_help"
@@ -211,7 +211,7 @@
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Đăng xuất"
+                android:text="@string/logout"
                 android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                 android:layout_marginStart="16dp"
                 app:layout_constraintStart_toEndOf="@id/icon_logout"

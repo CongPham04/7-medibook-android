@@ -19,7 +19,7 @@ public class MyApplication extends Application {
     private void loadAndSetLocale() {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         // Lấy ngôn ngữ đã lưu, mặc định là 'en' nếu chưa có
-        String langCode = prefs.getString(PREF_LANGUAGE_KEY, "en");
+        String langCode = prefs.getString(PREF_LANGUAGE_KEY, "vi");
 
         LocaleListCompat appLocale = LocaleListCompat.forLanguageTags(langCode);
         AppCompatDelegate.setApplicationLocales(appLocale);
