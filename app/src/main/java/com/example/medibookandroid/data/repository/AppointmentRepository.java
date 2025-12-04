@@ -7,18 +7,25 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.medibookandroid.data.model.Appointment;
 import com.example.medibookandroid.data.model.Patient;
+import com.example.medibookandroid.data.remote.FCMRequest;
+import com.example.medibookandroid.data.remote.FCMRequestV1;
+import com.example.medibookandroid.data.remote.FCMResponse;
+import com.example.medibookandroid.data.remote.RetrofitClient;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-/**
- * Repository for handling all data operations related to Appointments.
- */
+// ⭐️ IMPORT ĐÚNG CHO RETROFIT
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class AppointmentRepository {
 
     private static final String TAG = "AppointmentRepository";
@@ -26,50 +33,14 @@ public class AppointmentRepository {
     private FirebaseFirestore db;
 
     public AppointmentRepository() {
-        // Initialize Firestore instance
         db = FirebaseFirestore.getInstance();
     }
 
     /**
-     * Tạo lịch hẹn mới VÀ cập nhật ca làm việc thành "đã đặt" (atomic).
-     */
-    public void createAppointment(Appointment appointment, OnOperationCompleteListener listener) {
-        // 1. Lấy WriteBatch
-        WriteBatch batch = db.batch();
-
-        // 2. Tạo document mới cho 'appointments'
-        DocumentReference newAppointmentRef = db.collection(APPOINTMENT_COLLECTION).document();
-        batch.set(newAppointmentRef, appointment);
-
-        // 3. Cập nhật 'doctor_schedules'
-        String scheduleId = appointment.getScheduleId();
-        if (scheduleId == null || scheduleId.isEmpty()) {
-            Log.e(TAG, "Schedule ID is missing! Cannot update schedule availability.");
-            listener.onComplete(false); // Báo lỗi
-            return;
-        }
-
-        DocumentReference scheduleRef = db.collection("doctor_schedules").document(scheduleId);
-        // QUAN TRỌNG: Đảm bảo tên trường này đúng (available)
-        batch.update(scheduleRef, "available", false);
-
-        // 4. Thực thi
-        batch.commit()
-                .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "Appointment created AND schedule updated successfully.");
-                    listener.onComplete(true); // Báo thành công
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error in batch write for creating appointment", e);
-                    listener.onComplete(false); // Báo thất bại
-                });
-    }
-
-    /**
-     * Fetches all appointments for a specific patient.
+     * Lấy danh sách lịch hẹn của Bệnh nhân
      */
     public LiveData<List<Appointment>> getAppointmentsForPatient(String patientId, MutableLiveData<Boolean> loadingLiveData) {
-        loadingLiveData.setValue(true); // Bật loading
+        loadingLiveData.setValue(true);
         MutableLiveData<List<Appointment>> appointmentsLiveData = new MutableLiveData<>();
         db.collection(APPOINTMENT_COLLECTION)
                 .whereEqualTo("patientId", patientId)
@@ -80,55 +51,140 @@ public class AppointmentRepository {
                         appointments.add(document.toObject(Appointment.class));
                     }
                     appointmentsLiveData.setValue(appointments);
-                    loadingLiveData.setValue(false); // Tắt loading
+                    loadingLiveData.setValue(false);
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error getting appointments for patient", e);
-                    appointmentsLiveData.setValue(new ArrayList<>()); // Trả list rỗng
-                    loadingLiveData.setValue(false); // Tắt loading (khi lỗi)
+                    appointmentsLiveData.setValue(new ArrayList<>());
+                    loadingLiveData.setValue(false);
                 });
         return appointmentsLiveData;
     }
 
-    /**
-     * Fetches all appointments for a specific doctor.
-     */
+    // ... (Giữ nguyên các hàm getAppointmentsForDoctor, getConfirmedAppointmentsForDoctorByDate...) ...
     public LiveData<List<Appointment>> getAppointmentsForDoctor(String doctorId) {
         MutableLiveData<List<Appointment>> appointmentsLiveData = new MutableLiveData<>();
-        db.collection(APPOINTMENT_COLLECTION)
-                .whereEqualTo("doctorId", doctorId)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<Appointment> appointments = new ArrayList<>();
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        appointments.add(document.toObject(Appointment.class));
-                    }
-                    appointmentsLiveData.setValue(appointments);
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error getting appointments for doctor", e);
-                    appointmentsLiveData.setValue(null);
+        db.collection(APPOINTMENT_COLLECTION).whereEqualTo("doctorId", doctorId).get()
+                .addOnSuccessListener(snapshots -> {
+                    List<Appointment> list = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : snapshots)
+                        list.add(doc.toObject(Appointment.class));
+                    appointmentsLiveData.setValue(list);
                 });
         return appointmentsLiveData;
     }
 
-
     /**
-     * Updates ONLY the status of an appointment.
-     * (Dùng cho "Accept" hoặc "Complete")
+     * ⭐️ QUAN TRỌNG: Hàm tạo lịch hẹn CHÍNH THỨC (Đã gộp logic)
+     * 1. Lưu vào Firestore
+     * 2. Gửi thông báo cho Bác sĩ
      */
-    public void updateAppointmentStatus(String appointmentId, String status, OnOperationCompleteListener listener) {
-        db.collection(APPOINTMENT_COLLECTION).document(appointmentId)
-                .update("status", status)
-                .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "Appointment status updated successfully: " + appointmentId);
+    public void createAppointment(Appointment appointment, OnOperationCompleteListener listener) {
+        // Lưu ý: Logic update "available=false" cho Schedule nên làm bằng Cloud Function hoặc transaction
+        // Nhưng ở đây ta làm đơn giản
+
+        db.collection(APPOINTMENT_COLLECTION).add(appointment)
+                .addOnSuccessListener(docRef -> {
+                    // Update Schedule thành đã đặt
+                    if (appointment.getScheduleId() != null) {
+                        db.collection("doctor_schedules").document(appointment.getScheduleId())
+                                .update("available", false);
+                    }
+
+                    // Gửi thông báo
+                    notifyDoctor(appointment.getDoctorId(), "📅 Có lịch hẹn mới!", "Bệnh nhân vừa đặt lịch khám.");
                     listener.onComplete(true);
                 })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error updating appointment status", e);
-                    listener.onComplete(false);
+                .addOnFailureListener(e -> listener.onComplete(false));
+    }
+
+    /**
+     * ⭐️ Hàm update trạng thái (Dùng cho Bác sĩ)
+     * 1. Update Firestore
+     * 2. Gửi thông báo cho Bệnh nhân
+     */
+    public void updateAppointmentStatus(String appointmentId, String newStatus, String patientId, OnOperationCompleteListener listener) {
+        db.collection(APPOINTMENT_COLLECTION).document(appointmentId)
+                .update("status", newStatus)
+                .addOnSuccessListener(aVoid -> {
+                    listener.onComplete(true);
+
+                    // Gửi thông báo tùy theo trạng thái
+                    String title = "";
+                    String body = "";
+                    if (newStatus.equals("confirmed")) {
+                        title = "✅ Lịch hẹn được xác nhận";
+                        body = "Bác sĩ đã đồng ý lịch khám của bạn.";
+                    } else if (newStatus.equals("cancelled")) {
+                        title = "❌ Lịch hẹn bị hủy";
+                        body = "Bác sĩ đã hủy lịch khám của bạn.";
+                    }
+
+                    if (!title.isEmpty()) {
+                        notifyPatient(patientId, title, body);
+                    }
+                })
+                .addOnFailureListener(e -> listener.onComplete(false));
+    }
+
+    // --- CÁC HÀM HELPER GỬI THÔNG BÁO ---
+
+    private void notifyDoctor(String doctorId, String title, String body) {
+        db.collection("doctors").document(doctorId).get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.exists()) {
+                        String token = snapshot.getString("fcmToken");
+                        if (token != null) sendFCM(token, title, body);
+                    }
                 });
     }
+
+    private void notifyPatient(String patientId, String title, String body) {
+        db.collection("patients").document(patientId).get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.exists()) {
+                        String token = snapshot.getString("fcmToken");
+                        if (token != null) sendFCM(token, title, body);
+                    }
+                });
+    }
+
+    private void sendFCM(String token, String title, String body) {
+        // 1. Chuẩn bị dữ liệu
+        Map<String, String> dataMap = new HashMap<>();
+        dataMap.put("type", "booking_update");
+        // Lưu ý: data trong V1 tất cả value phải là String
+
+        // 2. Tạo Request theo cấu trúc V1
+        FCMRequestV1 request = new FCMRequestV1(token, title, body, dataMap);
+
+        // 3. Token lấy từ bước 1 (Google Playground)
+        // Lưu ý: Phải có chữ "Bearer " đằng trước
+        String accessToken = "Bearer " + "DÁN_TOKEN_DAI_NGOANG_CUA_BAN_VAO_DAY";
+
+        // 4. Gửi
+        RetrofitClient.getClient().sendNotification(accessToken, request)
+                .enqueue(new Callback<FCMResponse>() {
+                    @Override
+                    public void onResponse(Call<FCMResponse> call, Response<FCMResponse> response) {
+                        if (response.isSuccessful()) {
+                            Log.d("FCM", "Gửi tin V1 thành công!");
+                        } else {
+                            // In lỗi ra để xem
+                            try {
+                                Log.e("FCM", "Lỗi: " + response.errorBody().string());
+                            } catch (Exception e) {
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<FCMResponse> call, Throwable t) {
+                        Log.e("FCM", "Lỗi mạng: " + t.getMessage());
+                    }
+                });
+    }
+
 
     /**
      * Lắng nghe (real-time) TẤT CẢ các lịch hẹn đang "pending" cho một bác sĩ
@@ -158,6 +214,7 @@ public class AppointmentRepository {
     }
 
     // ⭐️ BẮT ĐẦU SỬA: Thêm 'loadingLiveData' ⭐️
+
     /**
      * Lấy các lịch hẹn ĐÃ XÁC NHẬN cho bác sĩ theo NGÀY CỤ THỂ
      */

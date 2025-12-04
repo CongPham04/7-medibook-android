@@ -152,7 +152,7 @@ public class DoctorScheduleViewModel extends ViewModel {
             return;
         }
 
-        appointmentRepository.updateAppointmentStatus(appointment.getAppointmentId(), "completed", success -> {
+        appointmentRepository.updateAppointmentStatus(appointment.getAppointmentId(), "completed", appointment.getPatientId(), success -> {
             if (success) {
                 toastMessage.setValue("Đã hoàn tất lịch hẹn");
                 // Tải lại dữ liệu cho ngày hiện tại

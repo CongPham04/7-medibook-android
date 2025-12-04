@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import android.graphics.Color;
 
 public class PatientAppointmentAdapter extends RecyclerView.Adapter<PatientAppointmentAdapter.AppointmentViewHolder> {
 
@@ -146,7 +147,78 @@ public class PatientAppointmentAdapter extends RecyclerView.Adapter<PatientAppoi
                 binding.tvAppointmentDatetime.setText(Html.fromHtml(timeLabel + dateTimeValue));
             }
             // ⭐️ KẾT THÚC SỬA ⭐️
+// 2. ⭐️ LOGIC MỚI: Xử lý hiển thị Trạng thái thông minh ⭐️
+            String status = appointment.getStatus();
+            if (status == null) status = "";
+            status = status.toLowerCase();
 
+            // -- Bước A: Kiểm tra xem lịch này đã trôi qua chưa --
+            boolean isPast = false;
+            if (appointment.getDate() != null && appointment.getTime() != null) {
+                try {
+                    String dateTimeStr = appointment.getDate() + " " + appointment.getTime();
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+                    Date apptDate = sdf.parse(dateTimeStr);
+                    Date now = new Date();
+                    if (apptDate != null && apptDate.before(now)) {
+                        isPast = true;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // -- Bước B: Hiển thị nhãn dựa trên Status VÀ Thời gian --
+
+            // Trường hợp đặc biệt: Đã xác nhận nhưng đã qua ngày -> Coi như Đã kết thúc
+            if (status.equals("confirmed") && isPast) {
+                binding.tvStatusLabel.setText("Hoàn thành"); // Hoặc "Chờ đánh giá"
+                binding.tvStatusLabel.setTextColor(Color.parseColor("#4CAF50")); // Màu Xanh Lá (giống Completed)
+                // Ẩn nút hủy vì đã qua rồi
+                binding.btnCancelOrChange.setVisibility(View.GONE);
+            }
+            // Các trường hợp bình thường khác
+            else {
+                switch (status) {
+                    case "pending":
+                        binding.tvStatusLabel.setText("Chờ xác nhận");
+                        binding.tvStatusLabel.setTextColor(Color.parseColor("#FF9800")); // Màu Cam
+                        binding.btnCancelOrChange.setVisibility(View.VISIBLE); // Được hủy
+                        break;
+
+                    case "confirmed":
+                        // Confirmed mà chưa qua ngày -> Vẫn là Sắp tới
+                        binding.tvStatusLabel.setText("Đã xác nhận");
+                        binding.tvStatusLabel.setTextColor(Color.parseColor("#2196F3")); // Màu Xanh Dương
+                        binding.btnCancelOrChange.setVisibility(View.VISIBLE); // Được hủy
+                        break;
+
+                    case "completed":
+                        binding.tvStatusLabel.setText("Hoàn thành");
+                        binding.tvStatusLabel.setTextColor(Color.parseColor("#4CAF50")); // Màu Xanh Lá
+                        binding.btnCancelOrChange.setVisibility(View.GONE);
+                        break;
+
+                    case "cancelled":
+                        binding.tvStatusLabel.setText("Đã hủy");
+                        binding.tvStatusLabel.setTextColor(Color.parseColor("#F44336")); // Màu Đỏ
+                        binding.btnCancelOrChange.setVisibility(View.GONE);
+                        break;
+
+                    case "rejected":
+                        binding.tvStatusLabel.setText("Bị từ chối");
+                        binding.tvStatusLabel.setTextColor(Color.parseColor("#F44336")); // Màu Đỏ
+                        binding.btnCancelOrChange.setVisibility(View.GONE);
+                        break;
+
+                    default:
+                        binding.tvStatusLabel.setText(status);
+                        binding.tvStatusLabel.setTextColor(Color.BLACK);
+                        binding.btnCancelOrChange.setVisibility(View.GONE);
+                        break;
+                }
+            }
+            // ⭐️ KẾT THÚC THÊM MỚI ⭐️
             // 3. Xử lý logic nút Hủy (giữ nguyên)
             if ("pending".equalsIgnoreCase(appointment.getStatus())) {
                 binding.btnCancelOrChange.setVisibility(View.VISIBLE);
