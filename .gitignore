@@ -1,0 +1,54 @@
+# Ignore Gradle files
+.gradle/
+**/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Ignore local configuration
+local.properties
+*.iml
+.idea/
+*.ipr
+*.iws
+
+# Ignore logs
+*.log
+
+# Android specific
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Ignore Kotlin build
+**/kotlin/*/build/
+
+# Ignore binary & cache files
+*.bin
+*.lock
+*.probe
+
+# Ignore generated reports
+**/reports/
+**/output.json
+**/outputs/
+
+# Ignore execution history & hash caches (những file bạn bị commit)
+**/executionHistory/
+**/fileHashes/
+**/resourceHashesCache.bin
+
+# Ignore miscellaneous
+.DS_Store
+Thumbs.db
+
+# Firebase / Google services (auto re-generated)
+app/google-services.json
+app/google-services.plist
+app/google-services.enc
+
+# Android Studio 2023+ cache
+.idea/caches/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/caches/deviceStreaming.xml
+.idea/caches/deviceStreaming.xml
+.idea/caches/deviceStreaming.xml
