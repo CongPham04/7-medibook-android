@@ -1,5 +1,6 @@
 package com.example.medibookandroid.ui.patient.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,7 @@ import androidx.navigation.Navigation;
 
 // 1. IMPORT BottomNavigationView
 import com.example.medibookandroid.R;
+import com.example.medibookandroid.ui.help.HelpActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.example.medibookandroid.databinding.FragmentSettingsBinding; // Đảm bảo tên Binding đúng
 
@@ -86,6 +88,12 @@ public class PatientSettingsFragment extends Fragment {
                     .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
                     .show();
         });
+        // Ví dụ trong PatientSettingsFragment.java
+        // THÊM DÒNG NÀY – MỞ MÀN HÌNH TRỢ GIÚP
+        // NÚT TRỢ GIÚP TRÊN MÀN HÌNH HỒ SƠ
+        binding.itemHelp.setOnClickListener(v ->
+                startActivity(new Intent(requireActivity(), com.example.medibookandroid.ui.help.HelpActivity.class))
+        );
     }
 
     @Override

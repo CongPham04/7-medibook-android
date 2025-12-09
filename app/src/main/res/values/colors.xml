@@ -30,4 +30,5 @@
     <color name="md_theme_outlineVariant">#FFC4C6CF</color>
     <color name="md_theme_scrim">#FF000000</color>
     <color name="my_app_blue">#1976D2</color>
+    <color name="blue_primary">#2196F3</color>
 </resources>

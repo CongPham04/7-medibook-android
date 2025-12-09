@@ -22,6 +22,7 @@ import com.example.medibookandroid.databinding.FragmentDoctorProfileBinding;
 // ⭐️ SỬA IMPORTS
 import com.example.medibookandroid.ui.auth.AuthViewModel;
 import com.example.medibookandroid.ui.doctor.viewmodel.DoctorViewModel;
+import com.example.medibookandroid.ui.help.HelpActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -39,6 +40,7 @@ public class DoctorProfileFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentDoctorProfileBinding.inflate(inflater, container, false);
+
         // ⭐️ XÓA: StorageRepository
         return binding.getRoot();
     }
@@ -67,6 +69,9 @@ public class DoctorProfileFragment extends Fragment {
 
         // 4. Cài đặt các nút
         setupClickListeners();
+        binding.itemHelp.setOnClickListener(v ->
+                startActivity(new Intent(requireActivity(), HelpActivity.class))
+        );
     }
 
     /**

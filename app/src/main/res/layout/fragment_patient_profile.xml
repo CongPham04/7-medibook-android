@@ -150,13 +150,14 @@
                 app:layout_constraintBottom_toBottomOf="parent"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!-- ITEM "TRỢ GIÚP" -->
+        <!-- ITEM TRỢ GIÚP – ĐẶT Ở MÀN HÌNH HỒ SƠ (LUÔN HIỂN THỊ) -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/item_help"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingVertical="12dp"
-            android:background="?attr/selectableItemBackground">
+            android:paddingVertical="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:layout_marginTop="8dp">
 
             <ImageView
                 android:id="@+id/icon_help"
@@ -184,7 +185,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_chevron_right"
-                app:tint="?attr/colorOnSurfaceVariant"
+                app:tint="#2196F3"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"/>
