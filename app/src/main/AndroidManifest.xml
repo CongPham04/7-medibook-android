@@ -34,6 +34,7 @@
             android:exported="true"/>
         <activity android:name=".ui.patient.PatientMainActivity" android:exported="true"/>
         <activity android:name=".ui.doctor.DoctorMainActivity" android:exported="true"/>
+        <activity android:name=".ui.help.HelpActivity" />
 
         <service
             android:name=".ui.common.MyFirebaseMessagingService"

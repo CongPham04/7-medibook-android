@@ -37,6 +37,7 @@ public class PatientProfileFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentPatientProfileBinding.inflate(inflater, container, false);
+
         // ⭐️ XÓA: StorageRepository
         return binding.getRoot();
     }
@@ -58,6 +59,9 @@ public class PatientProfileFragment extends Fragment {
 
         // 4. Cài đặt các nút
         setupClickListeners();
+        binding.itemHelp.setOnClickListener(v ->
+                startActivity(new Intent(requireActivity(), com.example.medibookandroid.ui.help.HelpActivity.class))
+        );
     }
 
     /**
