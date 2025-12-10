@@ -7,13 +7,13 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#2196F3">
+        android:background="#FF005AC1">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="#2196F3"
+            android:background="#FF005AC1"
             app:title="Trợ giúp"
             app:titleTextColor="@android:color/white"
             app:navigationIcon="@android:drawable/ic_menu_close_clear_cancel" />
@@ -29,7 +29,7 @@
             android:id="@+id/tabLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#2196F3"
+            android:background="#FF005AC1"
             app:tabTextColor="#FFFFFF"
             app:tabSelectedTextColor="#FFFFFF"
             app:tabIndicatorColor="#FFFFFF" />

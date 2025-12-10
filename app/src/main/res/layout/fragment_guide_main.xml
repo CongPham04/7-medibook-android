@@ -9,7 +9,7 @@
         android:id="@+id/tabGuide"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#2196F3"
+        android:background="#1976D2"
         app:tabTextColor="#FFFFFF"
         app:tabSelectedTextColor="#FFFFFF"
         app:tabIndicatorColor="#FFFFFF" />

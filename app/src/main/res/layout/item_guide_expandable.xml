@@ -27,7 +27,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@android:drawable/arrow_down_float"
-            app:tint="@color/blue_primary" />
+            app:tint="#FF005AC1" />
     </LinearLayout>
 
     <TextView
