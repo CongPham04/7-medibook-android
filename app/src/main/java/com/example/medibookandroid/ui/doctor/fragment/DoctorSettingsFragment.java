@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -71,8 +72,18 @@ public class DoctorSettingsFragment extends Fragment {
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_confirm_delete, null);
         TextInputLayout tilPassword = dialogView.findViewById(R.id.til_confirm_password);
 
+        // Tạo AlertDialog
+        // 1. Tạo một TextView để làm tiêu đề tùy chỉnh
+        TextView titleView = new TextView(requireContext());
+        titleView.setText("Xóa Tài khoản!");
+        titleView.setPadding(50, 40, 50, 10); // Căn lề cho đẹp (Left, Top, Right, Bottom)
+        titleView.setTextSize(20); // Kích thước chữ
+        titleView.setTypeface(null, android.graphics.Typeface.BOLD); // In đậm
+        titleView.setTextColor(android.graphics.Color.RED); // ⭐️ Đặt màu ĐỎ
+        // Hoặc màu vàng: titleView.setTextColor(android.graphics.Color.parseColor("#FFC107"));
+
         final AlertDialog dialog = new AlertDialog.Builder(requireContext())
-                .setTitle("CẢNH BÁO: Xóa Tài khoản Bác sĩ")
+                .setCustomTitle(titleView) // ⭐️ Dùng setCustomTitle thay vì setTitle
                 .setView(dialogView)
                 .setPositiveButton("Xóa vĩnh viễn", null)
                 .setNegativeButton("Hủy", (d, w) -> d.dismiss())
