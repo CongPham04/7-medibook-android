@@ -19,9 +19,15 @@ public class Doctor implements Serializable {
     private String about;
     private String avatarUrl;
 
-    public Doctor() {}
+    // ⭐️ THÊM 2 TRƯỜNG NÀY (Phải khớp tên với ReviewRepository đã update)
+    private double rating = 0.0;
+    private long reviewCount = 0;
 
-    public Doctor(String userId, String fullName, String phone, String specialty, String qualifications, String workplace, String about, String avatarUrl) {
+    public Doctor() {
+    }
+
+    public Doctor(String doctorId, String userId, String fullName, String phone, String specialty, String qualifications, String workplace, String about, String avatarUrl, double rating, long reviewCount) {
+        this.doctorId = doctorId;
         this.userId = userId;
         this.fullName = fullName;
         this.phone = phone;
@@ -30,8 +36,9 @@ public class Doctor implements Serializable {
         this.workplace = workplace;
         this.about = about;
         this.avatarUrl = avatarUrl;
+        this.rating = rating;
+        this.reviewCount = reviewCount;
     }
-
     // --- Getters and Setters ---
 
     public String getDoctorId() {
@@ -106,5 +113,21 @@ public class Doctor implements Serializable {
 
     public void setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
+    }
+
+    public double getRating() {
+        return rating;
+    }
+
+    public void setRating(double rating) {
+        this.rating = rating;
+    }
+
+    public long getReviewCount() {
+        return reviewCount;
+    }
+
+    public void setReviewCount(long reviewCount) {
+        this.reviewCount = reviewCount;
     }
 }

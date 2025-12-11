@@ -22,7 +22,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.bumptech.glide.Glide;
 import com.example.medibookandroid.R;
 import com.example.medibookandroid.ui.adapter.DoctorAdapter;
-import com.example.medibookandroid.data.model.Doctor;
 import com.example.medibookandroid.databinding.FragmentPatientHomeBinding;
 import com.example.medibookandroid.ui.patient.viewmodel.NotificationViewModel;
 import com.example.medibookandroid.ui.patient.viewmodel.PatientViewModel;
@@ -43,13 +42,13 @@ public class PatientHomeFragment extends Fragment {
     private Handler sliderHandler;
     private Runnable sliderRunnable;
     private int[] bannerImages = {
-            R.drawable.medibook_banner, // Ảnh 1 (bạn đã có)
-            R.drawable.medibook_banner2,      // (Bạn cần thêm ảnh này vào res/drawable)
-            R.drawable.medibook_banner3       // (Bạn cần thêm ảnh này vào res/drawable)
+            R.drawable.medibook_banner,
+            R.drawable.medibook_banner2,
+            R.drawable.medibook_banner3
     };
     private int currentBannerIndex = 0;
-    private final long SLIDER_DELAY_MS = 4000; // 3 giây (Thời gian chờ)
-    private final long SLIDER_ANIM_DURATION = 500; // 0.5 giây (Thời gian trượt)
+    private final long SLIDER_DELAY_MS = 4000;
+    private final long SLIDER_ANIM_DURATION = 500;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -68,51 +67,38 @@ public class PatientHomeFragment extends Fragment {
 
         setupRecyclerView();
         setupObservers();
-        setupListeners();
+        setupListeners(); // ⭐️ Đã sửa logic tìm kiếm ở trong này
 
         loadData();
     }
 
-    // ⭐️ BẮT ĐẦU SỬA: Logic Animation ⭐️
     private void startBannerSlider() {
         sliderRunnable = new Runnable() {
             @Override
             public void run() {
                 if (binding != null && getContext() != null) {
-
-                    // 1. Animate OUT (Trượt sang trái)
                     binding.ivHospitalBanner.animate()
-                            .translationX(-binding.ivHospitalBanner.getWidth()) // Di chuyển X sang âm (ra khỏi màn hình bên trái)
-                            .alpha(0.5f) // Hơi mờ đi
-                            .setDuration(SLIDER_ANIM_DURATION) // 0.5 giây
+                            .translationX(-binding.ivHospitalBanner.getWidth())
+                            .alpha(0.5f)
+                            .setDuration(SLIDER_ANIM_DURATION)
                             .withEndAction(() -> {
-                                // 2. Khi đã khuất (animated out):
                                 if (binding != null) {
-                                    // Đổi ảnh
                                     currentBannerIndex = (currentBannerIndex + 1) % bannerImages.length;
                                     binding.ivHospitalBanner.setImageResource(bannerImages[currentBannerIndex]);
-
-                                    // Đặt lại vị trí (ngoài màn hình, bên phải)
                                     binding.ivHospitalBanner.setTranslationX(binding.ivHospitalBanner.getWidth());
-
-                                    // 3. Animate IN (Trượt từ phải vào)
                                     binding.ivHospitalBanner.animate()
-                                            .translationX(0) // Về vị trí cũ (0)
-                                            .alpha(1.0f) // Rõ nét
+                                            .translationX(0)
+                                            .alpha(1.0f)
                                             .setDuration(SLIDER_ANIM_DURATION)
-                                            .start(); // Bắt đầu animation "IN"
+                                            .start();
                                 }
-                            }).start(); // Bắt đầu animation "OUT"
-
-                    // 4. Lặp lại
+                            }).start();
                     sliderHandler.postDelayed(this, SLIDER_DELAY_MS);
                 }
             }
         };
-        // Bắt đầu chạy lần đầu
         sliderHandler.postDelayed(sliderRunnable, SLIDER_DELAY_MS);
     }
-    // ⭐️ KẾT THÚC SỬA ⭐️
 
     private void stopBannerSlider() {
         if (sliderHandler != null && sliderRunnable != null) {
@@ -123,15 +109,14 @@ public class PatientHomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        startBannerSlider(); // Bắt đầu chạy khi quay lại fragment
+        startBannerSlider();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        stopBannerSlider(); // Dừng lại khi rời fragment (rất quan trọng)
+        stopBannerSlider();
     }
-
 
     private void setupRecyclerView() {
         doctorAdapter = new DoctorAdapter(new ArrayList<>(), doctor -> {
@@ -157,8 +142,7 @@ public class PatientHomeFragment extends Fragment {
             viewModel.loadPatient(patientId);
 
             binding.progressBar.setVisibility(View.VISIBLE);
-            binding.rvDoctorList.setVisibility(View.GONE);
-            binding.tvNoData.setVisibility(View.GONE);
+            // Ban đầu chưa có dữ liệu tìm kiếm, để trắng query
             viewModel.setSearchQuery("");
         } else {
             Toast.makeText(getContext(), "Lỗi xác thực người dùng.", Toast.LENGTH_SHORT).show();
@@ -166,7 +150,7 @@ public class PatientHomeFragment extends Fragment {
     }
 
     private void setupObservers() {
-        // 1. Quan sát thông tin bệnh nhân (cho lời chào và avatar)
+        // Quan sát thông tin bệnh nhân
         viewModel.getPatient().observe(getViewLifecycleOwner(), patient -> {
             if (patient != null && patient.getFullName() != null) {
                 binding.tvWelcomeUser.setText("👋 Chào, " + patient.getFullName() + "!");
@@ -182,12 +166,15 @@ public class PatientHomeFragment extends Fragment {
             }
         });
 
-        // 2. Quan sát danh sách bác sĩ (để hiển thị loading/list/empty)
+        // Quan sát danh sách bác sĩ
+        // Khi ViewModel nhận tín hiệu từ Repository -> displayedDoctors thay đổi -> RecyclerView tự update
         viewModel.getDoctors().observe(getViewLifecycleOwner(), doctors -> {
             binding.progressBar.setVisibility(View.GONE);
             if (doctors != null && !doctors.isEmpty()) {
                 binding.rvDoctorList.setVisibility(View.VISIBLE);
                 binding.tvNoData.setVisibility(View.GONE);
+
+                // Adapter sẽ nhận list mới có số sao (rating) mới nhất
                 doctorAdapter.updateData(doctors);
             } else {
                 binding.rvDoctorList.setVisibility(View.GONE);
@@ -195,10 +182,9 @@ public class PatientHomeFragment extends Fragment {
             }
         });
 
-        // 3. Quan sát số lượng thông báo chưa đọc (từ ViewModel của Activity)
+        // Quan sát thông báo
         notificationViewModel.getUnreadCount().observe(getViewLifecycleOwner(), count -> {
             if (count == null) return;
-
             if (count > 0) {
                 binding.tvNotificationBadge.setText(String.valueOf(count));
                 binding.tvNotificationBadge.setVisibility(View.VISIBLE);
@@ -209,26 +195,25 @@ public class PatientHomeFragment extends Fragment {
     }
 
     private void setupListeners() {
-        // 3. Listener cho thanh tìm kiếm
+        // ⭐️ SỬA: Listener cho thanh tìm kiếm
         binding.tilSearch.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                binding.progressBar.setVisibility(View.VISIBLE);
-                binding.rvDoctorList.setVisibility(View.GONE);
-                binding.tvNoData.setVisibility(View.GONE);
+                // ⭐️ QUAN TRỌNG: Đã xóa code hiện ProgressBar và ẩn RecyclerView ở đây.
+                // Lý do: Việc lọc trên RAM rất nhanh, nếu hiện loading sẽ gây nháy màn hình.
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-                String query = s.toString().trim();
+                String query = s.toString(); // Không cần trim() ngay để user có thể gõ dấu cách
+                // Gọi hàm lọc bên ViewModel
                 viewModel.setSearchQuery(query);
             }
         });
 
-        // 4. Listener cho icon Settings (Điều hướng "con")
         binding.ibSettings.setOnClickListener(v -> {
             if (getActivity() != null) {
                 try {
@@ -240,14 +225,11 @@ public class PatientHomeFragment extends Fragment {
             }
         });
 
-        // 5. Listener cho icon Notifications (Chuyển "Tab")
         binding.flNotificationsIcon.setOnClickListener(v -> {
             if (getActivity() != null) {
                 try {
-                    // Tìm BottomNav trong Activity
                     BottomNavigationView bottomNav = getActivity().findViewById(R.id.patient_bottom_nav);
                     if (bottomNav != null) {
-                        // "Chọn" tab Notifications
                         bottomNav.setSelectedItemId(R.id.patientNotificationsFragment);
                     }
                 } catch (Exception e) {
@@ -261,6 +243,6 @@ public class PatientHomeFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
-        stopBannerSlider(); // Dừng hẳn vòng lặp
+        stopBannerSlider();
     }
 }

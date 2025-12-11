@@ -62,7 +62,7 @@ public class LoginFragment extends Fragment {
         });
 
         setupObservers();
-
+        binding.toolbar.setNavigationOnClickListener(v -> navController.popBackStack());
         binding.tvSignUp.setOnClickListener(v ->
                 navController.navigate(R.id.action_loginFragment_to_registerFragment));
         binding.tvForgotPassword.setOnClickListener(v -> showForgotPasswordDialog());

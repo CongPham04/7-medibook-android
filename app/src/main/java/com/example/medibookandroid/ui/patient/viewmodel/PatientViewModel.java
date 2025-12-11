@@ -10,19 +10,20 @@ import com.example.medibookandroid.data.model.Doctor;
 import com.example.medibookandroid.data.model.DoctorSchedule;
 import com.example.medibookandroid.data.model.Patient;
 import com.example.medibookandroid.data.model.Notification;
-import com.example.medibookandroid.data.model.Review; // (Giả sử bạn có model này)
+import com.example.medibookandroid.data.model.Review;
 import com.example.medibookandroid.data.repository.AppointmentRepository;
 import com.example.medibookandroid.data.repository.DoctorRepository;
 import com.example.medibookandroid.data.repository.PatientRepository;
-import com.example.medibookandroid.data.repository.ReviewRepository; // (Giả sử bạn có repo này)
+import com.example.medibookandroid.data.repository.ReviewRepository;
 import com.example.medibookandroid.data.repository.ScheduleRepository;
 import com.example.medibookandroid.data.repository.NotificationRepository;
-import com.example.medibookandroid.data.repository.OnOperationCompleteListener;
+import com.example.medibookandroid.utils.StringUtils;
 
-import java.text.SimpleDateFormat; // ⭐️ THÊM IMPORT
-import java.util.Date; // ⭐️ THÊM IMPORT
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Locale; // ⭐️ THÊM IMPORT
+import java.util.Locale;
 
 public class PatientViewModel extends ViewModel {
 
@@ -33,26 +34,24 @@ public class PatientViewModel extends ViewModel {
     private NotificationRepository notificationRepository;
     private ReviewRepository reviewRepository;
 
-    // ⭐️ BẮT ĐẦU SỬA: Thêm 2 định dạng ngày ⭐️
-    // Định dạng (Format) của ngày lưu trên Firestore ("2025-11-06")
     private static final SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-    // Định dạng bạn muốn hiển thị ("06/11/2025")
     private static final SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-    // ⭐️ KẾT THÚC SỬA ⭐️
 
-    // LiveData cho Patient (Lấy theo ID)
+    // LiveData cho Patient
     private MutableLiveData<String> patientId = new MutableLiveData<>();
     private LiveData<Patient> currentPatient;
 
-    // LiveData cho Doctor (Tìm kiếm)
-    private MutableLiveData<String> searchQuery = new MutableLiveData<>();
+    // --- PHẦN TÌM KIẾM ---
+    // 1. List gốc chứa toàn bộ bác sĩ tải từ DB
+    private List<Doctor> originalDoctorList = new ArrayList<>();
+    // 2. LiveData chứa danh sách bác sĩ để hiển thị (đã qua lọc)
+    private MutableLiveData<List<Doctor>> displayedDoctors = new MutableLiveData<>();
+
+    // ⭐️ BỔ SUNG BIẾN NÀY (Đã sửa lỗi thiếu biến)
+    private String currentSearchQuery = "";
+
     private MutableLiveData<Notification> _bookingSuccessNotification = new MutableLiveData<>();
-    private LiveData<List<Doctor>> doctorList;
-
-    // LiveData cho trạng thái tạo Appointment
     private MutableLiveData<Boolean> appointmentCreationStatus = new MutableLiveData<>();
-
-    // LiveData cho trạng thái CẬP NHẬT Patient
     private MutableLiveData<Boolean> updatePatientStatus = new MutableLiveData<>();
 
     public PatientViewModel() {
@@ -61,24 +60,71 @@ public class PatientViewModel extends ViewModel {
         appointmentRepository = new AppointmentRepository();
         doctorScheduleRepository = new ScheduleRepository();
         notificationRepository = new NotificationRepository();
-        reviewRepository = new ReviewRepository(); // (Giả sử bạn có repo này)
+        reviewRepository = new ReviewRepository();
 
-        // Khi patientId thay đổi, gọi getPatientById
+        // Load thông tin Patient
         currentPatient = Transformations.switchMap(patientId, id ->
                 patientRepository.getPatientById(id)
         );
 
-        // Khi searchQuery thay đổi, gọi repo tương ứng
-        doctorList = Transformations.switchMap(searchQuery, query -> {
-            if (query == null || query.isEmpty()) {
-                return doctorRepository.getAllDoctors();
-            } else {
-                return doctorRepository.searchDoctors(query);
+        // Bắt đầu lắng nghe dữ liệu bác sĩ Realtime
+        startListeningToDoctors();
+    }
+
+    // ⭐️ LOGIC MỚI: Lắng nghe dữ liệu realtime
+    private void startListeningToDoctors() {
+        // observeForever để đảm bảo ViewModel luôn nhận được update dù Fragment có đang active hay không
+        doctorRepository.getAllDoctorsRealtime().observeForever(doctors -> {
+            if (doctors != null) {
+                // 1. Cập nhật danh sách gốc
+                originalDoctorList.clear();
+                originalDoctorList.addAll(doctors);
+
+                // 2. Lọc lại dữ liệu ngay lập tức dựa trên từ khóa đang nhập
+                // (Để cập nhật số sao mới lên giao diện ngay cả khi đang tìm kiếm)
+                filterDoctors(currentSearchQuery);
             }
         });
     }
 
-    // --- Các hàm cho Patient ---
+    // ⭐️ LOGIC MỚI: Tách hàm lọc ra để tái sử dụng
+    public void setSearchQuery(String query) {
+        this.currentSearchQuery = query; // Lưu lại từ khóa vào biến toàn cục
+        filterDoctors(query);
+    }
+
+    private void filterDoctors(String query) {
+        if (originalDoctorList == null || originalDoctorList.isEmpty()) {
+            return;
+        }
+
+        // Nếu query rỗng hoặc null, hiển thị toàn bộ danh sách gốc
+        if (query == null || query.trim().isEmpty()) {
+            displayedDoctors.setValue(new ArrayList<>(originalDoctorList)); // Trả về bản sao để an toàn
+            return;
+        }
+
+        List<Doctor> filteredList = new ArrayList<>();
+        String normalizedQuery = StringUtils.removeAccent(query.trim());
+
+        for (Doctor doctor : originalDoctorList) {
+            String name = StringUtils.removeAccent(doctor.getFullName());
+            String specialty = StringUtils.removeAccent(doctor.getSpecialty());
+
+            if (name.contains(normalizedQuery) || specialty.contains(normalizedQuery)) {
+                filteredList.add(doctor);
+            }
+        }
+        displayedDoctors.setValue(filteredList);
+    }
+
+    // Getter trả về LiveData displayedDoctors
+    public LiveData<List<Doctor>> getDoctors() {
+        return displayedDoctors;
+    }
+
+    // --- CÁC HÀM KHÁC GIỮ NGUYÊN ---
+
     public LiveData<Patient> getPatient() {
         return currentPatient;
     }
@@ -87,60 +133,31 @@ public class PatientViewModel extends ViewModel {
         patientId.setValue(id);
     }
 
-    /**
-     * Cập nhật hồ sơ bệnh nhân.
-     * Fragment sẽ gọi hàm này (1 tham số).
-     */
     public void updatePatient(Patient patient) {
-        // ViewModel sẽ xử lý callback (listener)
         patientRepository.updatePatient(patient, success -> {
-            updatePatientStatus.postValue(success); // Cập nhật LiveData
+            updatePatientStatus.postValue(success);
         });
     }
 
-    /**
-     * Lấy LiveData trạng thái cập nhật (để Fragment observe)
-     */
     public LiveData<Boolean> getUpdatePatientStatus() {
-        updatePatientStatus.setValue(null); // Reset
+        updatePatientStatus.setValue(null);
         return updatePatientStatus;
-    }
-
-    // --- Các hàm cho Doctor ---
-    public LiveData<List<Doctor>> getDoctors() {
-        return doctorList;
-    }
-
-    public void setSearchQuery(String query) {
-        searchQuery.setValue(query);
     }
 
     public LiveData<Doctor> getDoctorById(String doctorId) {
         return doctorRepository.getDoctorById(doctorId);
     }
 
-    // --- Các hàm cho Appointment & Schedule ---
-
-    /**
-     * Lấy lịch hẹn cho Bệnh nhân (đã sửa để khớp với Repository)
-     */
     public LiveData<List<Appointment>> getAppointmentsForPatient(String patientId) {
-        // Tạo một LiveData "giả" (dummy) vì hàm repo yêu cầu nó
         MutableLiveData<Boolean> dummyLoading = new MutableLiveData<>();
         return appointmentRepository.getAppointmentsForPatient(patientId, dummyLoading);
     }
-
-    /**
-     * Gọi Repository để tạo lịch hẹn
-     */
-    // Trong PatientViewModel.java
 
     public void createAppointment(Appointment appointment, Doctor doctor) {
         appointmentRepository.createAppointment(appointment, success -> {
             appointmentCreationStatus.postValue(success);
 
             if (Boolean.TRUE.equals(success)) {
-                // --- LOGIC TẠO NỘI DUNG THÔNG BÁO ---
                 String displayDate = appointment.getDate();
                 try {
                     Date date = inputFormat.parse(appointment.getDate());
@@ -153,27 +170,19 @@ public class PatientViewModel extends ViewModel {
                 String message = "Bạn đã đặt lịch khám với Bác sĩ " + doctor.getFullName() +
                         " vào lúc " + appointment.getTime() + ", " + displayDate + ".";
 
-                // Tạo đối tượng Notification
                 Notification notif = new Notification(appointment.getPatientId(), title, message, "booking_success");
-
-                // 1. Gửi xuống Repository để LƯU VÀO DB (Cho lịch sử)
                 notificationRepository.createNotification(notif);
-
-                // 2. ⭐️ Gửi ra Fragment để PHÁT LOA/RUNG (Hệ thống)
                 _bookingSuccessNotification.postValue(notif);
             }
         });
     }
 
-    /**
-     * Lấy LiveData trạng thái tạo (để Fragment observe)
-     */
     public LiveData<Boolean> getAppointmentCreationStatus() {
-        appointmentCreationStatus.setValue(null); // Reset
+        appointmentCreationStatus.setValue(null);
         return appointmentCreationStatus;
     }
     public LiveData<Notification> getBookingSuccessNotification() {
-        _bookingSuccessNotification.setValue(null); // Reset để tránh phát lại khi xoay màn hình
+        _bookingSuccessNotification.setValue(null);
         return _bookingSuccessNotification;
     }
     public LiveData<List<DoctorSchedule>> getSchedulesForDoctor(String doctorId) {

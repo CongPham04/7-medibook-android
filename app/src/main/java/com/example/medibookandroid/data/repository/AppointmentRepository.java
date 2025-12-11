@@ -160,7 +160,7 @@ public class AppointmentRepository {
 
         // 3. Token lấy từ bước 1 (Google Playground)
         // Lưu ý: Phải có chữ "Bearer " đằng trước
-        String accessToken = "Bearer " + "DÁN_TOKEN_DAI_NGOANG_CUA_BAN_VAO_DAY";
+        String accessToken = "Bearer " + "";
 
         // 4. Gửi
         RetrofitClient.getClient().sendNotification(accessToken, request)

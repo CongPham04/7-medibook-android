@@ -137,45 +137,6 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
-        <!-- ITEM TRỢ GIÚP (THÊM MỚI) -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/itemHelp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingVertical="12dp"
-            android:background="?attr/selectableItemBackground">
-
-            <ImageView
-                android:id="@+id/icon_help"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_help_outline"
-                app:tint="?attr/colorPrimary"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="Trợ giúp"
-                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                android:layout_marginStart="16dp"
-                app:layout_constraintStart_toEndOf="@id/icon_help"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/arrow_help"/>
-
-            <ImageView
-                android:id="@+id/arrow_help"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_chevron_right"
-                app:tint="?attr/colorOnSurfaceVariant"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
-        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- ITEM XÓA TÀI KHOẢN -->
         <androidx.constraintlayout.widget.ConstraintLayout

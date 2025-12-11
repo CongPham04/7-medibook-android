@@ -4,6 +4,8 @@ import android.util.Log;
 import androidx.lifecycle.MutableLiveData;
 import com.example.medibookandroid.data.model.User;
 import com.example.medibookandroid.data.model.Patient; // ⭐️ THÊM IMPORT
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference; // ⭐️ THÊM IMPORT
@@ -20,6 +22,8 @@ public class AuthRepository {
     public final MutableLiveData<Boolean> registerSuccess = new MutableLiveData<>();
     public final MutableLiveData<User> loginUser = new MutableLiveData<>();
     public final MutableLiveData<String> errorMessage = new MutableLiveData<>();
+    // Thêm LiveData để báo kết quả xóa
+    public final MutableLiveData<Boolean> deleteAccountSuccess = new MutableLiveData<>();
 
     public AuthRepository() {
         mAuth = FirebaseAuth.getInstance();
@@ -120,5 +124,72 @@ public class AuthRepository {
      */
     public void logout() {
         mAuth.signOut();
+    }
+
+    /**
+     * ⭐️ CHỨC NĂNG MỚI: Xóa tài khoản
+     * @param password Mật khẩu để xác thực lại trước khi xóa
+     * @param role Vai trò để biết xóa ở bảng patients hay doctors
+     */
+    public void deleteAccount(String password, String role) {
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user == null || user.getEmail() == null) {
+            errorMessage.postValue("Người dùng không hợp lệ");
+            deleteAccountSuccess.postValue(false);
+            return;
+        }
+
+        // 1. Tạo Credential từ email và mật khẩu nhập vào
+        AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), password);
+
+        // 2. Xác thực lại (Re-authenticate)
+        user.reauthenticate(credential).addOnCompleteListener(reauthTask -> {
+            if (reauthTask.isSuccessful()) {
+                Log.d(TAG, "Re-authenticated successfully. Deleting data...");
+                deleteFirestoreDataAndUser(user, role);
+            } else {
+                Log.e(TAG, "Re-authentication failed", reauthTask.getException());
+                errorMessage.postValue("Mật khẩu không đúng, vui lòng thử lại.");
+                deleteAccountSuccess.postValue(false);
+            }
+        });
+    }
+
+    private void deleteFirestoreDataAndUser(FirebaseUser user, String role) {
+        String uid = user.getUid();
+        WriteBatch batch = db.batch();
+
+        // 3. Chuẩn bị xóa dữ liệu Firestore
+        // Xóa trong collection 'users'
+        DocumentReference userRef = db.collection("users").document(uid);
+        batch.delete(userRef);
+
+        // Xóa trong collection profile ('patients' hoặc 'doctors')
+        String collectionName = "doctor".equalsIgnoreCase(role) ? "doctors" : "patients";
+        DocumentReference profileRef = db.collection(collectionName).document(uid);
+        batch.delete(profileRef);
+
+        // 4. Thực thi xóa Firestore
+        batch.commit().addOnCompleteListener(batchTask -> {
+            if (batchTask.isSuccessful()) {
+                Log.d(TAG, "Firestore data deleted. Deleting Auth user...");
+
+                // 5. Cuối cùng: Xóa User khỏi Firebase Auth
+                user.delete().addOnCompleteListener(deleteTask -> {
+                    if (deleteTask.isSuccessful()) {
+                        Log.d(TAG, "User account deleted.");
+                        deleteAccountSuccess.postValue(true);
+                    } else {
+                        Log.e(TAG, "Failed to delete auth user", deleteTask.getException());
+                        errorMessage.postValue("Lỗi xóa tài khoản Auth: " + deleteTask.getException().getMessage());
+                        deleteAccountSuccess.postValue(false);
+                    }
+                });
+            } else {
+                Log.e(TAG, "Failed to delete Firestore data", batchTask.getException());
+                errorMessage.postValue("Lỗi xóa dữ liệu: " + batchTask.getException().getMessage());
+                deleteAccountSuccess.postValue(false);
+            }
+        });
     }
 }

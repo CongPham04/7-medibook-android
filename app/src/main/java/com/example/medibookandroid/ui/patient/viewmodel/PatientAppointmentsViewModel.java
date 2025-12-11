@@ -3,14 +3,19 @@ package com.example.medibookandroid.ui.patient.viewmodel;
 import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 import com.example.medibookandroid.data.model.Appointment;
 import com.example.medibookandroid.data.model.Doctor;
 import com.example.medibookandroid.data.model.Notification;
+import com.example.medibookandroid.data.model.Patient;
+import com.example.medibookandroid.data.model.Review;
 import com.example.medibookandroid.data.repository.AppointmentRepository;
 import com.example.medibookandroid.data.repository.DoctorRepository;
 import com.example.medibookandroid.data.repository.NotificationRepository;
 
+import com.example.medibookandroid.data.repository.PatientRepository;
+import com.example.medibookandroid.data.repository.ReviewRepository;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -33,7 +38,9 @@ public class PatientAppointmentsViewModel extends ViewModel {
 
     private final AppointmentRepository appointmentRepository;
     private final DoctorRepository doctorRepository;
+    private final PatientRepository patientRepository; // 1. ⭐️ Khai báo thêm Repo này
     private final NotificationRepository notificationRepository;
+    private final ReviewRepository reviewRepository;
     private final String currentPatientId;
 
     // ⭐️ BẮT ĐẦU SỬA: Thêm 2 định dạng ngày ⭐️
@@ -60,8 +67,9 @@ public class PatientAppointmentsViewModel extends ViewModel {
     public PatientAppointmentsViewModel() {
         this.appointmentRepository = new AppointmentRepository();
         this.doctorRepository = new DoctorRepository();
+        this.patientRepository = new PatientRepository(); // 2. ⭐️ Khởi tạo Repo này
         this.notificationRepository = new NotificationRepository();
-
+        this.reviewRepository = new ReviewRepository();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             this.currentPatientId = user.getUid();
@@ -88,8 +96,49 @@ public class PatientAppointmentsViewModel extends ViewModel {
     }
 
     /**
+     * Gửi đánh giá (ĐÃ SỬA ĐỂ LẤY TÊN BỆNH NHÂN)
+     */
+    public void submitReview(String appointmentId, String doctorId, float rating, String comment) {
+        if (currentPatientId.equals("ERROR_NO_USER")) return;
+
+        _isLoading.setValue(true);
+
+        // 3. ⭐️ Gọi Repository lấy thông tin bệnh nhân trước
+        patientRepository.getPatientById(currentPatientId).observeForever(new Observer<Patient>() {
+            @Override
+            public void onChanged(Patient patient) {
+                // Quan trọng: Gỡ bỏ observer ngay để tránh bị gọi lại nhiều lần
+                patientRepository.getPatientById(currentPatientId).removeObserver(this);
+
+                String realPatientName = "Ẩn danh";
+                // Lấy tên thật nếu có
+                if (patient != null && patient.getFullName() != null && !patient.getFullName().isEmpty()) {
+                    realPatientName = patient.getFullName();
+                }
+
+                // Tạo review với tên thật vừa lấy được
+                Review review = new Review(doctorId, currentPatientId, realPatientName, rating, comment);
+
+                // Gửi Review lên Firestore
+                reviewRepository.createReview(review, appointmentId, success -> {
+                    _isLoading.setValue(false);
+                    if (success) {
+                        toastMessage.setValue("Cảm ơn đánh giá của bạn!");
+                        loadAppointments();
+                    } else {
+                        toastMessage.setValue("Lỗi khi gửi đánh giá.");
+                    }
+                });
+            }
+        });
+    }
+
+    /**
      * Tải (hoặc tải lại) tất cả lịch hẹn của bệnh nhân.
      * Được gọi bởi Fragment cha (PatientAppointmentsFragment).
+     */
+    /**
+     * Tải (hoặc tải lại) tất cả lịch hẹn của bệnh nhân.
      */
     public void loadAppointments() {
         if (currentPatientId.equals("ERROR_NO_USER")) {
@@ -97,11 +146,17 @@ public class PatientAppointmentsViewModel extends ViewModel {
             return;
         }
 
-        // Gọi hàm repo 2 tham số (id, loading)
-        // và observeForever kết quả (là LiveData<List>)
+        // Đặt loading = true để giao diện biết đang tải lại
+        _isLoading.setValue(true);
+
+        // Lưu ý: getAppointmentsForPatient cần trả về LiveData MỚI hoặc cập nhật data
         appointmentRepository.getAppointmentsForPatient(currentPatientId, _isLoading)
                 .observeForever(appointments -> {
+                    // Cập nhật vào LiveData quản lý danh sách
                     allAppointments.setValue(appointments);
+
+                    // Tắt loading (Dù repo đã tắt, nhưng set lại cho chắc chắn UI cập nhật)
+                    _isLoading.setValue(false);
                 });
     }
 

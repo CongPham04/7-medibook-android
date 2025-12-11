@@ -52,6 +52,34 @@ public class DoctorRepository {
     }
 
     /**
+     * ⭐️ HÀM MỚI: Lấy danh sách bác sĩ Realtime (Tự động cập nhật khi có đánh giá mới)
+     */
+    public LiveData<List<Doctor>> getAllDoctorsRealtime() {
+        MutableLiveData<List<Doctor>> doctorsLiveData = new MutableLiveData<>();
+
+        // Sử dụng addSnapshotListener thay vì get()
+        db.collection(DOCTOR_COLLECTION)
+                .addSnapshotListener((snapshots, e) -> {
+                    if (e != null) {
+                        Log.e(TAG, "Listen failed.", e);
+                        doctorsLiveData.setValue(null);
+                        return;
+                    }
+
+                    if (snapshots != null) {
+                        List<Doctor> doctors = new ArrayList<>();
+                        for (QueryDocumentSnapshot document : snapshots) {
+                            doctors.add(document.toObject(Doctor.class));
+                        }
+                        // Khi dữ liệu thay đổi (VD: rating thay đổi), dòng này sẽ được gọi lại
+                        doctorsLiveData.setValue(doctors);
+                    }
+                });
+
+        return doctorsLiveData;
+    }
+
+    /**
      * Fetches a list of all doctors from Firestore.
      *
      * @return LiveData containing the list of doctors, or null on failure.

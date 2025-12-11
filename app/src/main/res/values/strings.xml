@@ -12,7 +12,7 @@
     <string name="welcome_back">Welcome Back</string>
     <string name="phone_number">Phone Number</string>
     <string name="password">Password</string>
-    <string name="forgot_password">Forgot Password</string>
+    <string name="forgot_password">Forgot Password?</string>
     <string name="not_account">Don\'t have an account?</string>
     <string name="enter_your_email">Enter your registered email, we will send you a password reset link.</string>
     <string name="send_recovery_link">Send recovery link</string>

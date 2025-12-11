@@ -1,40 +1,40 @@
 package com.example.medibookandroid.data.model;
 
 import com.google.firebase.firestore.DocumentId;
+import com.google.firebase.firestore.PropertyName;
 import com.google.firebase.firestore.ServerTimestamp;
 
 import java.io.Serializable;
 import java.util.Date;
 
-/**
- * Lớp Model đại diện cho một Lịch hẹn (Appointment)
- * Đã cập nhật để khớp với collection 'appointments' trên Firestore.
- */
 public class Appointment implements Serializable {
 
-    @DocumentId // Firestore sẽ tự động map Document ID (ví dụ: "autoId_2") vào đây
+    @DocumentId
     private String appointmentId;
 
-    private String patientId;    // "uid_abc123" (thay vì int)
-    private String doctorId;     // "uid_xyz789" (thay vì int)
-    private String scheduleId;   // "autoId_1"
-    private String date;         // "2025-11-03"
-    private String time;         // "09:00"
-    private String description;  // "Đau ngực..." (thay cho 'symptoms')
-    private String status;       // "pending", "confirmed", "cancelled", "completed"
+    private String patientId;
+    private String doctorId;
+    private String scheduleId;
+    private String date;
+    private String time;
+    private String description;
+    private String status;
 
-    @ServerTimestamp // Tự động gán ngày giờ server khi tạo
+    // Trường mới thêm cho chức năng đánh giá
+    private boolean isReviewed = false;
+
+    @ServerTimestamp
     private Date createdAt;
-
-    @ServerTimestamp // Tự động gán/cập nhật ngày giờ server khi ghi
+    @ServerTimestamp
     private Date updatedAt;
 
-    // Constructor rỗng bắt buộc cho Firestore
+    // --- CONSTRUCTORS ---
+
+    // 1. Constructor rỗng (BẮT BUỘC cho Firestore)
     public Appointment() {}
 
-    /**
-     * Constructor để tạo một lịch hẹn mới (chưa gửi lên server)
-     */
+    // 2. ⭐️ Constructor dùng để TẠO MỚI lịch hẹn (Sửa lỗi của bạn tại đây)
+    // Nhận 7 tham số từ BookingSummaryFragment
     public Appointment(String patientId, String doctorId, String scheduleId, String date, String time, String description, String status) {
         this.patientId = patientId;
         this.doctorId = doctorId;
@@ -43,11 +43,12 @@ public class Appointment implements Serializable {
         this.time = time;
         this.description = description;
         this.status = status;
-        // appointmentId, createdAt, updatedAt sẽ do Firestore quản lý
+
+        // Mặc định khi tạo mới là chưa đánh giá
+        this.isReviewed = false;
     }
 
-    // --- Getters and Setters ---
-    // (Bắt buộc cho Firestore)
+    // --- GETTERS AND SETTERS ---
 
     public String getAppointmentId() {
         return appointmentId;
@@ -111,6 +112,16 @@ public class Appointment implements Serializable {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    @PropertyName("isReviewed")
+    public boolean isReviewed() {
+        return isReviewed;
+    }
+
+    @PropertyName("isReviewed")
+    public void setReviewed(boolean reviewed) {
+        isReviewed = reviewed;
     }
 
     public Date getCreatedAt() {

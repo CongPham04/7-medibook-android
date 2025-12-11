@@ -87,6 +87,23 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_appointment_datetime" />
 
+        <!-- ⭐️ THÊM NÚT ĐÁNH GIÁ (Mặc định ẩn) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_rate_doctor"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Đánh giá"
+            android:textColor="#4CAF50"
+            app:strokeColor="#4CAF50"
+            android:visibility="gone"
+            app:backgroundTint="@android:color/white"
+            app:icon="@drawable/ic_star"
+            app:iconTint="#4CAF50"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_appointment_datetime" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>

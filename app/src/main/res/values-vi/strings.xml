@@ -12,8 +12,8 @@
     <string name="welcome_back">Chào mừng trở lại</string>
     <string name="phone_number">Số điện thoại</string>
     <string name="password">Mật khẩu</string>
-    <string name="forgot_password">Quên mật khẩu</string>
-    <string name="not_account">Chưa có tài khoản</string>
+    <string name="forgot_password">Quên mật khẩu?</string>
+    <string name="not_account">Chưa có tài khoản? </string>
     <string name="enter_your_email">Nhập email đã đăng ký, chúng tôi sẽ gửi link đặt lại mật khẩu cho bạn.</string>
     <string name="send_recovery_link">Gửi link khôi phục</string>
     <string name="backto_login">Quay lại đăng nhập</string>
@@ -22,7 +22,7 @@
     <string name="create_new_account">Tạo tài khoản mới</string>
     <string name="full_name">Họ và Tên</string>
     <string name="email">Email</string>
-    <string name="have_account">Đã có tài khoản</string>
+    <string name="have_account">Đã có tài khoản?</string>
 
 
     <!-- Setting  -->
@@ -85,7 +85,7 @@
     <!-- Patient Profile -->
     <string name="patient_profile">Hồ sơ của tôi</string>
     <string name="patient_name">%s</string>
-    <string name="edit_profile">Chỉnh sửa hồ sơ</string>
+    <string name="edit_profile">Hồ sơ</string>
     <string name="help">Trợ giúp</string>
     <string name="logout">Đăng xuất</string>
 

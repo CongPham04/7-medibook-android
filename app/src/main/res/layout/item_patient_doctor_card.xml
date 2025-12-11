@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
+    android:layout_marginBottom="12dp"
+    android:layout_marginHorizontal="4dp"
     app:cardBackgroundColor="#CAD6FF"
     app:cardElevation="0dp"
     app:cardCornerRadius="24dp">
@@ -14,6 +15,7 @@
         android:layout_height="wrap_content"
         android:padding="8dp">
 
+        <!-- Avatar Bác sĩ (Giữ nguyên style cũ) -->
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/iv_doctor_avatar"
             android:layout_width="75dp"
@@ -37,6 +39,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent">
 
+            <!-- Thẻ trắng chứa tên và chuyên khoa (Giữ nguyên style cũ) -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_doctor_info"
                 android:layout_width="match_parent"
@@ -49,41 +52,68 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:paddingTop="4dp"
-                    android:paddingLeft="16dp">
+                    android:paddingVertical="8dp"
+                    android:paddingHorizontal="16dp">
 
                     <TextView
                         android:id="@+id/tv_doctor_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Dr. Olivia Turner"
+                        android:ellipsize="end"
+                        android:maxLines="1"
                         android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                        android:textColor="?attr/colorPrimary" />
+                        android:textColor="?attr/colorPrimary"
+                        android:textStyle="bold"/>
 
                     <TextView
                         android:id="@+id/tv_doctor_specialty"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:paddingBottom="8dp"
+                        android:layout_marginTop="2dp"
                         android:text="Tim mạch"
-
                         android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-
                         android:textColor="?attr/colorOnSurfaceVariant" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_rating"
+            <!-- ⭐️ THAY THẾ CHIP BẰNG CỤM ĐÁNH GIÁ NÀY -->
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:text="5"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:layout_marginStart="8dp"
-                android:textColor="?attr/colorPrimary"
-                app:chipBackgroundColor="@android:color/white"
-                app:chipIcon="@drawable/ic_star"
-                app:chipIconTint="?attr/colorPrimary" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <!-- Nền trắng nhỏ cho sao (Optional cho đẹp) -->
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_star"
+                    app:tint="#FFC107" />
+
+                <TextView
+                    android:id="@+id/tv_rating_score"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="5.0"
+                    android:textStyle="bold"
+                    android:textColor="#212121"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tv_review_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="(0)"
+                    android:textColor="#555555"
+                    android:textSize="13sp" />
+
+            </LinearLayout>
+
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

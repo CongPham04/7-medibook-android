@@ -1,43 +1,44 @@
 package com.example.medibookandroid.ui.adapter;
 
 import android.content.Context;
-import android.os.Build; // ⭐️ THÊM
-import android.text.Html; // ⭐️ THÊM
+import android.graphics.Color;
+import android.os.Build;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.medibookandroid.R;
-import com.example.medibookandroid.databinding.ItemPatientAppointmentCardBinding;
 import com.example.medibookandroid.data.model.Appointment;
-import com.example.medibookandroid.data.model.Doctor;
+import com.example.medibookandroid.databinding.ItemPatientAppointmentCardBinding;
 import com.example.medibookandroid.ui.patient.viewmodel.PatientAppointmentsViewModel;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import android.graphics.Color;
 
 public class PatientAppointmentAdapter extends RecyclerView.Adapter<PatientAppointmentAdapter.AppointmentViewHolder> {
 
     private List<Appointment> appointments;
-    private final OnAppointmentCancelListener listener;
+    private final OnAppointmentActionListener listener;
     private final PatientAppointmentsViewModel viewModel;
     private final LifecycleOwner lifecycleOwner;
 
-    public interface OnAppointmentCancelListener {
+    public interface OnAppointmentActionListener {
         void onCancelClick(Appointment appointment);
+        void onRateClick(Appointment appointment);
     }
 
     public PatientAppointmentAdapter(List<Appointment> appointments,
                                      PatientAppointmentsViewModel viewModel,
-                                     OnAppointmentCancelListener listener,
+                                     OnAppointmentActionListener listener,
                                      LifecycleOwner lifecycleOwner) {
         this.appointments = appointments;
         this.viewModel = viewModel;
@@ -73,8 +74,6 @@ public class PatientAppointmentAdapter extends RecyclerView.Adapter<PatientAppoi
         private final PatientAppointmentsViewModel viewModel;
         private final Context context;
 
-        // ⭐️ SỬA: Xóa 2 dòng SimpleDateFormat 'static' khỏi đây
-
         public AppointmentViewHolder(ItemPatientAppointmentCardBinding binding, PatientAppointmentsViewModel viewModel) {
             super(binding.getRoot());
             this.binding = binding;
@@ -82,11 +81,9 @@ public class PatientAppointmentAdapter extends RecyclerView.Adapter<PatientAppoi
             this.context = itemView.getContext();
         }
 
-        public void bind(final Appointment appointment, final OnAppointmentCancelListener listener, LifecycleOwner owner) {
+        public void bind(final Appointment appointment, final OnAppointmentActionListener listener, LifecycleOwner owner) {
 
-            // ⭐️ BẮT ĐẦU SỬA: Logic in đậm ⭐️
-
-            // --- 1. Tải thông tin bác sĩ (với nhãn in đậm) ---
+            // --- 1. Hiển thị thông tin Bác sĩ (Giữ nguyên) ---
             String nameLabel = "<b>Bs.</b> ";
             String loadingText = "Đang tải...";
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -120,15 +117,12 @@ public class PatientAppointmentAdapter extends RecyclerView.Adapter<PatientAppoi
                 }
             });
 
-            // --- 2. Gán dữ liệu lịch hẹn (với nhãn in đậm) ---
-            String displayDate = appointment.getDate(); // Mặc định là chuỗi gốc
-
+            // --- 2. Hiển thị Ngày giờ (Giữ nguyên) ---
+            String displayDate = appointment.getDate();
             if (appointment.getDate() != null && !appointment.getDate().isEmpty()) {
                 try {
-                    // ⭐️ SỬA: Khởi tạo SimpleDateFormat bên trong hàm
                     SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                     SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-
                     Date date = inputFormat.parse(appointment.getDate());
                     if (date != null) {
                         displayDate = outputFormat.format(date);
@@ -140,19 +134,18 @@ public class PatientAppointmentAdapter extends RecyclerView.Adapter<PatientAppoi
 
             String timeLabel = "<b>Thời gian:</b> ";
             String dateTimeValue = appointment.getTime() + ", " + displayDate;
-
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 binding.tvAppointmentDatetime.setText(Html.fromHtml(timeLabel + dateTimeValue, Html.FROM_HTML_MODE_LEGACY));
             } else {
                 binding.tvAppointmentDatetime.setText(Html.fromHtml(timeLabel + dateTimeValue));
             }
-            // ⭐️ KẾT THÚC SỬA ⭐️
-// 2. ⭐️ LOGIC MỚI: Xử lý hiển thị Trạng thái thông minh ⭐️
+
+            // --- 3. Xử lý Trạng thái & Nút bấm (SỬA Ở ĐÂY) ---
             String status = appointment.getStatus();
             if (status == null) status = "";
             status = status.toLowerCase();
 
-            // -- Bước A: Kiểm tra xem lịch này đã trôi qua chưa --
+            // Kiểm tra quá khứ
             boolean isPast = false;
             if (appointment.getDate() != null && appointment.getTime() != null) {
                 try {
@@ -168,46 +161,60 @@ public class PatientAppointmentAdapter extends RecyclerView.Adapter<PatientAppoi
                 }
             }
 
-            // -- Bước B: Hiển thị nhãn dựa trên Status VÀ Thời gian --
+            // Mặc định ẩn cả 2 nút trước
+            binding.btnCancelOrChange.setVisibility(View.GONE);
+            binding.btnRateDoctor.setVisibility(View.GONE);
 
-            // Trường hợp đặc biệt: Đã xác nhận nhưng đã qua ngày -> Coi như Đã kết thúc
+            // Xử lý trường hợp đặc biệt: Đã xác nhận nhưng quá hạn
             if (status.equals("confirmed") && isPast) {
-                binding.tvStatusLabel.setText("Hoàn thành"); // Hoặc "Chờ đánh giá"
-                binding.tvStatusLabel.setTextColor(Color.parseColor("#4CAF50")); // Màu Xanh Lá (giống Completed)
-                // Ẩn nút hủy vì đã qua rồi
+                binding.tvStatusLabel.setText("Đã kết thúc");
+                binding.tvStatusLabel.setTextColor(Color.parseColor("#4CAF50"));
                 binding.btnCancelOrChange.setVisibility(View.GONE);
             }
-            // Các trường hợp bình thường khác
             else {
                 switch (status) {
                     case "pending":
+                        // Yêu cầu 1: Trạng thái chờ -> Hiện nút Hủy
                         binding.tvStatusLabel.setText("Chờ xác nhận");
-                        binding.tvStatusLabel.setTextColor(Color.parseColor("#FF9800")); // Màu Cam
-                        binding.btnCancelOrChange.setVisibility(View.VISIBLE); // Được hủy
+                        binding.tvStatusLabel.setTextColor(Color.parseColor("#FF9800")); // Cam
+
+                        binding.btnCancelOrChange.setVisibility(View.VISIBLE); // HIỆN
+                        binding.btnCancelOrChange.setText("Hủy lịch");
+                        binding.btnCancelOrChange.setOnClickListener(v -> listener.onCancelClick(appointment));
                         break;
 
                     case "confirmed":
-                        // Confirmed mà chưa qua ngày -> Vẫn là Sắp tới
+                        // Yêu cầu 1: Trạng thái đã xác nhận -> ẨN nút Hủy
                         binding.tvStatusLabel.setText("Đã xác nhận");
-                        binding.tvStatusLabel.setTextColor(Color.parseColor("#2196F3")); // Màu Xanh Dương
-                        binding.btnCancelOrChange.setVisibility(View.VISIBLE); // Được hủy
+                        binding.tvStatusLabel.setTextColor(Color.parseColor("#2196F3")); // Xanh dương
+
+                        binding.btnCancelOrChange.setVisibility(View.GONE); // ẨN
                         break;
 
                     case "completed":
+                        // Yêu cầu 2: Trạng thái hoàn thành -> Check đánh giá
                         binding.tvStatusLabel.setText("Hoàn thành");
-                        binding.tvStatusLabel.setTextColor(Color.parseColor("#4CAF50")); // Màu Xanh Lá
-                        binding.btnCancelOrChange.setVisibility(View.GONE);
+                        binding.tvStatusLabel.setTextColor(Color.parseColor("#4CAF50")); // Xanh lá
+
+                        if (!appointment.isReviewed()) {
+                            // Chưa đánh giá -> Hiện nút
+                            binding.btnRateDoctor.setVisibility(View.VISIBLE);
+                            binding.btnRateDoctor.setOnClickListener(v -> listener.onRateClick(appointment));
+                        } else {
+                            // Đã đánh giá -> Ẩn nút
+                            binding.btnRateDoctor.setVisibility(View.GONE);
+                        }
                         break;
 
                     case "cancelled":
                         binding.tvStatusLabel.setText("Đã hủy");
-                        binding.tvStatusLabel.setTextColor(Color.parseColor("#F44336")); // Màu Đỏ
+                        binding.tvStatusLabel.setTextColor(Color.parseColor("#F44336")); // Đỏ
                         binding.btnCancelOrChange.setVisibility(View.GONE);
                         break;
 
                     case "rejected":
                         binding.tvStatusLabel.setText("Bị từ chối");
-                        binding.tvStatusLabel.setTextColor(Color.parseColor("#F44336")); // Màu Đỏ
+                        binding.tvStatusLabel.setTextColor(Color.parseColor("#F44336")); // Đỏ
                         binding.btnCancelOrChange.setVisibility(View.GONE);
                         break;
 
@@ -217,15 +224,6 @@ public class PatientAppointmentAdapter extends RecyclerView.Adapter<PatientAppoi
                         binding.btnCancelOrChange.setVisibility(View.GONE);
                         break;
                 }
-            }
-            // ⭐️ KẾT THÚC THÊM MỚI ⭐️
-            // 3. Xử lý logic nút Hủy (giữ nguyên)
-            if ("pending".equalsIgnoreCase(appointment.getStatus())) {
-                binding.btnCancelOrChange.setVisibility(View.VISIBLE);
-                binding.btnCancelOrChange.setText("Hủy lịch");
-                binding.btnCancelOrChange.setOnClickListener(v -> listener.onCancelClick(appointment));
-            } else {
-                binding.btnCancelOrChange.setVisibility(View.GONE);
             }
         }
     }

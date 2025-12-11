@@ -28,6 +28,7 @@ public class AuthViewModel extends ViewModel {
         repository.loginUser.observeForever(user -> _isLoading.setValue(false));
         repository.registerSuccess.observeForever(success -> _isLoading.setValue(false));
         repository.errorMessage.observeForever(error -> _isLoading.setValue(false));
+        repository.deleteAccountSuccess.observeForever(success -> _isLoading.setValue(false));
     }
 
     // LiveData cho Đăng Ký
@@ -98,5 +99,17 @@ public class AuthViewModel extends ViewModel {
                                 .addOnFailureListener(e -> Log.e("FCM", "Lỗi lưu token", e));
                     }
                 });
+    }
+    // LiveData cho kết quả Xóa
+    public LiveData<Boolean> getDeleteAccountSuccess() {
+        return repository.deleteAccountSuccess;
+    }
+
+    /**
+     * Hàm gọi xóa tài khoản
+     */
+    public void deleteAccount(String password, String role) {
+        _isLoading.setValue(true);
+        repository.deleteAccount(password, role);
     }
 }
